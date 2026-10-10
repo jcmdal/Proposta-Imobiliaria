@@ -1,0 +1,963 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Escolha seu apartamento pela janela: tabela de vendas em 3D com preço, planta e fluxo de pagamento de cada unidade.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Mirante 340 · Tabela de vendas em 3D">
+<meta property="og:description" content="Cada luz acesa é uma unidade disponível. Clique na janela e veja preço e fluxo de pagamento.">
+<meta name="theme-color" content="#090e2b">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23090e2b'/%3E%3Crect x='10' y='5' width='12' height='23' fill='%231b2357'/%3E%3Crect x='12' y='8' width='3' height='3' fill='%23f6c66b'/%3E%3Crect x='17' y='13' width='3' height='3' fill='%23f6c66b'/%3E%3Crect x='12' y='18' width='3' height='3' fill='%23f6c66b'/%3E%3Crect x='17' y='22' width='3' height='3' fill='%2386e8ff'/%3E%3C/svg%3E">
+<style>html{-webkit-text-size-adjust:100%}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}html{scroll-behavior:smooth}</style>
+<title>Mirante 340</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gloock&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a full-bleed night stage where the building is the sales table, glass panels floating over it; below, a quiet column of selling sections. Single dark look on purpose (the product is "the building at night"). */
+:root{
+  --night:#090e2b;
+  --ink:#0f1640;
+  --panel:rgba(13,20,58,.82);
+  --panel-solid:#111a4a;
+  --line:rgba(170,186,255,.16);
+  --fg:#eef1ff;
+  --muted:#a3acd6;
+  --lamp:#f6c66b;
+  --lamp-soft:#ffe6b3;
+  --sold:#3b4578;
+  --pick:#86e8ff;
+  --display:"Gloock","Iowan Old Style","Times New Roman",serif;
+  --body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none !important}
+html,body{background:var(--night)}
+body{color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--pick);outline-offset:2px}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+
+/* nav */
+.nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px clamp(16px,3vw,32px);background:rgba(9,14,43,.86);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:baseline;gap:10px;text-decoration:none}
+.brand b{font-family:var(--display);font-weight:400;font-size:22px;letter-spacing:.01em}
+.brand span{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
+.nav nav{display:flex;gap:22px;font-size:14px;color:var(--muted)}
+.nav nav a{text-decoration:none}
+.nav nav a:hover{color:var(--fg)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid transparent;border-radius:999px;padding:10px 18px;font-weight:600;font-size:14px;cursor:pointer;text-decoration:none;white-space:nowrap}
+.btn-lamp{background:var(--lamp);color:#1c1405}
+.btn-lamp:hover{background:var(--lamp-soft)}
+.btn-ghost{border-color:var(--line);background:transparent;color:var(--fg)}
+.btn-ghost:hover{border-color:var(--muted)}
+@media (max-width:760px){.nav nav{display:none}.brand span{display:none}.nav .btn{padding:9px 14px;font-size:13px}}
+
+/* hero stage */
+.hero{position:relative;height:clamp(640px,90vh,900px);overflow:hidden;background:var(--ink)}
+.stage{position:absolute;inset:0}
+.stage::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,rgba(9,14,43,.82) 0,rgba(9,14,43,.45) 22%,rgba(9,14,43,0) 38%),linear-gradient(0deg,rgba(9,14,43,.55) 0,rgba(9,14,43,0) 16%);z-index:1}
+.stage canvas{display:block;width:100%;height:100%;touch-action:pan-y;cursor:grab}
+.stage canvas.dragging{cursor:grabbing}
+.stage canvas.pointing{cursor:pointer}
+
+.intro{position:absolute;left:clamp(16px,2.4vw,32px);top:clamp(16px,2.4vw,28px);width:330px;display:flex;flex-direction:column;gap:14px;z-index:5;max-height:calc(100% - 110px)}
+.intro h1{font-family:var(--display);font-weight:400;font-size:clamp(32px,3.2vw,42px);line-height:1.05;margin:0;text-wrap:balance;text-shadow:0 2px 24px rgba(5,8,30,.7)}
+.intro h1 em{font-style:normal;color:var(--lamp)}
+.intro p.lede{margin:0;color:#d5dbf7;font-size:15px;text-shadow:0 1px 12px rgba(5,8,30,.9)}
+.glass{background:var(--panel);border:1px solid var(--line);border-radius:14px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.sales{padding:16px;display:flex;flex-direction:column;gap:12px;min-height:0;overflow:auto}
+.sales-top{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.pct{font-family:var(--display);font-size:34px;line-height:1}
+.pct small{font-family:var(--mono);font-size:11px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;margin-left:6px}
+.bar{height:5px;border-radius:3px;background:var(--sold);overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--lamp),var(--lamp-soft))}
+.legend{display:flex;gap:16px;font-size:12.5px;color:var(--muted);flex-wrap:wrap}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:12px;height:12px;border-radius:2px;display:inline-block}
+.sw.on{background:var(--lamp);box-shadow:0 0 8px rgba(246,198,107,.7)}
+.sw.off{background:var(--sold)}
+.sw.sel{background:var(--pick)}
+details.mirror summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center}
+details.mirror summary::-webkit-details-marker{display:none}
+details.mirror summary::after{content:"–";font-family:var(--mono);color:var(--muted)}
+details.mirror:not([open]) summary::after{content:"+"}
+.grid{display:grid;grid-template-columns:28px repeat(4,1fr);gap:3px;margin-top:10px;font-family:var(--mono);font-size:10px}
+.grid .fl{color:var(--muted);display:flex;align-items:center;justify-content:flex-end;padding-right:4px}
+.grid .hd{color:var(--muted);text-align:center;padding-bottom:2px}
+.cell{height:17px;border-radius:3px;border:0;padding:0;cursor:pointer;font-family:var(--mono);font-size:9.5px;font-variant-numeric:tabular-nums;line-height:17px}
+.cell.on{background:var(--lamp);color:#3a2706}
+.cell.off{background:var(--sold);color:#8d96c4}
+.cell.dim{opacity:.25}
+.cell.sel{background:var(--pick);color:#05263a;box-shadow:0 0 0 2px rgba(134,232,255,.35)}
+.cell:hover{filter:brightness(1.15)}
+.cell.span2{grid-column:span 2}
+.foot-note{font-size:11.5px;color:var(--muted);margin:0}
+
+/* unit card */
+.unit{position:absolute;right:clamp(16px,2vw,28px);top:clamp(16px,2.4vw,28px);width:350px;z-index:6;padding:18px 18px 14px;max-height:calc(100% - 110px);overflow:auto}
+.unit-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.close{background:none;border:0;color:var(--muted);font-size:20px;line-height:1;cursor:pointer;padding:2px 6px;border-radius:6px}
+.close:hover{color:var(--fg)}
+.u-id{display:flex;align-items:center;gap:10px;margin:6px 0 2px}
+.u-id b{font-family:var(--display);font-weight:400;font-size:40px;line-height:1}
+.badge{font-size:11.5px;font-weight:600;border-radius:999px;padding:3px 9px;border:1px solid}
+.badge.on{color:var(--lamp);border-color:rgba(246,198,107,.5);background:rgba(246,198,107,.1)}
+.badge.off{color:#aeb6de;border-color:var(--line);background:rgba(160,170,220,.08)}
+.u-tipo{font-family:var(--display);font-style:italic;color:#d9def7;margin:0 0 12px;font-size:17px}
+.facts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:12px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.facts div{display:flex;flex-direction:column;gap:2px;min-width:0}
+.facts dt{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.facts dd{margin:0;font-weight:600;font-size:14px}
+.facts dd small{display:block;font-weight:400;color:var(--muted);font-size:11px}
+.sun{display:flex;gap:8px;align-items:center;font-size:13px;color:#d5dbf7;margin:10px 0 2px}
+.sun svg{flex:none}
+.price{margin-top:12px}
+.price .val{font-family:var(--display);font-size:30px;line-height:1.1;font-variant-numeric:tabular-nums}
+.price .m2{font-size:12px;color:var(--muted)}
+.flow{list-style:none;margin:10px 0 0;padding:0;display:flex;flex-direction:column}
+.flow li{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px dashed var(--line);font-size:13.5px}
+.flow li span:first-child{color:#cfd5f3}
+.flow li span:last-child{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.legal{font-size:11px;color:var(--muted);margin:10px 0 12px}
+.u-actions{display:flex;flex-direction:column;gap:10px}
+.u-nav{display:flex;justify-content:space-between;gap:8px}
+.u-nav button{background:none;border:0;color:var(--muted);font-size:13px;cursor:pointer;padding:6px 0}
+.u-nav button:hover{color:var(--fg)}
+.sold-msg{font-size:14px;color:#cfd5f3;margin:12px 0}
+
+/* controls */
+.controls{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);z-index:7;display:flex;gap:8px;align-items:center;flex-wrap:nowrap;max-width:calc(100% - 32px);overflow-x:auto;padding:6px;scrollbar-width:none}
+.controls::-webkit-scrollbar{display:none}
+.seg{display:flex;gap:2px;padding:3px;border-radius:999px;background:var(--panel);border:1px solid var(--line);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);flex:none}
+.seg button{border:0;background:transparent;border-radius:999px;padding:7px 13px;font-size:13px;color:var(--muted);cursor:pointer;white-space:nowrap}
+.seg button:hover{color:var(--fg)}
+.seg button[aria-pressed="true"]{background:rgba(238,241,255,.12);color:var(--fg)}
+.seg button.lampon[aria-pressed="true"]{background:var(--lamp);color:#1c1405}
+.hint{position:absolute;left:50%;bottom:76px;transform:translateX(-50%);z-index:4;font-size:12.5px;color:#c9d0f2;background:rgba(9,14,43,.55);padding:5px 12px;border-radius:999px;white-space:nowrap;pointer-events:none}
+.filter-chip{position:absolute;left:50%;top:18px;transform:translateX(-50%);z-index:7;display:flex;align-items:center;gap:8px;font-size:13px;background:var(--panel);border:1px solid rgba(134,232,255,.4);padding:6px 6px 6px 14px;border-radius:999px}
+.filter-chip button{border:0;background:rgba(238,241,255,.1);border-radius:999px;padding:3px 10px;cursor:pointer;font-size:12px}
+.tip{position:absolute;z-index:8;pointer-events:none;background:#0b1236;border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:12.5px;white-space:nowrap;transform:translate(14px,-120%)}
+.tip b{font-family:var(--mono);font-weight:500;margin-right:6px}
+.tip .st-on{color:var(--lamp)}
+.tip .st-off{color:#9aa3cf}
+.loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:14px;z-index:1}
+
+.sales-mobile{display:none !important}
+@media (max-width:900px){
+  .hero{height:auto;overflow:visible;display:flex;flex-direction:column;background:var(--night)}
+  .stage{position:relative;inset:auto;height:clamp(440px,68vh,600px);order:1}
+  .intro{position:static;width:auto;max-height:none;order:0;padding:20px 16px 14px}
+  .intro .sales{display:none}
+  .unit{position:static;width:auto;max-height:none;order:2;margin:14px 16px 0}
+  .sales-mobile{display:flex !important;order:3;margin:14px 16px 0}
+  .hint{bottom:70px;font-size:12px}
+  .stage::after{background:linear-gradient(0deg,rgba(9,14,43,.55) 0,rgba(9,14,43,0) 18%)}
+  .filter-chip{top:12px}
+}
+
+/* sections */
+.wrap{max-width:1120px;margin:0 auto;padding-inline:clamp(16px,4vw,40px)}
+section.block{padding-block:clamp(56px,8vw,96px);border-top:1px solid var(--line)}
+.sec-head{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:32px;align-items:end;margin-bottom:36px}
+.sec-head h2{font-family:var(--display);font-weight:400;font-size:clamp(30px,4vw,46px);line-height:1.05;margin:8px 0 0;text-wrap:balance}
+.sec-head p{margin:0;color:var(--muted);max-width:58ch}
+@media (max-width:760px){.sec-head{grid-template-columns:1fr;gap:12px}}
+
+.plans{display:flex;flex-direction:column;border-top:1px solid var(--line)}
+.plan{display:grid;grid-template-columns:minmax(0,1.6fr) 110px minmax(0,1.3fr) 160px 130px;gap:16px;align-items:center;padding:18px 0;border-bottom:1px solid var(--line)}
+.plan h3{font-family:var(--display);font-weight:400;font-size:24px;margin:0}
+.plan .sub{font-size:13px;color:var(--muted)}
+.plan .area{font-family:var(--mono);font-size:15px}
+.avail{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--muted)}
+.dots{display:flex;flex-wrap:wrap;gap:3px}
+.dots i{width:7px;height:7px;border-radius:1.5px;background:var(--sold)}
+.dots i.on{background:var(--lamp)}
+.from{display:flex;flex-direction:column}
+.from small{font-size:11px;color:var(--muted);font-family:var(--mono);letter-spacing:.1em;text-transform:uppercase}
+.from b{font-family:var(--mono);font-weight:500;font-size:15px;font-variant-numeric:tabular-nums}
+@media (max-width:860px){
+  .plan{grid-template-columns:1fr auto;grid-template-areas:"n a" "v v" "f b";row-gap:12px}
+  .plan .n{grid-area:n}.plan .area{grid-area:a}.plan .avail{grid-area:v}.plan .from{grid-area:f}.plan .btn{grid-area:b}
+}
+
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(24px,5vw,64px)}
+@media (max-width:760px){.two{grid-template-columns:1fr}}
+dl.specs{margin:0;display:flex;flex-direction:column}
+dl.specs div{display:grid;grid-template-columns:170px minmax(0,1fr);gap:16px;padding:14px 0;border-bottom:1px solid var(--line)}
+dl.specs dt{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding-top:3px}
+dl.specs dd{margin:0}
+@media (max-width:480px){dl.specs div{grid-template-columns:1fr;gap:4px}}
+.obra{display:flex;flex-direction:column;gap:16px}
+.obra-row{display:flex;flex-direction:column;gap:6px}
+.obra-row header{display:flex;justify-content:space-between;font-size:14px}
+.obra-row header span:last-child{font-family:var(--mono);color:var(--muted)}
+.obra .bar{height:6px}
+.delivery{margin-top:8px;padding:18px;border:1px solid var(--line);border-radius:12px;display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.delivery b{font-family:var(--display);font-weight:400;font-size:28px}
+
+.near{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.near li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;padding:13px 0;border-bottom:1px solid var(--line)}
+.near li span:last-child{font-family:var(--mono);color:var(--lamp);font-size:14px;white-space:nowrap}
+.addr{font-family:var(--display);font-size:26px;margin:0 0 8px}
+
+.broker{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:clamp(24px,5vw,64px);align-items:start}
+@media (max-width:860px){.broker{grid-template-columns:1fr}}
+.card-b{display:flex;flex-direction:column;gap:16px}
+.who{display:flex;gap:16px;align-items:center}
+.avatar{width:72px;height:72px;border-radius:50%;background:radial-gradient(circle at 35% 30%,var(--lamp-soft),var(--lamp) 55%,#a86d1f);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:28px;color:#2a1b04;flex:none}
+.who b{font-family:var(--display);font-weight:400;font-size:26px;display:block;line-height:1.1}
+.who span{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.card-b p{margin:0;color:#cfd5f3;max-width:52ch}
+.phone{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.phone .num{font-family:var(--mono);font-size:18px;user-select:all}
+form.lead{display:flex;flex-direction:column;gap:14px;padding:22px;border:1px solid var(--line);border-radius:14px;background:var(--ink)}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:13px;color:var(--muted)}
+.field input,.field select,.field textarea{font:inherit;font-size:15px;color:var(--fg);background:var(--night);border:1px solid var(--line);border-radius:10px;padding:11px 12px;width:100%}
+.field textarea{min-height:90px;resize:vertical}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--pick)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:520px){.row2{grid-template-columns:1fr}}
+.sent{display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:10px;background:rgba(246,198,107,.08);border:1px solid rgba(246,198,107,.35);font-size:14px}
+.err{color:#ffb4a8;font-size:13px;margin:0}
+
+footer{border-top:1px solid var(--line);padding-block:28px;color:var(--muted);font-size:12.5px}
+footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto !important;transition:none !important}}
+</style>
+
+</head>
+<body>
+<header class="nav">
+  <a class="brand" href="#hero"><b>Mirante 340</b><span>Jardim das Acácias</span></a>
+  <nav aria-label="Seções">
+    <a href="#hero">Tabela 3D</a>
+    <a href="#plantas">Plantas</a>
+    <a href="#predio">O prédio</a>
+    <a href="#local">Localização</a>
+  </nav>
+  <a class="btn btn-lamp" href="#contato">Falar com o corretor</a>
+</header>
+
+<section class="hero" id="hero" aria-label="Tabela de vendas em 3D">
+  <div class="intro">
+    <div class="eyebrow">Lançamento · 66 unidades · Tabela de out/2026</div>
+    <h1>Escolha seu apartamento <em>pela janela</em>.</h1>
+    <p class="lede">Cada luz acesa no prédio é uma unidade disponível. Clique em uma janela para ver planta, andar, posição do sol, preço e fluxo de pagamento.</p>
+    <div class="glass sales" id="salesBox"></div>
+  </div>
+
+  <div class="stage" id="stage">
+    <div class="loading" id="loading">Acendendo as luzes do prédio…</div>
+    <canvas id="c" aria-label="Prédio em 3D. Arraste para girar e clique em uma janela para ver a unidade."></canvas>
+    <div class="tip" id="tip" hidden></div>
+    <div class="filter-chip" id="filterChip" hidden><span id="filterText"></span><button type="button" id="clearFilter">Limpar</button></div>
+    <div class="hint" id="hint">Arraste para girar · clique em uma janela acesa</div>
+    <div class="controls" role="toolbar" aria-label="Controles da vista 3D">
+      <div class="seg" id="modeSeg">
+        <button type="button" data-mode="night" aria-pressed="true">Noite</button>
+        <button type="button" data-mode="day" aria-pressed="false">Dia</button>
+      </div>
+      <div class="seg" id="viewSeg">
+        <button type="button" data-view="front">Frente</button>
+        <button type="button" data-view="side">Lateral</button>
+        <button type="button" data-view="back">Fundos</button>
+        <button type="button" data-view="roof">Rooftop</button>
+      </div>
+      <div class="seg">
+        <button type="button" id="spinBtn" aria-pressed="true">Girar</button>
+        <button type="button" id="glowBtn" class="lampon" aria-pressed="false">Destacar disponíveis</button>
+      </div>
+      <div class="seg">
+        <button type="button" id="zoomOut" aria-label="Afastar">−</button>
+        <button type="button" id="zoomIn" aria-label="Aproximar">+</button>
+      </div>
+    </div>
+  </div>
+
+  <aside class="glass unit" id="unitCard" aria-live="polite"></aside>
+  <div class="glass sales sales-mobile" id="salesBoxMobile"></div>
+</section>
+
+<main>
+  <section class="block" id="plantas">
+    <div class="wrap">
+      <div class="sec-head">
+        <div><div class="eyebrow">Plantas</div><h2>Cinco plantas, do studio à cobertura.</h2></div>
+        <p>Os quadradinhos mostram quantas unidades de cada planta ainda estão à venda. Toque em “Ver no prédio” e só elas ficam acesas na tabela 3D.</p>
+      </div>
+      <div class="plans" id="plans"></div>
+    </div>
+  </section>
+
+  <section class="block" id="predio">
+    <div class="wrap">
+      <div class="sec-head">
+        <div><div class="eyebrow">O prédio</div><h2>Torre única, 19 pavimentos, rooftop aberto.</h2></div>
+        <p>Projeto com quatro apartamentos por andar e duas coberturas duplex. Fachada principal voltada para o norte, com sol pela manhã e à tarde nas unidades de frente.</p>
+      </div>
+      <div class="two">
+        <dl class="specs">
+          <div><dt>Rooftop</dt><dd>Piscina aquecida com raia de 18 m, lounge e churrasqueira com vista para a serra.</dd></div>
+          <div><dt>Térreo</dt><dd>Lobby com pé-direito duplo, coworking, bicicletário e espaço de entregas refrigerado.</dd></div>
+          <div><dt>Garagem</dt><dd>Dois subsolos, vagas demarcadas e pontos de recarga para carro elétrico.</dd></div>
+          <div><dt>Unidades</dt><dd>Infraestrutura para ar-condicionado em todos os ambientes, fechadura digital e medição individual de água e gás.</dd></div>
+          <div><dt>Ficha técnica</dt><dd>66 unidades · terreno de 1.420 m² · 4 por andar do 3º ao 18º · 2 coberturas duplex.</dd></div>
+        </dl>
+        <div class="obra">
+          <div class="eyebrow">Andamento da obra · set/2026</div>
+          <div class="obra-row"><header><span>Fundação</span><span>100%</span></header><div class="bar"><i style="width:100%"></i></div></div>
+          <div class="obra-row"><header><span>Estrutura</span><span>34%</span></header><div class="bar"><i style="width:34%"></i></div></div>
+          <div class="obra-row"><header><span>Alvenaria</span><span>12%</span></header><div class="bar"><i style="width:12%"></i></div></div>
+          <div class="obra-row"><header><span>Acabamento</span><span>0%</span></header><div class="bar"><i style="width:0%"></i></div></div>
+          <div class="delivery"><span class="eyebrow">Entrega prevista</span><b>Dezembro de 2028</b></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="local">
+    <div class="wrap two">
+      <div>
+        <div class="eyebrow">Localização</div>
+        <p class="addr" style="margin-top:10px">Rua das Acácias, 340</p>
+        <p style="color:var(--muted);margin:0 0 20px;max-width:46ch">Jardim das Acácias, numa rua residencial a duas quadras da avenida principal. Os tempos ao lado são a pé, saindo da portaria.</p>
+        <a class="btn btn-ghost" href="#contato">Agendar visita ao decorado</a>
+      </div>
+      <ul class="near">
+        <li><span>Estação de metrô</span><span>6 min</span></li>
+        <li><span>Parque linear e ciclovia</span><span>3 min</span></li>
+        <li><span>Supermercado e padaria</span><span>4 min</span></li>
+        <li><span>Escolas de ensino infantil e fundamental</span><span>8 min</span></li>
+        <li><span>Hospital e pronto-atendimento</span><span>12 min</span></li>
+        <li><span>Shopping</span><span>15 min</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="block" id="contato">
+    <div class="wrap broker">
+      <div class="card-b">
+        <div class="eyebrow">Atendimento</div>
+        <div class="who"><div class="avatar" id="brokerInitials">L</div><div><b id="brokerName">Leonardo</b><span id="brokerCreci">Corretor · CRECI 000000-F</span></div></div>
+        <p>Atendo o Mirante 340 desde o lançamento. Tiro dúvidas sobre planta, financiamento e fluxo de pagamento, e acompanho você na visita ao decorado.</p>
+        <div class="phone"><span class="num" id="brokerPhone">(11) 99999-9999</span><button type="button" class="btn btn-ghost" id="copyPhone">Copiar número</button></div>
+        <p class="foot-note" id="copyMsg" hidden>Número copiado.</p>
+      </div>
+      <form class="lead" id="leadForm" novalidate>
+        <div class="row2">
+          <div class="field"><label for="fName">Seu nome</label><input id="fName" name="name" autocomplete="name" required placeholder="Como devo te chamar"></div>
+          <div class="field"><label for="fPhone">WhatsApp</label><input id="fPhone" name="phone" autocomplete="tel" inputmode="tel" required placeholder="(00) 00000-0000"></div>
+        </div>
+        <div class="field"><label for="fUnit">Unidade de interesse</label><select id="fUnit" name="unit"></select></div>
+        <div class="field"><label for="fMsg">Mensagem (opcional)</label><textarea id="fMsg" name="msg" placeholder="Ex.: quero simular com FGTS, prefiro visitar no sábado"></textarea></div>
+        <p class="err" id="fErr" hidden>Preencha seu nome e um WhatsApp com DDD.</p>
+        <button class="btn btn-lamp" type="submit">Montar mensagem para o corretor</button>
+        <div class="sent" id="sent" hidden>
+          <span>Mensagem pronta. Abra o WhatsApp para enviar ao corretor.</span>
+          <a class="btn btn-lamp" id="waLink" href="#" target="_blank" rel="noopener">Abrir no WhatsApp</a>
+        </div>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Mirante 340 · Modelo de demonstração. Empreendimento, valores e disponibilidade são fictícios.</span>
+    <span>Imagens ilustrativas. Valores de tabela sujeitos a alteração sem aviso.</span>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+/* ============ DADOS DO EMPREENDIMENTO (edite aqui) ============ */
+const CONFIG = {
+  corretor:{ nome:"Leonardo", creci:"Corretor · CRECI 000000-F", telefone:"(11) 99999-9999", whatsapp:"5511999999999" },
+  precoM2: 12400,          // R$ por m² privativo no 3º andar
+  premioAndar: 0.011,      // valorização por andar
+  fluxo: [                 // fluxo de pagamento
+    { nome:"Entrada", pct:.10, n:1 },
+    { nome:"Mensais", pct:.12, n:36 },
+    { nome:"Reforços anuais", pct:.13, n:3 },
+    { nome:"Parcela das chaves", pct:.65, n:1 }
+  ]
+};
+const TIPOS = {
+  "01":{ nome:"2 suítes", area:74.20, vaga:"2 vagas", sol:"Norte e oeste · sol da tarde", fator:.98 },
+  "02":{ nome:"1 suíte + 1 quarto", area:58.40, vaga:"1 vaga", sol:"Norte e leste · sol da manhã", fator:1.0 },
+  "03":{ nome:"1 suíte", area:44.10, vaga:"1 vaga", sol:"Sul e leste · sol da manhã", fator:1.06 },
+  "04":{ nome:"Studio", area:31.60, vaga:"Sem vaga", sol:"Sul e oeste · sol da tarde", fator:1.12 },
+  "C": { nome:"Cobertura duplex", area:148.50, vaga:"3 vagas", sol:"Vista 360° · piscina privativa", fator:1.10 }
+};
+const TIPO_ORDER = ["04","03","02","01","C"];
+const TIPO_DESC = {
+  "04":"Living integrado com cozinha, banheiro e varanda. Final 04, fundos.",
+  "03":"Suíte, living com varanda e cozinha americana. Final 03, fundos.",
+  "02":"Suíte, quarto, lavabo e varanda gourmet. Final 02, frente.",
+  "01":"Duas suítes, lavabo e varanda gourmet de esquina. Final 01, frente.",
+  "C":"Dois pavimentos, terraço com piscina. Apenas duas no prédio."
+};
+
+/* ============ GERAÇÃO DAS UNIDADES ============ */
+function rngFrom(seed){ return function(){ seed|=0; seed=seed+0x6D2B79F5|0; let t=Math.imul(seed^seed>>>15,1|seed); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+const rnd = rngFrom(340);
+const FH=3.06, PODIUM=7;
+const floorBase = f => PODIUM + (f-3)*FH;
+const units=[];
+for(let f=3; f<=18; f++){
+  for(const fin of ["01","02","03","04"]){
+    const pSold = .84 - (f-3)*.026;
+    units.push({ id:`${f}${fin}`, floor:f, fin, tipo:fin, status: rnd()<pSold ? "vendida":"disponivel" });
+  }
+}
+units.push({ id:"1901", floor:19, fin:"01", tipo:"C", duplex:true, status:"vendida" });
+units.push({ id:"1902", floor:19, fin:"02", tipo:"C", duplex:true, status:"disponivel" });
+["1201","1403","1603","1504"].forEach(id=>{ const u=units.find(x=>x.id===id); if(u) u.status="disponivel"; });
+units.forEach(u=>{
+  const t=TIPOS[u.tipo];
+  const base = t.area*CONFIG.precoM2*t.fator*(1+CONFIG.premioAndar*(u.floor-3));
+  u.price = Math.round(base*100 + rnd()*9999)/100;
+  u.cota = floorBase(u.floor);
+});
+const byId = Object.fromEntries(units.map(u=>[u.id,u]));
+const sortedUnits = units.slice().sort((a,b)=> a.floor-b.floor || a.fin.localeCompare(b.fin));
+
+const BRL = new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"});
+const NUM1 = new Intl.NumberFormat("pt-BR",{minimumFractionDigits:1,maximumFractionDigits:1});
+const NUM2 = new Intl.NumberFormat("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2});
+const INT = new Intl.NumberFormat("pt-BR",{maximumFractionDigits:0});
+
+const state = { mode:"night", selected:null, hover:null, filter:null, glow:false, spin:true };
+const reduceMotion = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+if(reduceMotion) state.spin=false;
+
+/* ============ UI: painel de vendas + espelho ============ */
+function salesHTML(){
+  const total=units.length, sold=units.filter(u=>u.status==="vendida").length;
+  const pct = sold/total*100;
+  let rows="";
+  rows += `<div></div>` + ["01","02","03","04"].map(f=>`<div class="hd">${f}</div>`).join("");
+  const c19=[byId["1901"],byId["1902"]];
+  rows += `<div class="fl">19</div>` + c19.map(u=>cellHTML(u,true)).join("");
+  for(let f=18; f>=3; f--){
+    rows += `<div class="fl">${f}</div>` + ["01","02","03","04"].map(fin=>cellHTML(byId[`${f}${fin}`])).join("");
+  }
+  return `
+    <div class="sales-top"><div class="pct">${NUM1.format(pct)}%<small>vendido</small></div><span class="mono" style="font-size:12px;color:var(--muted)">${total-sold} de ${total} livres</span></div>
+    <div class="bar"><i style="width:${pct}%"></i></div>
+    <div class="legend"><span><i class="sw on"></i>Luz acesa · disponível</span><span><i class="sw off"></i>Apagada · vendida</span></div>
+    <details class="mirror" open>
+      <summary><span class="eyebrow">Espelho por pavimento</span></summary>
+      <div class="grid">${rows}</div>
+    </details>
+    <p class="foot-note">Clique em qualquer unidade do espelho ou da fachada.</p>`;
+}
+function cellHTML(u,span){
+  const cls=["cell", u.status==="disponivel"?"on":"off"];
+  if(span) cls.push("span2");
+  if(state.filter && u.tipo!==state.filter) cls.push("dim");
+  if(state.selected===u) cls.push("sel");
+  return `<button type="button" class="${cls.join(" ")}" data-unit="${u.id}" aria-label="Unidade ${u.id}, ${u.status==="disponivel"?"disponível":"vendida"}">${u.id}</button>`;
+}
+const salesBox=document.getElementById("salesBox"), salesBoxM=document.getElementById("salesBoxMobile");
+function renderSales(){
+  const openA = salesBox.querySelector("details")?.open ?? true;
+  const openB = salesBoxM.querySelector("details")?.open ?? true;
+  salesBox.innerHTML=salesHTML(); salesBoxM.innerHTML=salesHTML();
+  salesBox.querySelector("details").open=openA; salesBoxM.querySelector("details").open=openB;
+}
+[salesBox,salesBoxM].forEach(el=>el.addEventListener("click",e=>{
+  const b=e.target.closest("[data-unit]"); if(!b) return;
+  selectUnit(byId[b.dataset.unit], true);
+}));
+
+/* ============ UI: card da unidade ============ */
+const card=document.getElementById("unitCard");
+const sunIcon=`<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="3.2" fill="#f6c66b"/><g stroke="#f6c66b" stroke-width="1.3" stroke-linecap="round"><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3 3l1.4 1.4M11.6 11.6L13 13M3 13l1.4-1.4M11.6 4.4L13 3"/></g></svg>`;
+function renderCard(){
+  const u=state.selected;
+  if(!u){ card.hidden=true; updateViewOffset(); return; }
+  card.hidden=false;
+  const t=TIPOS[u.tipo], on=u.status==="disponivel";
+  const andar = u.duplex ? "19º e 20º" : `${u.floor}º`;
+  let body;
+  if(on){
+    const flow = CONFIG.fluxo.map(p=>{
+      const v=u.price*p.pct, each=v/p.n;
+      return `<li><span>${p.nome} · ${INT.format(p.pct*100)}%</span><span>${p.n>1?`${p.n}× `:""}${BRL.format(each)}</span></li>`;
+    }).join("");
+    body = `
+      <div class="price"><div class="eyebrow">Valor de tabela</div><div class="val">${BRL.format(u.price)}</div><div class="m2">${BRL.format(u.price/t.area)} por m² privativo</div></div>
+      <ul class="flow">${flow}</ul>
+      <p class="legal">Mensais e reforços corrigidos pelo INCC até a entrega das chaves. Parcela das chaves pode ser financiada pelo banco.</p>
+      <div class="u-actions"><a class="btn btn-lamp" href="#contato" id="wantBtn">Tenho interesse no ${u.id}</a></div>`;
+  } else {
+    const alt = nextAvail(u, 1, u.tipo);
+    body = `<p class="sold-msg">Esta unidade já foi vendida.${alt?` A próxima ${t.nome.toLowerCase()} disponível é a <b>${alt.id}</b>, no ${alt.duplex?"19º":alt.floor+"º"} andar.`:""}</p>
+      ${alt?`<div class="u-actions"><button type="button" class="btn btn-ghost" data-go="${alt.id}">Ver unidade ${alt.id}</button></div>`:""}`;
+  }
+  card.innerHTML = `
+    <div class="unit-head"><div class="eyebrow">${u.duplex?"Cobertura":"Apartamento"} · final ${u.fin}</div><button class="close" type="button" id="closeCard" aria-label="Fechar">×</button></div>
+    <div class="u-id"><b>${u.id}</b><span class="badge ${on?"on":"off"}">${on?"Disponível":"Vendida"}</span></div>
+    <p class="u-tipo">${t.nome}</p>
+    <dl class="facts">
+      <div><dt>Área privativa</dt><dd>${NUM2.format(t.area)} m²</dd></div>
+      <div><dt>Pavimento</dt><dd>${andar}<small>cota +${NUM2.format(u.cota)} m</small></dd></div>
+      <div><dt>Vaga</dt><dd>${t.vaga}</dd></div>
+    </dl>
+    <div class="sun">${sunIcon}<span>${t.sol}</span></div>
+    ${body}
+    <div class="u-nav"><button type="button" id="prevA">‹ Disponível anterior</button><button type="button" id="nextA">Próxima disponível ›</button></div>`;
+  updateViewOffset();
+}
+card.addEventListener("click",e=>{
+  if(e.target.closest("#closeCard")){ state.selected=null; refreshAll(); return; }
+  if(e.target.closest("#prevA")){ const n=nextAvail(state.selected,-1,state.filter); if(n) selectUnit(n,true); return; }
+  if(e.target.closest("#nextA")){ const n=nextAvail(state.selected,1,state.filter); if(n) selectUnit(n,true); return; }
+  const go=e.target.closest("[data-go]"); if(go){ selectUnit(byId[go.dataset.go],true); return; }
+  if(e.target.closest("#wantBtn")){ document.getElementById("fUnit").value=state.selected.id; }
+});
+function nextAvail(from, dir, tipo){
+  const list = sortedUnits.filter(u=>u.status==="disponivel" && (!tipo || u.tipo===tipo));
+  if(!list.length) return null;
+  const i = sortedUnits.indexOf(from);
+  if(dir>0){ return list.find(u=>sortedUnits.indexOf(u)>i) || list[0]; }
+  const prev = list.filter(u=>sortedUnits.indexOf(u)<i); return prev[prev.length-1] || list[list.length-1];
+}
+
+/* ============ UI: plantas ============ */
+function renderPlans(){
+  document.getElementById("plans").innerHTML = TIPO_ORDER.map(k=>{
+    const t=TIPOS[k], list=sortedUnits.filter(u=>u.tipo===k), av=list.filter(u=>u.status==="disponivel");
+    const min = av.length ? Math.min(...av.map(u=>u.price)) : null;
+    return `<div class="plan">
+      <div class="n"><h3>${t.nome}</h3><div class="sub">${TIPO_DESC[k]}</div></div>
+      <div class="area">${NUM2.format(t.area)} m²</div>
+      <div class="avail"><span>${av.length} de ${list.length} disponíveis</span><div class="dots">${list.map(u=>`<i class="${u.status==="disponivel"?"on":""}"></i>`).join("")}</div></div>
+      <div class="from"><small>A partir de</small><b>${min?BRL.format(min):"Esgotada"}</b></div>
+      <button type="button" class="btn btn-ghost" data-filter="${k}" ${av.length?"":"disabled"}>Ver no prédio</button>
+    </div>`;
+  }).join("");
+}
+document.getElementById("plans").addEventListener("click",e=>{
+  const b=e.target.closest("[data-filter]"); if(!b) return;
+  setFilter(b.dataset.filter);
+  const first = sortedUnits.find(u=>u.tipo===b.dataset.filter && u.status==="disponivel");
+  if(first) selectUnit(first,true);
+  document.getElementById("hero").scrollIntoView({behavior:reduceMotion?"auto":"smooth"});
+});
+function setFilter(k){
+  state.filter=k;
+  const chip=document.getElementById("filterChip");
+  chip.hidden=!k;
+  if(k) document.getElementById("filterText").textContent=`Mostrando só: ${TIPOS[k].nome}`;
+  refreshAll();
+}
+document.getElementById("clearFilter").addEventListener("click",()=>setFilter(null));
+
+/* ============ UI: contato ============ */
+const C=CONFIG.corretor;
+document.getElementById("brokerName").textContent=C.nome;
+document.getElementById("brokerCreci").textContent=C.creci;
+document.getElementById("brokerPhone").textContent=C.telefone;
+document.getElementById("brokerInitials").textContent=C.nome.split(" ").map(s=>s[0]).slice(0,2).join("").toUpperCase();
+const fUnit=document.getElementById("fUnit");
+fUnit.innerHTML = `<option value="">Ainda não escolhi</option>` + sortedUnits.filter(u=>u.status==="disponivel").map(u=>`<option value="${u.id}">${u.id} · ${TIPOS[u.tipo].nome} · ${BRL.format(u.price)}</option>`).join("");
+document.getElementById("copyPhone").addEventListener("click",()=>{
+  const msg=document.getElementById("copyMsg");
+  const done=()=>{ msg.hidden=false; setTimeout(()=>msg.hidden=true,2200); };
+  try{
+    navigator.clipboard.writeText(C.telefone).then(done).catch(()=>selectPhone());
+  }catch(e){ selectPhone(); }
+  function selectPhone(){ const r=document.createRange(); r.selectNodeContents(document.getElementById("brokerPhone")); const s=getSelection(); s.removeAllRanges(); s.addRange(r); }
+});
+document.getElementById("leadForm").addEventListener("submit",e=>{
+  e.preventDefault();
+  const name=document.getElementById("fName").value.trim();
+  const phone=document.getElementById("fPhone").value.replace(/\D/g,"");
+  const err=document.getElementById("fErr");
+  if(!name || phone.length<10){ err.hidden=false; document.getElementById("sent").hidden=true; return; }
+  err.hidden=true;
+  const u=byId[fUnit.value];
+  let text=`Olá, ${C.nome.split(" ")[0]}! Sou ${name} e vi o Mirante 340 na tabela 3D.`;
+  if(u) text+=` Tenho interesse na unidade ${u.id} (${TIPOS[u.tipo].nome}, ${NUM2.format(TIPOS[u.tipo].area)} m², ${BRL.format(u.price)}).`;
+  const m=document.getElementById("fMsg").value.trim(); if(m) text+=` ${m}`;
+  text+=` Meu WhatsApp: ${document.getElementById("fPhone").value.trim()}.`;
+  document.getElementById("waLink").href=`https://wa.me/${C.whatsapp}?text=${encodeURIComponent(text)}`;
+  document.getElementById("sent").hidden=false;
+});
+
+/* ============ 3D ============ */
+const stage=document.getElementById("stage"), canvas=document.getElementById("c");
+const tip=document.getElementById("tip");
+let three=null;
+function refreshAll(){
+  renderSales(); renderCard();
+  if(three) three.refresh();
+}
+function selectUnit(u, fly){
+  state.selected=u; state.spin=false; syncSpinBtn();
+  refreshAll();
+  if(three && fly) three.flyTo(u);
+}
+function syncSpinBtn(){ document.getElementById("spinBtn").setAttribute("aria-pressed", String(state.spin)); }
+function updateViewOffset(){ if(three) three.resize(); }
+
+renderSales(); renderPlans();
+state.selected = byId["1201"];
+renderCard();
+
+if(!window.THREE){ document.getElementById("loading").textContent="Não foi possível carregar o 3D nesta conexão."; return; }
+three = build3D();
+document.getElementById("loading").remove();
+
+function build3D(){
+  const W=20, D=14, TOP=floorBase(19)+2*FH;
+  const renderer=new THREE.WebGLRenderer({canvas, antialias:true, powerPreference:"high-performance"});
+  renderer.setPixelRatio(Math.min(devicePixelRatio||1, 2));
+  const scene=new THREE.Scene();
+  const camera=new THREE.PerspectiveCamera(36, 1, 1, 4000);
+
+  function tex(w,h,draw){ const c=document.createElement("canvas"); c.width=w; c.height=h; draw(c.getContext("2d"),w,h); const t=new THREE.CanvasTexture(c); t.anisotropy=4; return t; }
+  function frame(g,w,h,col){ g.fillStyle=col; g.fillRect(0,0,w,5); g.fillRect(0,h-5,w,5); g.fillRect(0,0,5,h); g.fillRect(w-5,0,5,h); g.fillRect(w*.5-2,0,4,h); g.fillRect(0,h*.7,w,3); }
+  const texLit=tex(128,96,(g,w,h)=>{ const gr=g.createLinearGradient(0,0,0,h); gr.addColorStop(0,"#fff7e0"); gr.addColorStop(.55,"#ffd894"); gr.addColorStop(1,"#eda553"); g.fillStyle=gr; g.fillRect(0,0,w,h);
+    g.globalAlpha=.12; for(let x=0;x<w;x+=8){ g.fillStyle=(x/8)%2?"#ffffff":"#9b5a20"; g.fillRect(x,0,4,h);} g.globalAlpha=1; frame(g,w,h,"#2a2342"); });
+  const texDark=tex(128,96,(g,w,h)=>{ const gr=g.createLinearGradient(0,0,0,h); gr.addColorStop(0,"#26306b"); gr.addColorStop(1,"#0d1338"); g.fillStyle=gr; g.fillRect(0,0,w,h);
+    g.globalAlpha=.10; g.fillStyle="#b9c6ff"; g.beginPath(); g.moveTo(20,0); g.lineTo(55,0); g.lineTo(15,h); g.lineTo(-20,h); g.fill(); g.globalAlpha=1; frame(g,w,h,"#141a40"); });
+  const texDay=tex(128,96,(g,w,h)=>{ const gr=g.createLinearGradient(0,0,0,h); gr.addColorStop(0,"#dfe8f6"); gr.addColorStop(1,"#7f95bf"); g.fillStyle=gr; g.fillRect(0,0,w,h);
+    g.globalAlpha=.35; g.fillStyle="#ffffff"; g.beginPath(); g.moveTo(24,0); g.lineTo(60,0); g.lineTo(20,h); g.lineTo(-16,h); g.fill(); g.globalAlpha=1; frame(g,w,h,"#eef1f7"); });
+
+  function cityTex(day){ return tex(256,256,(g,w,h)=>{ const r=rngFrom(day?11:12); g.fillStyle=day?"#c3cadb":"#000000"; g.fillRect(0,0,w,h);
+      for(let y=0;y<8;y++) for(let x=0;x<8;x++){ const px=x*32+8, py=y*32+9;
+        if(day){ g.fillStyle="#7486ab"; g.fillRect(px,py,16,13); }
+        else if(r()<.36){ const k=r(); g.fillStyle = k<.6?"#ffd27d":k<.85?"#fff0cf":"#9fd2ff"; g.globalAlpha=.55+r()*.45; g.fillRect(px,py,16,13); g.globalAlpha=1; } }
+      g.fillStyle=day?"#c3cadb":"#000000"; g.fillRect(0,0,6,6); }); }
+  const cityNightTex=cityTex(false), cityDayTex=cityTex(true);
+  [cityNightTex,cityDayTex].forEach(t=>{ t.wrapS=t.wrapT=THREE.RepeatWrapping; });
+
+  function skyTex(stops){ return tex(4,512,(g,w,h)=>{ const gr=g.createLinearGradient(0,0,0,h); stops.forEach(s=>gr.addColorStop(s[0],s[1])); g.fillStyle=gr; g.fillRect(0,0,w,h); }); }
+  const skyNight=skyTex([[0,"#050824"],[.45,"#13205f"],[.8,"#2b45a6"],[1,"#3554b8"]]);
+  const skyDay=skyTex([[0,"#3f7fd0"],[.6,"#9cc2ec"],[1,"#e3edf7"]]);
+
+  const LOOK={
+    night:{ sky:skyNight, fog:0x24399a, hemiSky:0x6378d8, hemiGround:0x080c22, hemiI:.85, dirC:0x9fb2ff, dirI:.55,
+      body:0x1b2357, podium:0x161d4a, slab:0xc9d2f5, slabE:0x2a3270, ground:0x0b1131, road:0x151c48, park:0x0f2550, tree:0x24539a, mtn:0x1b2a6f, fin:0xf2f5ff, lobby:0xffcc80, pool:0x45d4ff },
+    day:{ sky:skyDay, fog:0xc9d8ea, hemiSky:0xeef3ff, hemiGround:0x5d6779, hemiI:.62, dirC:0xfff0d6, dirI:.62,
+      body:0xbfc6d6, podium:0xa9b1c4, slab:0xe9ecf3, slabE:0x000000, ground:0x7e8aa0, road:0x5d677c, park:0x5f8752, tree:0x3d6b38, mtn:0x8199bd, fin:0xd2d9e8, lobby:0x9fb0cc, pool:0x4fb8de }
+  };
+  scene.fog=new THREE.Fog(0x24399a, 260, 1300);
+  const hemi=new THREE.HemisphereLight(0xffffff,0x000000,1); scene.add(hemi);
+  const dir=new THREE.DirectionalLight(0xffffff,1); dir.position.set(-120,200,160); scene.add(dir);
+
+  const mats={
+    body:new THREE.MeshLambertMaterial({color:0x1b2357}),
+    podium:new THREE.MeshLambertMaterial({color:0x161d4a}),
+    slab:new THREE.MeshLambertMaterial({color:0xc9d2f5}),
+    ground:new THREE.MeshLambertMaterial({color:0x0b1131}),
+    road:new THREE.MeshLambertMaterial({color:0x151c48}),
+    park:new THREE.MeshLambertMaterial({color:0x0f2550}),
+    tree:new THREE.MeshPhongMaterial({color:0x24539a, flatShading:true, shininess:0}),
+    mtn:new THREE.MeshPhongMaterial({color:0x1b2a6f, flatShading:true, shininess:0}),
+    fin:new THREE.MeshBasicMaterial({color:0xf2f5ff}),
+    lobby:new THREE.MeshBasicMaterial({color:0xffcc80}),
+    pool:new THREE.MeshBasicMaterial({color:0x45d4ff}),
+    cityNight:new THREE.MeshLambertMaterial({color:0x1a2254, emissive:0xffffff, emissiveMap:cityNightTex}),
+    cityDay:new THREE.MeshLambertMaterial({color:0xb7bfcf, map:cityDayTex})
+  };
+
+  /* chão, ruas, parque */
+  const ground=new THREE.Mesh(new THREE.PlaneGeometry(3000,3000), mats.ground); ground.rotation.x=-Math.PI/2; scene.add(ground);
+  const BLK=26, NB=9;
+  for(let k=-NB;k<=NB;k++){
+    const a=new THREE.Mesh(new THREE.PlaneGeometry(BLK*NB*2+40,7), mats.road); a.rotation.x=-Math.PI/2; a.position.set(0,.04,k*BLK+BLK/2); scene.add(a);
+    const b=new THREE.Mesh(new THREE.PlaneGeometry(7,BLK*NB*2+40), mats.road); b.rotation.x=-Math.PI/2; b.position.set(k*BLK+BLK/2,.04,0); scene.add(b);
+  }
+  const park=new THREE.Mesh(new THREE.CircleGeometry(36,48), mats.park); park.rotation.x=-Math.PI/2; park.position.y=.08; scene.add(park);
+
+  /* lâmpadas de rua */
+  const lampPos=[];
+  for(let k=-NB;k<=NB;k++) for(let s=-NB*BLK; s<=NB*BLK; s+=10){
+    const z=k*BLK+BLK/2+3.6, x=k*BLK+BLK/2+3.6;
+    if(Math.hypot(s,z)<250) lampPos.push(s,1.2,z);
+    if(Math.hypot(x,s)<250) lampPos.push(x,1.2,s);
+  }
+  const lg=new THREE.BufferGeometry(); lg.setAttribute("position",new THREE.Float32BufferAttribute(lampPos,3));
+  const lamps=new THREE.Points(lg,new THREE.PointsMaterial({color:0xffc977,size:1.3,sizeAttenuation:true})); scene.add(lamps);
+
+  /* cidade */
+  const cityMeshes=[]; const cr=rngFrom(77);
+  for(let gx=-NB;gx<=NB;gx++) for(let gz=-NB;gz<=NB;gz++){
+    if(Math.abs(gx)<=1 && Math.abs(gz)<=1) continue;
+    const cx=gx*BLK, cz=gz*BLK, r=Math.hypot(cx,cz); if(r>245) continue;
+    const n = cr()<.3?2:1;
+    for(let i=0;i<n;i++){
+      const w=7+cr()*9, d=7+cr()*9;
+      let h=5+Math.pow(cr(),2.1)*44; h=Math.min(h, r<80?15 : r<190?28 : 49);
+      const geo=new THREE.BoxGeometry(w,h,d);
+      const uv=geo.attributes.uv;
+      for(let f=0;f<6;f++){
+        const fw = (f<2)? d : w;
+        for(let v=0;v<4;v++){
+          const idx=f*4+v;
+          if(f===2||f===3){ uv.setXY(idx,.005,.005); }
+          else uv.setXY(idx, uv.getX(idx)*fw/4/8*1.0*8/8, uv.getY(idx)*h/3.2/8);
+        }
+      }
+      const m=new THREE.Mesh(geo, mats.cityNight);
+      const ox=(cr()-.5)*(17-w)*(n===1?1:.4), oz=(cr()-.5)*(17-d);
+      m.position.set(cx+ox+(n===2?(i?4.5:-4.5):0), h/2, cz+oz);
+      scene.add(m); cityMeshes.push(m);
+    }
+  }
+
+  /* árvores */
+  const TREES=300; const trees=new THREE.InstancedMesh(new THREE.IcosahedronGeometry(1,0), mats.tree, TREES);
+  const dm=new THREE.Object3D(); const tr=rngFrom(5); let ti=0;
+  while(ti<TREES){
+    let x,z;
+    if(ti<120){ const a=tr()*Math.PI*2, rr=18+tr()*17; x=Math.cos(a)*rr; z=Math.sin(a)*rr; if(Math.abs(x)<18 && Math.abs(z)<14) continue; }
+    else { const k=Math.floor(tr()*NB*2)-NB; const along=(tr()-.5)*360; const side=tr()<.5?-5.2:5.2;
+      if(tr()<.5){ x=along; z=k*BLK+BLK/2+side; } else { x=k*BLK+BLK/2+side; z=along; }
+      if(Math.hypot(x,z)>230 || Math.hypot(x,z)<38) continue; }
+    const s=1.3+tr()*1.6; dm.position.set(x,s*1.05,z); dm.scale.set(s,s*1.15,s); dm.rotation.y=tr()*3; dm.updateMatrix(); trees.setMatrixAt(ti++,dm.matrix);
+  }
+  scene.add(trees);
+
+  /* serra ao fundo */
+  const mr=rngFrom(9);
+  for(let i=0;i<34;i++){
+    const a=i/34*Math.PI*2+mr()*.1, dist=760+mr()*260, h=60+mr()*120, rad=170+mr()*190;
+    const m=new THREE.Mesh(new THREE.ConeGeometry(rad,h,7), mats.mtn); m.position.set(Math.cos(a)*dist,h/2-4,Math.sin(a)*dist); m.rotation.y=mr()*3; scene.add(m);
+  }
+
+  /* estrelas */
+  const sp=[]; const sr=rngFrom(3);
+  for(let i=0;i<900;i++){ const a=sr()*Math.PI*2, e=.12+sr()*1.3, R=2200; sp.push(Math.cos(a)*Math.cos(e)*R, Math.sin(e)*R, Math.sin(a)*Math.cos(e)*R); }
+  const sg=new THREE.BufferGeometry(); sg.setAttribute("position",new THREE.Float32BufferAttribute(sp,3));
+  const stars=new THREE.Points(sg,new THREE.PointsMaterial({color:0xdfe6ff,size:1.6,sizeAttenuation:false,fog:false,transparent:true,opacity:.85})); scene.add(stars);
+
+  /* torre */
+  const tower=new THREE.Group(); scene.add(tower);
+  const blockers=[];
+  const podium=new THREE.Mesh(new THREE.BoxGeometry(W+14,PODIUM,D+12), mats.podium); podium.position.y=PODIUM/2; tower.add(podium); blockers.push(podium);
+  const lobby=new THREE.Mesh(new THREE.PlaneGeometry(W+8,4.2), mats.lobby); lobby.position.set(0,2.4,(D+12)/2+.05); tower.add(lobby);
+  const lobbyS=new THREE.Mesh(new THREE.PlaneGeometry(D+6,3.2), mats.lobby); lobbyS.position.set((W+14)/2+.05,2.2,0); lobbyS.rotation.y=Math.PI/2; tower.add(lobbyS);
+  const bodyH=TOP-PODIUM;
+  const body=new THREE.Mesh(new THREE.BoxGeometry(W-.4,bodyH,D-.4), mats.body); body.position.y=PODIUM+bodyH/2; tower.add(body); blockers.push(body);
+  for(let f=3; f<=19; f++){ const s=new THREE.Mesh(new THREE.BoxGeometry(W+.7,.3,D+.7), mats.slab); s.position.y=floorBase(f); tower.add(s); }
+  const parapet=new THREE.Mesh(new THREE.BoxGeometry(W+.7,1.3,D+.7), mats.slab); parapet.position.y=TOP+.65; tower.add(parapet); blockers.push(parapet);
+  const pool=new THREE.Mesh(new THREE.PlaneGeometry(10,3.4), mats.pool); pool.rotation.x=-Math.PI/2; pool.position.set(-3,TOP+1.32,2); tower.add(pool);
+  for(let i=0;i<5;i++){ const p=new THREE.Mesh(new THREE.BoxGeometry(.3,.3,7), mats.slab); p.position.set(4+i*1.3,TOP+4,-1.5); tower.add(p); }
+  for(const [x,z] of [[4,-5],[4,2],[9.2,-5],[9.2,2]]){ const p=new THREE.Mesh(new THREE.BoxGeometry(.3,4,.3), mats.slab); p.position.set(x,TOP+2,z); tower.add(p); }
+  const fin1=new THREE.Mesh(new THREE.BoxGeometry(.45,TOP+16-PODIUM,.45), mats.fin); fin1.position.set(W/2-2.4,PODIUM+(TOP+16-PODIUM)/2,D/2+.55); tower.add(fin1);
+  const fin2=new THREE.Mesh(new THREE.BoxGeometry(.3,TOP+9-PODIUM,.3), mats.fin); fin2.position.set(W/2-3.4,PODIUM+(TOP+9-PODIUM)/2,D/2+.55); tower.add(fin2);
+
+  /* janelas = unidades */
+  const winMeshes=[]; const tints=["#ffffff","#fff4e2","#ffeccd","#fff9f0","#ffe6c0"];
+  const geoCache={};
+  function winGeo(w,h){ const k=w+"x"+h; return geoCache[k]||(geoCache[k]=new THREE.PlaneGeometry(w,h)); }
+  function addWin(u,face,a,y,w,h){
+    const m=new THREE.Mesh(winGeo(w,h),u.mat); const o=.09;
+    if(face==="F") m.position.set(a,y,D/2+o);
+    if(face==="B"){ m.position.set(a,y,-D/2-o); m.rotation.y=Math.PI; }
+    if(face==="L"){ m.position.set(-W/2-o,y,a); m.rotation.y=-Math.PI/2; }
+    if(face==="R"){ m.position.set(W/2+o,y,a); m.rotation.y=Math.PI/2; }
+    m.userData.unit=u; tower.add(m); winMeshes.push(m);
+  }
+  const LAYOUT={
+    "01":[["F",-7.6],["F",-3.2],["L",3.4]],
+    "02":[["F",3.2],["F",7.6],["R",3.4]],
+    "03":[["B",3.2],["B",7.6],["R",-3.4]],
+    "04":[["B",-3.2],["B",-7.6],["L",-3.4]]
+  };
+  const BOUNDS={ "01":[-W/2,0,0,D/2], "02":[0,W/2,0,D/2], "03":[0,W/2,-D/2,0], "04":[-W/2,0,-D/2,0] };
+  units.forEach((u,i)=>{
+    u.tint=new THREE.Color(tints[i%tints.length]);
+    u.mat=new THREE.MeshBasicMaterial({map:texLit,color:u.tint.clone()});
+    u.base=new THREE.Color();
+    const y0=floorBase(u.floor);
+    if(u.duplex){
+      const side = u.fin==="01" ? [["F",-7.6],["F",-3.2],["L",3.4],["L",-3.4],["B",-3.2],["B",-7.6]] : [["F",3.2],["F",7.6],["R",3.4],["R",-3.4],["B",3.2],["B",7.6]];
+      side.forEach(([f,a])=>addWin(u,f,a,y0+FH,3.7,5.3));
+      u.bounds = u.fin==="01" ? [-W/2,0,-D/2,D/2] : [0,W/2,-D/2,D/2]; u.h=2*FH;
+    } else {
+      LAYOUT[u.fin].forEach(([f,a])=>addWin(u,f,a,y0+1.6,3.7,2.25));
+      u.bounds=BOUNDS[u.fin]; u.h=FH;
+    }
+  });
+
+  /* destaque da unidade selecionada */
+  const hlGroup=new THREE.Group();
+  const hlFill=new THREE.Mesh(new THREE.BoxGeometry(1,1,1), new THREE.MeshBasicMaterial({color:0x86e8ff,transparent:true,opacity:.16,depthWrite:false}));
+  const hlEdge=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(1,1,1)), new THREE.LineBasicMaterial({color:0x86e8ff,transparent:true}));
+  hlGroup.add(hlFill,hlEdge); hlGroup.visible=false; tower.add(hlGroup);
+  function placeHighlight(){
+    const u=state.selected; if(!u){ hlGroup.visible=false; return; }
+    const [x0,x1,z0,z1]=u.bounds, y0=floorBase(u.floor);
+    hlGroup.position.set((x0+x1)/2, y0+u.h/2, (z0+z1)/2);
+    hlGroup.scale.set(x1-x0+1.1, u.h-.15, z1-z0+1.1);
+    hlGroup.visible=true;
+  }
+
+  function lookFor(u){
+    const night=state.mode==="night", on=u.status==="disponivel";
+    const out = state.filter && u.tipo!==state.filter;
+    let map, col=new THREE.Color();
+    if(night){ map = on?texLit:texDark; col.copy(on?u.tint:new THREE.Color(1,1,1)); }
+    else { map=texDay; col.set(on?"#ffe0a8":"#a9b8d6"); }
+    if(state.glow && !on) col.multiplyScalar(night?.45:.75);
+    if(out) col.multiplyScalar(night?(on?.32:.7):.6);
+    if(u===state.hover && !out) col = on ? new THREE.Color(night?"#e6fbff":"#fff2d2") : new THREE.Color(night?"#8f9ce0":"#cfd9ef");
+    if(u===state.selected){ map = night?texLit:texDay; col.set("#8fe9ff"); }
+    return {map,col};
+  }
+  function applyLook(u){
+    const {map,col}=lookFor(u);
+    if(u.mat.map!==map){ u.mat.map=map; u.mat.needsUpdate=true; }
+    u.base.copy(col); u.mat.color.copy(col);
+  }
+
+  function setMode(m){
+    state.mode=m; const L=LOOK[m];
+    scene.background=L.sky; scene.fog.color.setHex(L.fog);
+    hemi.color.setHex(L.hemiSky); hemi.groundColor.setHex(L.hemiGround); hemi.intensity=L.hemiI;
+    dir.color.setHex(L.dirC); dir.intensity=L.dirI;
+    mats.body.color.setHex(L.body); mats.podium.color.setHex(L.podium);
+    mats.slab.color.setHex(L.slab); mats.slab.emissive.setHex(L.slabE);
+    mats.ground.color.setHex(L.ground); mats.road.color.setHex(L.road); mats.park.color.setHex(L.park);
+    mats.tree.color.setHex(L.tree); mats.mtn.color.setHex(L.mtn);
+    mats.fin.color.setHex(L.fin); mats.lobby.color.setHex(L.lobby); mats.pool.color.setHex(L.pool);
+    const cm = m==="night"?mats.cityNight:mats.cityDay; cityMeshes.forEach(c=>c.material=cm);
+    stars.visible = lamps.visible = m==="night";
+    units.forEach(applyLook);
+    document.querySelectorAll("#modeSeg button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.mode===m)));
+  }
+
+  /* câmera orbital */
+  const cam={ theta:-.55, phi:.15, dist:150, ty:34, tx:0 };
+  const goal={...cam};
+  let distScale=1;
+  function wrapTo(cur, target){ let d=target-cur; d=((d+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI; return cur+d; }
+  function setGoal(g){ Object.assign(goal,g); goal.theta=wrapTo(cam.theta,goal.theta); if(reduceMotion) Object.assign(cam,goal); }
+  const VIEWS={ front:{theta:0,phi:.1,dist:135,ty:34,tx:0}, side:{theta:Math.PI/2,phi:.1,dist:135,ty:34,tx:0}, back:{theta:Math.PI,phi:.1,dist:135,ty:34,tx:0}, roof:{theta:-.7,phi:.95,dist:95,ty:TOP-4,tx:0} };
+  function flyTo(u){
+    const th = {"01":-.55,"02":.55,"03":Math.PI-.55,"04":-(Math.PI-.55)}[u.fin];
+    const [x0,x1]=u.bounds;
+    setGoal({theta:th, phi:.06, dist:78, ty:floorBase(u.floor)+u.h/2, tx:(x0+x1)/4});
+  }
+
+  function resize(){
+    const w=stage.clientWidth, h=stage.clientHeight; if(!w||!h) return;
+    renderer.setSize(w,h,false); camera.aspect=w/h;
+    distScale = camera.aspect<1 ? Math.min(1.6,.95/camera.aspect) : 1;
+    if(innerWidth>900){
+      const left=360, right= card.hidden?0:380;
+      camera.setViewOffset(w,h,-(left-right)/2,0,w,h);
+    } else camera.clearViewOffset();
+    camera.updateProjectionMatrix();
+  }
+  addEventListener("resize",resize); resize();
+
+  /* interação */
+  const ray=new THREE.Raycaster(); const ndc=new THREE.Vector2();
+  let down=null, moved=false, ptr=null, hoverDirty=false;
+  const pickList=[...winMeshes,...blockers];
+  function pick(cx,cy){
+    const r=canvas.getBoundingClientRect();
+    ndc.set((cx-r.left)/r.width*2-1, -((cy-r.top)/r.height)*2+1);
+    ray.setFromCamera(ndc,camera);
+    const hit=ray.intersectObjects(pickList,false)[0];
+    return hit && hit.object.userData.unit || null;
+  }
+  const hint=document.getElementById("hint");
+  canvas.addEventListener("pointercancel",()=>{ down=null; canvas.classList.remove("dragging"); });
+  canvas.addEventListener("pointerdown",e=>{ hint.hidden=true; down={x:e.clientX,y:e.clientY,t:cam.theta,p:cam.phi,type:e.pointerType}; moved=false; });
+  addEventListener("pointermove",e=>{
+    if(down){
+      const dx=e.clientX-down.x, dy=e.clientY-down.y;
+      if(Math.abs(dx)+Math.abs(dy)>5){ moved=true; canvas.classList.add("dragging"); if(state.spin){ state.spin=false; syncSpinBtn(); } }
+      if(moved){
+        goal.theta=cam.theta=down.t - dx*.006;
+        if(down.type==="mouse"){ goal.phi=cam.phi=Math.max(-.02,Math.min(1.2,down.p+dy*.004)); }
+      }
+    } else if(e.target===canvas && e.pointerType==="mouse"){ ptr={x:e.clientX,y:e.clientY}; hoverDirty=true; }
+  });
+  addEventListener("pointerup",e=>{
+    if(down && !moved && e.target===canvas){
+      const u=pick(e.clientX,e.clientY);
+      if(u) selectUnit(u,true);
+    }
+    down=null; canvas.classList.remove("dragging");
+  });
+  canvas.addEventListener("pointerleave",()=>{ ptr=null; hoverDirty=true; });
+
+  function updateHover(){
+    hoverDirty=false;
+    const u = ptr ? pick(ptr.x,ptr.y) : null;
+    if(u!==state.hover){
+      const prev=state.hover; state.hover=u;
+      if(prev) applyLook(prev); if(u) applyLook(u);
+    }
+    canvas.classList.toggle("pointing",!!u);
+    if(u){
+      const r=stage.getBoundingClientRect();
+      tip.innerHTML=`<b>${u.id}</b>${TIPOS[u.tipo].nome} · <span class="${u.status==="disponivel"?"st-on":"st-off"}">${u.status==="disponivel"?"Disponível":"Vendida"}</span>`;
+      tip.style.left=(ptr.x-r.left)+"px"; tip.style.top=(ptr.y-r.top)+"px"; tip.hidden=false;
+    } else tip.hidden=true;
+  }
+
+  document.getElementById("viewSeg").addEventListener("click",e=>{
+    const b=e.target.closest("[data-view]"); if(!b) return;
+    state.spin=false; syncSpinBtn(); setGoal({...VIEWS[b.dataset.view]});
+  });
+  document.getElementById("modeSeg").addEventListener("click",e=>{ const b=e.target.closest("[data-mode]"); if(b) setMode(b.dataset.mode); });
+  document.getElementById("spinBtn").addEventListener("click",()=>{ state.spin=!state.spin; syncSpinBtn(); if(state.spin) setGoal({phi:.15,dist:150,ty:34,tx:0}); });
+  document.getElementById("glowBtn").addEventListener("click",e=>{ state.glow=!state.glow; e.currentTarget.setAttribute("aria-pressed",String(state.glow)); units.forEach(applyLook); });
+  document.getElementById("zoomIn").addEventListener("click",()=>{ goal.dist=Math.max(40,goal.dist*.8); });
+  document.getElementById("zoomOut").addEventListener("click",()=>{ goal.dist=Math.min(260,goal.dist*1.25); });
+
+  /* loop */
+  let visible=true;
+  if("IntersectionObserver" in window){ new IntersectionObserver(es=>{ visible=es[0].isIntersecting; },{threshold:0}).observe(stage); }
+  const clock=new THREE.Clock();
+  function frameLoop(){
+    requestAnimationFrame(frameLoop);
+    if(!visible) return;
+    const dt=Math.min(clock.getDelta(),.05), t=clock.elapsedTime;
+    if(state.spin){ goal.theta+=dt*.12; }
+    const k = reduceMotion?1:1-Math.pow(.025,dt);
+    for(const key of ["theta","phi","dist","ty","tx"]) cam[key]+=(goal[key]-cam[key])*k;
+    const d=cam.dist*distScale;
+    camera.position.set(cam.tx+Math.sin(cam.theta)*Math.cos(cam.phi)*d, cam.ty+Math.sin(cam.phi)*d, Math.cos(cam.theta)*Math.cos(cam.phi)*d);
+    const hr=Math.hypot(camera.position.x,camera.position.z), minY = hr<85?18 : hr<200?31 : 52;
+    if(camera.position.y<minY) camera.position.y=minY;
+    camera.lookAt(cam.tx,cam.ty,0);
+    if(hoverDirty) updateHover();
+    if(state.glow){
+      const s=.72+.28*(.5+.5*Math.sin(t*3.2));
+      units.forEach(u=>{ if(u.status==="disponivel" && u!==state.selected && u!==state.hover) u.mat.color.copy(u.base).multiplyScalar(s); });
+    }
+    if(hlGroup.visible){ const p=.5+.5*Math.sin(t*4); hlFill.material.opacity=.10+.14*p; hlEdge.material.opacity=.55+.45*p; }
+    renderer.render(scene,camera);
+  }
+  setMode("night"); placeHighlight();
+  frameLoop();
+
+  return {
+    refresh(){ units.forEach(applyLook); placeHighlight(); },
+    flyTo, resize
+  };
+}
+})();
+</script>
+
+</body>
+</html>
