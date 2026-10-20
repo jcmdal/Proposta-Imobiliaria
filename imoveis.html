@@ -239,6 +239,15 @@ button.img{border:0;padding:0;width:100%;display:block;cursor:pointer;color:inhe
 .who .link{font-size:13px}
 </style>
 
+
+<style>
+.lanc{display:flex;flex-direction:column;gap:12px}
+.lanc h3{font-family:var(--display);font-weight:400;font-size:24px;margin:0}
+.vc .img .mini{position:absolute;inset:0;display:grid;align-content:center;justify-content:center;gap:4px;background:#0b1030}
+.vc .img .mini i{display:block;width:16px;height:10px;border-radius:2px;background:#2a3270}
+.vc .img .mini i.on{background:#f2b84b;box-shadow:0 0 6px rgba(242,184,75,.6)}
+.vc .img .tag3{position:absolute;right:10px;top:10px;font-family:var(--mono);font-size:11px;background:#f2b84b;color:#1c1405;padding:2px 7px;border-radius:5px}
+</style>
 </head>
 <body>
 <header class="top gut">
@@ -252,6 +261,7 @@ button.img{border:0;padding:0;width:100%;display:block;cursor:pointer;color:inhe
   <section class="view" aria-labelledby="hV">
     <div class="head"><div><div class="eyebrow" id="contagem">Vitrine</div><h2 id="hV">Imóveis em São Pedro da Aldeia e região</h2>
       <p>Toque em “Falar no WhatsApp” e a mensagem já vai com o código do imóvel para o corretor responsável.</p></div></div>
+    <div id="lanc"></div>
     <div class="chips" id="filtros" role="group" aria-label="Filtrar por tipo"></div>
     <div id="lista"><div class="list"><div class="empty"><b>Carregando imóveis…</b></div></div></div>
   </section>
@@ -343,6 +353,15 @@ document.addEventListener("click", e=>{
 });
 document.addEventListener("keydown", e=>{ if(e.key==="Escape"&&aberto) fechar(); });
 carregar();
+(async function(){
+  const [e,u]=await Promise.all([sb.from("empreendimentos").select("id,slug,nome,config").order("criado_em"), sb.from("unidades").select("empreendimento_id,status,preco")]);
+  const emps=e.data||[], unis=u.data||[]; if(!emps.length) return;
+  document.getElementById("lanc").innerHTML = `<div class="lanc"><h3>Lançamentos com tabela de vendas em 3D</h3><div class="cards">${emps.map(p=>{
+    const us=unis.filter(x=>x.empreendimento_id===p.id), liv=us.filter(x=>x.status==="disponivel"), pr=liv.map(x=>Number(x.preco)).filter(Boolean);
+    return `<article class="vc"><a class="img" href="/predio.html#${esc(p.slug)}" style="display:block"><span class="mini" style="grid-template-columns:repeat(4,16px)">${us.slice(0,28).map(x=>`<i class="${x.status==="disponivel"?"on":""}"></i>`).join("")}</span><span class="tag3">TABELA 3D</span></a>
+      <div class="bd"><div class="price mono">${pr.length?"A partir de "+BRL.format(Math.min(...pr)):"Lançamento"}</div><div><b>${esc(p.nome)}</b><div class="loc">${esc(p.config?.bairro||"")} · ${liv.length} de ${us.length} disponíveis</div></div>
+      <div class="act"><a class="btn lamp sm" href="/predio.html#${esc(p.slug)}">Ver no prédio em 3D</a></div></div></article>`; }).join("")}</div></div>`;
+})().catch(()=>{});
 })();
 </script>
 

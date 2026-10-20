@@ -232,6 +232,23 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto !important;transition:none !important}}
 </style>
 
+<style>
+.others{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
+.oc{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--ink);text-decoration:none;color:var(--fg);min-width:0}
+.oc:hover{border-color:var(--lamp)}
+.oc .ph{aspect-ratio:4/3;background:var(--panel-solid);position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;max-width:100%}
+.oc .ph img{width:100%;height:100%;object-fit:cover;display:block}
+.oc .ph .mini{display:grid;gap:3px;padding:18px}
+.oc .ph .mini i{display:block;width:14px;height:9px;border-radius:2px;background:var(--sold)}
+.oc .ph .mini i.on{background:var(--lamp);box-shadow:0 0 6px rgba(246,198,107,.6)}
+.oc .tag{position:absolute;left:10px;top:10px;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;padding:3px 8px;border-radius:6px;background:var(--lamp);color:#1c1405}
+.oc .tag.code{background:rgba(9,14,43,.8);color:var(--fg)}
+.oc .bd{padding:14px 16px 16px;display:flex;flex-direction:column;gap:4px}
+.oc .pr{font-family:var(--display);font-size:22px;line-height:1.15}
+.oc .ti{font-weight:600}
+.oc .lo{font-size:13px;color:var(--muted)}
+</style>
+
 </head>
 <body>
 <header class="nav">
@@ -241,6 +258,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
     <a href="#plantas">Plantas</a>
     <a href="#predio">O prédio</a>
     <a href="#local">Localização</a>
+    <a href="#outros">Outros imóveis</a>
   </nav>
   <a class="btn btn-lamp" href="#contato">Falar com o corretor</a>
 </header>
@@ -364,6 +382,16 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
           <a class="btn btn-lamp" id="waLink" href="#" target="_blank" rel="noopener">Abrir no WhatsApp</a>
         </div>
       </form>
+    </div>
+  </section>
+  <section class="block" id="outros">
+    <div class="wrap">
+      <div class="sec-head">
+        <div><div class="eyebrow">Mais imóveis</div><h2>Outros imóveis da equipe</h2></div>
+        <p>Lançamentos com tabela de vendas em 3D e imóveis prontos da vitrine, em São Pedro da Aldeia e região.</p>
+      </div>
+      <div class="others" id="others"><p class="foot-note">Carregando imóveis…</p></div>
+      <div style="margin-top:24px"><a class="btn btn-ghost" href="/imoveis.html">Ver todos os imóveis</a></div>
     </div>
   </section>
 </main>
@@ -960,5 +988,38 @@ function build3D(){
 })();
 </script>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+(function(){
+  var box=document.getElementById("others"); if(!box) return;
+  if(!window.supabase){ box.innerHTML='<p class="foot-note">Não foi possível carregar os outros imóveis. <a href="/imoveis.html">Abrir a vitrine</a>.</p>'; return; }
+  var sb=window.supabase.createClient("https://slcysfthwrrtzekkhwer.supabase.co","sb_publishable_-4YZgdv1VO3Ne-XAlLhkjQ_xsbOVx5C",{auth:{persistSession:false}});
+  var BRL=new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL",maximumFractionDigits:0});
+  var esc=function(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});};
+  var FOTO="https://slcysfthwrrtzekkhwer.supabase.co/storage/v1/object/public/fotos/";
+  var atual="mirante-340";
+  Promise.all([
+    sb.from("empreendimentos").select("id,slug,nome,config").order("criado_em"),
+    sb.from("unidades").select("empreendimento_id,status,preco"),
+    sb.from("vitrine").select("*").eq("vendido",false).order("publicado_em",{ascending:false}).limit(12)
+  ]).then(function(r){
+    var emps=(r[0].data||[]).filter(function(e){return e.slug!==atual;}), unis=r[1].data||[], vit=r[2].data||[];
+    var cards=emps.map(function(e){
+      var us=unis.filter(function(u){return u.empreendimento_id===e.id;}), livres=us.filter(function(u){return u.status==="disponivel";});
+      var precos=livres.map(function(u){return Number(u.preco);}).filter(Boolean), min=precos.length?Math.min.apply(null,precos):null;
+      var dots=us.slice(0,24).map(function(u){return '<i class="'+(u.status==="disponivel"?"on":"")+'"></i>';}).join("");
+      return '<a class="oc" href="/predio.html#'+esc(e.slug)+'"><div class="ph"><span class="tag">TABELA 3D</span><div class="mini" style="grid-template-columns:repeat(4,14px)">'+dots+'</div></div>'+
+        '<div class="bd"><div class="pr">'+(min?"A partir de "+BRL.format(min):"Lançamento")+'</div><div class="ti">'+esc(e.nome)+'</div><div class="lo">'+esc((e.config&&e.config.bairro)||"")+' · '+livres.length+' de '+us.length+' disponíveis</div></div></a>';
+    });
+    vit.forEach(function(v){
+      var d=v.dados||{}, capa=(d.fotos||[])[0];
+      var q=d.quartos?(" · "+d.quartos+" quarto"+(d.quartos>1?"s":"")):"";
+      cards.push('<a class="oc" href="/imoveis.html#'+encodeURIComponent(v.codigo)+'"><div class="ph">'+(capa?'<img src="'+FOTO+String(capa).split("/").map(encodeURIComponent).join("/")+'" alt="" loading="lazy">':'<span class="lo">sem foto</span>')+'<span class="tag code">'+esc(v.codigo)+'</span></div>'+
+        '<div class="bd"><div class="pr">'+(d.valor?BRL.format(d.valor):"Sob consulta")+'</div><div class="ti">'+esc(d.tipo||"Imóvel")+esc(q)+'</div><div class="lo">'+esc(d.bairro||"")+(d.cidade?", "+esc(d.cidade):"")+'</div></div></a>');
+    });
+    box.innerHTML = cards.length ? cards.join("") : '<p class="foot-note">Nenhum outro imóvel publicado ainda.</p>';
+  }).catch(function(){ box.innerHTML='<p class="foot-note">Não foi possível carregar os outros imóveis. <a href="/imoveis.html">Abrir a vitrine</a>.</p>'; });
+})();
+</script>
 </body>
 </html>

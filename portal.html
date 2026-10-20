@@ -384,6 +384,7 @@ function meusItens(){ return S.itens.filter(i=>i.corretorId===S.uid); }
 function render(){
   if(!S.ready) return;
   renderTop();
+  if(S.recuperando && S.uid){ app.innerHTML = novaSenhaHTML(); sheetRoot.innerHTML=""; return; }
   if(!S.uid){ app.innerHTML = loginHTML(); sheetRoot.innerHTML=""; return; }
   if(S.tab==="gestao" && S.gestor) app.innerHTML = gestaoHTML();
   else renderEnviar();
@@ -400,7 +401,7 @@ function renderTop(){
     + `<a class="tablink" href="/imoveis.html">Vitrine</a>`;
   const role = S.gestor ? "Gestor" : S.uid ? "Corretor" : "";
   document.getElementById("who").innerHTML = S.uid
-    ? `${S.perfil?.nome?`<span>${esc(S.perfil.nome)}</span>`:""}<span class="role">${role}</span><button class="link" type="button" id="sair">Sair</button>`
+    ? `<span title="${esc(S.email)}">${esc(S.perfil?.nome||S.email)}</span><span class="role">${role}</span><button class="link" type="button" id="sair">Sair</button>`
     : "";
 }
 document.getElementById("tabs").addEventListener("click",e=>{
@@ -448,7 +449,7 @@ app.addEventListener("submit", async e=>{
   const volta = location.origin + location.pathname;
   let r;
   if(S.authModo==="cadastrar") r = await sb.auth.signUp({ email, password:senha, options:{ emailRedirectTo: volta } });
-  else if(S.authModo==="recuperar") r = await sb.auth.resetPasswordForEmail(email, { redirectTo: volta + "#nova-senha" });
+  else if(S.authModo==="recuperar") r = await sb.auth.resetPasswordForEmail(email, { redirectTo: volta });
   else r = await sb.auth.signInWithPassword({ email, password:senha });
   btn.disabled=false;
   if(r.error){
@@ -465,20 +466,22 @@ app.addEventListener("submit", async e=>{
 });
 
 /* recuperação de senha */
-sb.auth.onAuthStateChange((evt)=>{
-  if(evt==="PASSWORD_RECOVERY"){
-    app.innerHTML = `<section class="auth"><div class="auth-intro"><div class="eyebrow">Nova senha</div><h2>Defina sua nova senha</h2></div>
-      <form class="card" id="novaSenha"><div class="f"><label for="nSenha">Nova senha</label><input id="nSenha" type="password" minlength="6" autocomplete="new-password"></div>
-      <button class="btn lamp" type="submit">Salvar nova senha</button></form></section>`;
-    document.getElementById("novaSenha").addEventListener("submit", async ev=>{
-      ev.preventDefault();
-      const p=document.getElementById("nSenha").value;
-      if(p.length<6){ toast("A senha precisa ter pelo menos 6 caracteres."); return; }
-      const { error } = await sb.auth.updateUser({ password:p });
-      if(error){ toast("Não foi possível trocar a senha."); return; }
-      toast("Senha alterada."); history.replaceState(null,"",location.pathname); render();
-    });
-  }
+function novaSenhaHTML(){ return `<section class="auth"><div class="auth-intro"><div class="eyebrow">Nova senha</div><h2>Defina sua nova senha</h2><p>Digite a senha nova para ${esc(S.email||"sua conta")}.</p></div>
+      <form class="card" id="novaSenha" novalidate><div class="f"><label for="nSenha">Nova senha</label><input id="nSenha" type="password" minlength="6" autocomplete="new-password"><span class="hint">Mínimo de 6 caracteres.</span></div>
+      <button class="btn lamp" type="submit">Salvar nova senha</button></form></section>`; }
+sb.auth.onAuthStateChange((evt, session)=>{
+  if(evt==="PASSWORD_RECOVERY"){ S.recuperando=true; S.email=session?.user?.email||S.email; if(S.ready) render(); }
+});
+app.addEventListener("submit", async ev=>{
+  if(ev.target.id!=="novaSenha") return;
+  ev.preventDefault();
+  const p=document.getElementById("nSenha").value;
+  if(p.length<6){ toast("A senha precisa ter pelo menos 6 caracteres."); return; }
+  const { error } = await sb.auth.updateUser({ password:p });
+  if(error){ toast("Não foi possível trocar a senha. Peça um novo link."); return; }
+  S.recuperando=false; toast("Senha alterada. Você já está dentro.");
+  try{ history.replaceState(null,"",location.pathname); }catch(e){}
+  render();
 });
 
 /* ---------- GESTÃO ---------- */
