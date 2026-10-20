@@ -279,7 +279,8 @@ const sb = window.supabase.createClient(SUPA_URL, SUPA_KEY, { auth:{ persistSess
 const BRL = new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL",maximumFractionDigits:0});
 const NUM = new Intl.NumberFormat("pt-BR",{maximumFractionDigits:2});
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const fotoUrl = p => `${SUPA_URL}/storage/v1/object/public/fotos/${String(p).split("/").map(encodeURIComponent).join("/")}`;
+const fotoUrl = p => /^https?:\/\//i.test(String(p)) ? (/images\.unsplash\.com/.test(String(p)) ? String(p).split("?")[0]+"?w=1400&q=78&auto=format&fit=crop" : String(p)) : `${SUPA_URL}/storage/v1/object/public/fotos/${String(p).split("/").map(encodeURIComponent).join("/")}`;
+const em3D = v => !!(v.predio || v.tipo==="Apartamento" || v.tipo==="Cobertura");
 const isTerreno = t => t==="Terreno / lote";
 let itens=[], filtro="Todos", aberto=null;
 
@@ -317,7 +318,7 @@ function card(v){
       <div><b>${esc(v.tipo)}</b><div class="loc">${esc(v.bairro)}${v.cidade?", "+esc(v.cidade):""}</div></div>
       ${sp.length?`<div class="specs">${sp.map(esc).join(`<span style="color:var(--line)">|</span>`)}</div>`:""}
       ${(v.diferenciais||[]).length?`<div class="feat">${v.diferenciais.slice(0,4).map(d=>`<span>${esc(d)}</span>`).join("")}</div>`:""}
-      <div class="act">${!v.vendido&&link?`<a class="btn lamp sm" href="${link}" target="_blank" rel="noopener">Falar no WhatsApp</a>`:""}<button class="btn sm" type="button" data-abrir="${v.id}">Ver detalhes</button></div>
+      <div class="act">${!v.vendido&&link?`<a class="btn lamp sm" href="${link}" target="_blank" rel="noopener">Falar no WhatsApp</a>`:""}${em3D(v)?`<a class="btn sm" href="/predio.html#imovel/${encodeURIComponent(v.codigo)}">Ver no prédio em 3D</a>`:""}<button class="btn sm" type="button" data-abrir="${v.id}">Ver detalhes</button></div>
     </div>
   </article>`;
 }
@@ -341,7 +342,7 @@ function abrir(id){
       <div style="display:flex;gap:10px;flex-wrap:wrap">${v.planta?`<a class="btn sm" href="${fotoUrl(v.planta)}" target="_blank" rel="noopener">Ver planta</a>`:""}${v.video&&/^https?:\/\//i.test(v.video)?`<a class="btn sm" href="${esc(v.video)}" target="_blank" rel="noopener">Ver vídeo</a>`:""}</div>
       ${v.corretorNome?`<p style="font-size:13.5px;color:var(--muted)">Corretor responsável: ${esc(v.corretorNome)}${v.corretorWhats?` · <span class="mono">${esc(v.corretorWhats.replace(/^55/,""))}</span>`:""}</p>`:""}
     </div>
-    <div class="sheet-f">${!v.vendido&&link?`<a class="btn lamp" href="${link}" target="_blank" rel="noopener">Falar no WhatsApp</a>`:""}<button class="btn" type="button" data-copiar>Copiar link deste imóvel</button></div>
+    <div class="sheet-f">${!v.vendido&&link?`<a class="btn lamp" href="${link}" target="_blank" rel="noopener">Falar no WhatsApp</a>`:""}${em3D(v)?`<a class="btn" href="/predio.html#imovel/${encodeURIComponent(v.codigo)}">Ver no prédio em 3D</a>`:""}<button class="btn" type="button" data-copiar>Copiar link deste imóvel</button></div>
   </aside>`;
 }
 function fechar(){ aberto=null; document.getElementById("sheetRoot").innerHTML=""; try{ history.replaceState(null,"",location.pathname); }catch(e){} }

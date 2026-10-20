@@ -1003,7 +1003,8 @@ function build3D(){
     sb.from("unidades").select("empreendimento_id,status,preco"),
     sb.from("vitrine").select("*").eq("vendido",false).order("publicado_em",{ascending:false}).limit(12)
   ]).then(function(r){
-    var emps=(r[0].data||[]).filter(function(e){return e.slug!==atual;}), unis=r[1].data||[], vit=r[2].data||[];
+    var atualCod=decodeURIComponent((location.hash.split("/")[1])||"");
+    var emps=(r[0].data||[]).filter(function(e){return e.slug!==atual;}), unis=r[1].data||[], vit=(r[2].data||[]).filter(function(v){return v.codigo!==atualCod;});
     var cards=emps.map(function(e){
       var us=unis.filter(function(u){return u.empreendimento_id===e.id;}), livres=us.filter(function(u){return u.status==="disponivel";});
       var precos=livres.map(function(u){return Number(u.preco);}).filter(Boolean), min=precos.length?Math.min.apply(null,precos):null;
@@ -1014,7 +1015,8 @@ function build3D(){
     vit.forEach(function(v){
       var d=v.dados||{}, capa=(d.fotos||[])[0];
       var q=d.quartos?(" · "+d.quartos+" quarto"+(d.quartos>1?"s":"")):"";
-      cards.push('<a class="oc" href="/imoveis.html#'+encodeURIComponent(v.codigo)+'"><div class="ph">'+(capa?'<img src="'+FOTO+String(capa).split("/").map(encodeURIComponent).join("/")+'" alt="" loading="lazy">':'<span class="lo">sem foto</span>')+'<span class="tag code">'+esc(v.codigo)+'</span></div>'+
+      var em3d=(d.predio||d.tipo==="Apartamento"||d.tipo==="Cobertura");
+      cards.push('<a class="oc" href="'+(em3d?'/predio.html#imovel/'+encodeURIComponent(v.codigo):'/imoveis.html#'+encodeURIComponent(v.codigo))+'"><div class="ph">'+(capa?'<img src="'+(/^https?:/.test(capa)?String(capa).split("?")[0]+(/unsplash/.test(capa)?"?w=600&q=70&auto=format&fit=crop":""):FOTO+String(capa).split("/").map(encodeURIComponent).join("/"))+'" alt="" loading="lazy">':'<span class="lo">sem foto</span>')+'<span class="tag code">'+esc(v.codigo)+'</span></div>'+
         '<div class="bd"><div class="pr">'+(d.valor?BRL.format(d.valor):"Sob consulta")+'</div><div class="ti">'+esc(d.tipo||"Imóvel")+esc(q)+'</div><div class="lo">'+esc(d.bairro||"")+(d.cidade?", "+esc(d.cidade):"")+'</div></div></a>');
     });
     box.innerHTML = cards.length ? cards.join("") : '<p class="foot-note">Nenhum outro imóvel publicado ainda.</p>';

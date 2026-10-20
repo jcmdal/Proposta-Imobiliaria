@@ -241,6 +241,19 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
 .pick-item b{font-family:var(--display);font-weight:400;font-size:24px}
 .pick-item span{color:var(--muted);font-size:14px}
 #sobre dl.specs{max-width:760px}
+.thumbs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.th{position:relative;aspect-ratio:4/3;border:0;padding:0;border-radius:8px;overflow:hidden;cursor:pointer;background:var(--panel-solid);max-width:100%}
+.th img{width:100%;height:100%;object-fit:cover;display:block}
+.th span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(9,14,43,.6);font-family:var(--mono);font-size:13px}
+.capa{display:block;width:100%;aspect-ratio:16/10;border:0;padding:0;margin:8px 0 4px;border-radius:10px;overflow:hidden;cursor:zoom-in;background:var(--panel-solid);max-width:100%}
+.capa img{width:100%;height:100%;object-fit:cover;display:block}
+.lb{position:fixed;inset:0;z-index:60;background:rgba(5,8,30,.92);display:flex;align-items:center;justify-content:center;padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.lb img{max-width:min(1200px,100%);max-height:84vh;border-radius:10px;object-fit:contain}
+.lb button{position:absolute;border:0;background:rgba(238,241,255,.12);color:var(--fg);width:46px;height:46px;border-radius:50%;font-size:26px;cursor:pointer}
+.lb .lb-x{top:max(16px,env(safe-area-inset-top,0px));right:max(16px,env(safe-area-inset-right,0px))}
+.lb .lb-prev{left:max(16px,env(safe-area-inset-left,0px));top:50%;transform:translateY(-50%)}
+.lb .lb-next{right:max(16px,env(safe-area-inset-right,0px));top:50%;transform:translateY(-50%)}
+.lb .lb-n{position:absolute;bottom:max(16px,env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);color:var(--muted);font-size:13px}
 </style>
 
 <style>
@@ -373,6 +386,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
 </footer>
 
 <div class="pick" id="pick" hidden></div>
+<div class="lb" id="lb" hidden role="dialog" aria-label="Fotos do imóvel"><button type="button" class="lb-x" aria-label="Fechar">×</button><button type="button" class="lb-prev" aria-label="Foto anterior">‹</button><img alt="Foto do imóvel"><button type="button" class="lb-next" aria-label="Próxima foto">›</button><span class="lb-n mono"></span></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
@@ -401,8 +415,42 @@ function slugAtual(){ try{ return decodeURIComponent(location.hash.slice(1)).spl
 function unidadeAtual(){ try{ return decodeURIComponent(location.hash.slice(1)).split("/")[1]||""; }catch(e){ return ""; } }
 window.addEventListener("hashchange", ()=>location.reload());
 
+const fotoUrl = p => /^https?:\/\//i.test(String(p)) ? String(p) : `${SUPA_URL}/storage/v1/object/public/fotos/${String(p).split("/").map(encodeURIComponent).join("/")}`;
+const fotoGrande = p => /images\.unsplash\.com/.test(String(p)) ? String(p).split("?")[0]+"?w=1600&q=80&auto=format&fit=crop" : fotoUrl(p);
+const fotoMini = p => /images\.unsplash\.com/.test(String(p)) ? String(p).split("?")[0]+"?w=480&q=70&auto=format&fit=crop" : fotoUrl(p);
+
+/* imóvel avulso da vitrine: abre no prédio cadastrado, ou num prédio ilustrativo */
+async function abrirImovel(codigo){
+  const { data:v, error } = await sb.from("vitrine").select("*").eq("codigo", codigo).maybeSingle();
+  if(error || !v) return escolherPredio(error ? "Não foi possível carregar o imóvel." : "Esse imóvel não está mais na vitrine.");
+  const d = v.dados||{};
+  if(d.predio){ location.hash = d.predio + (d.unidade ? "/"+d.unidade : ""); return; }
+  const isCob = d.tipo==="Cobertura";
+  const nAndar = parseInt((String(d.andar||"").match(/\d+/)||[])[0],10);
+  const andar = nAndar>0 ? nAndar : (isCob ? 8 : 3);
+  const ultimo = isCob ? Math.max(andar-1,1) : Math.max(andar+3, 6);
+  const quartos = d.quartos ? ` ${d.quartos} quarto${d.quartos>1?"s":""}` : "";
+  const titulo = `${d.tipo||"Imóvel"}${quartos}`;
+  const vagas = d.vagas!=null ? (d.vagas===0 ? "Sem vaga" : `${d.vagas} vaga${d.vagas>1?"s":""}`) : "";
+  const alvo = isCob ? `${andar}01` : `${andar}02`;
+  const cfg = {
+    imovel: v, bairro: d.bairro, endereco: d.endereco, chamada: `${titulo}${d.bairro?" na "+d.bairro:""}.`,
+    torre:{ largura:20, profundidade:14, peDireito:3, podio:4, primeiroAndar:1, ultimoAndar:ultimo, aletas:false, piscinaRooftop:false },
+    finais:["01","02","03","04"],
+    coberturas: isCob ? { andar, duplex:false, unidades:{ [alvo]:"inteira" } } : null,
+    tipologias:{ X:{ nome:titulo, area:d.area||0, vagas, sol:d.andar||"", descricao:d.descricao||"" }, V:{ nome:"Unidade vizinha", area:0 } },
+    fluxo:[], contato:{ nome:v.corretor_nome||"Corretor", whatsapp:v.corretor_whats||"" }
+  };
+  const linhas=[];
+  for(let f=1; f<=ultimo; f++) for(const fin of cfg.finais) linhas.push({codigo:`${f}${fin}`, andar:f, final:fin, tipologia:"V", status:"vizinha", preco:null});
+  if(isCob) linhas.push({codigo:alvo, andar, final:"01", tipologia:"X", status:"disponivel", preco:d.valor||null});
+  else { const t=linhas.find(x=>x.codigo===alvo); t.tipologia="X"; t.status="disponivel"; t.preco=d.valor||null; }
+  montar({ id:"imovel", slug:"imovel/"+v.codigo, nome:v.codigo, config:cfg }, linhas, alvo);
+}
+
 async function iniciar(){
   const slug = slugAtual();
+  if(slug==="imovel") return abrirImovel(unidadeAtual());
   if(!slug) return escolherPredio();
   const { data:emp, error } = await sb.from("empreendimentos").select("*").eq("slug", slug).maybeSingle();
   if(error || !emp) return escolherPredio(error ? "Não foi possível carregar o prédio. Verifique a internet." : "Esse prédio não foi encontrado.");
@@ -421,8 +469,9 @@ async function escolherPredio(msg){
 }
 
 /* ---------- montar a página a partir do cadastro ---------- */
-function montar(emp, linhas){
+function montar(emp, linhas, alvoCodigo){
 const CFG = emp.config||{};
+const IMV = CFG.imovel || null, DADOS = IMV ? (IMV.dados||{}) : null;
 const T = Object.assign({ largura:20, profundidade:14, peDireito:3.06, podio:7, primeiroAndar:3, ultimoAndar:18, aletas:false, piscinaRooftop:false }, CFG.torre||{});
 const TIPOS = CFG.tipologias||{};
 const FINAIS = (CFG.finais && CFG.finais.length) ? CFG.finais : [...new Set(linhas.filter(u=>u.andar<=T.ultimoAndar).map(u=>u.final))].sort();
@@ -434,14 +483,14 @@ const FH=T.peDireito, PODIUM=T.podio;
 const floorBase = f => PODIUM + (f-T.primeiroAndar)*FH;
 const TOP = COB ? floorBase(COB_ANDAR) + (COB.duplex?2:1)*FH : floorBase(T.ultimoAndar+1);
 
-document.title = `${emp.nome} · Tabela de vendas em 3D`;
-document.getElementById("brandName").textContent = emp.nome;
-document.getElementById("brandSub").textContent = CFG.bairro||"Tabela de vendas";
+document.title = IMV ? `${TIPOS.X.nome} · ${IMV.codigo}` : `${emp.nome} · Tabela de vendas em 3D`;
+document.getElementById("brandName").textContent = IMV ? TIPOS.X.nome : emp.nome;
+document.getElementById("brandSub").textContent = IMV ? `${IMV.codigo}${CFG.bairro?" · "+CFG.bairro:""}` : (CFG.bairro||"Tabela de vendas");
 document.getElementById("brandLink").href = "#"+emp.slug;
 
 const units = linhas.map(r=>({
   id:r.codigo, floor:r.andar, fin:r.final, tipo:r.tipologia,
-  status: r.status==="vendida" ? "vendida" : r.status==="reservada" ? "reservada" : "disponivel",
+  status: r.status==="vendida" ? "vendida" : r.status==="reservada" ? "reservada" : r.status==="vizinha" ? "vizinha" : "disponivel",
   price: r.preco!=null ? Number(r.preco) : null,
   cob: COB && r.andar===COB_ANDAR,
   lado: COB && r.andar===COB_ANDAR ? (COB.unidades?.[r.codigo] || "inteira") : null,
@@ -456,11 +505,23 @@ const disponivel = u => u.status==="disponivel";
 const andarTxt = u => u.duplex ? `${u.floor}º e ${u.floor+1}º` : `${u.floor}º`;
 
 const total=units.length, sold=units.filter(u=>!disponivel(u)).length;
-document.getElementById("heroEyebrow").textContent = [CFG.demonstracao?"Modelo de demonstração":"Lançamento", `${total} unidades`, CFG.bairro].filter(Boolean).join(" · ");
+document.getElementById("heroEyebrow").textContent = IMV ? [`Imóvel ${IMV.codigo}`, DADOS.finalidade||"Venda", CFG.bairro].filter(Boolean).join(" · ") : [CFG.demonstracao?"Modelo de demonstração":"Lançamento", `${total} unidades`, CFG.bairro].filter(Boolean).join(" · ");
+if(IMV){
+  document.querySelector(".intro .lede").textContent = "A janela acesa é o apartamento à venda. Veja as fotos, o valor e as condições, e fale com o corretor pelo WhatsApp.";
+  document.getElementById("plantas").hidden = true;
+  document.getElementById("glowBtn").hidden = true;
+  document.getElementById("hint").textContent = "Arraste para girar · o apartamento à venda está destacado";
+  document.querySelectorAll('.nav nav a[data-scroll="plantas"]').forEach(a=>a.hidden=true);
+}
 if(CFG.chamada){ document.getElementById("heroTitle").textContent = CFG.chamada; }
-document.getElementById("plantasTitle").textContent = `${Object.keys(TIPOS).length} planta${Object.keys(TIPOS).length===1?"":"s"} no ${emp.nome}.`;
-document.getElementById("footNote").textContent = `${emp.nome} · ${CFG.demonstracao?"Modelo de demonstração. Empreendimento, valores e disponibilidade são fictícios.":"Valores de tabela sujeitos a alteração sem aviso."}`;
-const specs=[["Endereço",CFG.endereco],["Bairro",CFG.bairro],["Entrega prevista",CFG.entrega],["Prédio",`${T.ultimoAndar-T.primeiroAndar+1} andares-tipo, ${FINAIS.length} apartamentos por andar${COB?`, ${Object.keys(COB.unidades||{}).length} cobertura${Object.keys(COB.unidades||{}).length===1?"":"s"}${COB.duplex?" duplex":""}`:""}`]].filter(x=>x[1]);
+if(!IMV) document.getElementById("plantasTitle").textContent = `${Object.keys(TIPOS).length} planta${Object.keys(TIPOS).length===1?"":"s"} no ${emp.nome}.`;
+document.getElementById("footNote").textContent = IMV ? `${IMV.codigo} · O prédio em 3D é uma representação ilustrativa. Valores sujeitos a alteração sem aviso.` : `${emp.nome} · ${CFG.demonstracao?"Modelo de demonstração. Empreendimento, valores e disponibilidade são fictícios.":"Valores de tabela sujeitos a alteração sem aviso."}`;
+const specs = IMV ? [
+  ["Endereço", DADOS.endereco], ["Bairro", [DADOS.bairro, DADOS.cidade].filter(Boolean).join(", ")], ["Andar e posição", DADOS.andar],
+  ["Condomínio", DADOS.condominio!=null ? BRL.format(DADOS.condominio)+" por mês" : ""], ["IPTU", DADOS.iptu!=null ? BRL.format(DADOS.iptu)+" por ano" : ""],
+  ["Pagamento", [DADOS.financiamento&&"Aceita financiamento", DADOS.fgts&&"FGTS", DADOS.permuta&&"Permuta"].filter(Boolean).join(" · ")],
+  ["Diferenciais", (DADOS.diferenciais||[]).join(" · ")]
+].filter(x=>x[1]) : [["Endereço",CFG.endereco],["Bairro",CFG.bairro],["Entrega prevista",CFG.entrega],["Prédio",`${T.ultimoAndar-T.primeiroAndar+1} andares-tipo, ${FINAIS.length} apartamentos por andar${COB?`, ${Object.keys(COB.unidades||{}).length} cobertura${Object.keys(COB.unidades||{}).length===1?"":"s"}${COB.duplex?" duplex":""}`:""}`]].filter(x=>x[1]);
 document.getElementById("specs").innerHTML = specs.map(([k,v])=>`<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("");
 
 const state = { mode:"night", selected:null, hover:null, filter:null, glow:false, spin:true };
@@ -468,7 +529,18 @@ const reduceMotion = window.matchMedia && matchMedia("(prefers-reduced-motion: r
 if(reduceMotion) state.spin=false;
 
 /* ---------- painel de vendas + espelho ---------- */
+function fotosDoImovel(){ return (DADOS && DADOS.fotos) || []; }
+function imovelPanelHTML(){
+  const fotos=fotosDoImovel();
+  const specs=[DADOS.area&&NUM2.format(DADOS.area)+" m²", DADOS.quartos!=null&&DADOS.quartos+" quarto"+(DADOS.quartos>1?"s":""), DADOS.suites&&DADOS.suites+" suíte"+(DADOS.suites>1?"s":""), DADOS.vagas!=null&&(DADOS.vagas+" vaga"+(DADOS.vagas===1?"":"s"))].filter(Boolean);
+  return `
+    <div class="sales-top"><div class="pct" style="font-size:28px">${DADOS.valor?BRL.format(DADOS.valor):"Sob consulta"}</div><span class="mono" style="font-size:12px;color:var(--muted)">${esc(IMV.codigo)}</span></div>
+    ${specs.length?`<div class="legend" style="gap:10px">${specs.map(x=>`<span class="mono">${esc(x)}</span>`).join("")}</div>`:""}
+    ${fotos.length?`<div class="eyebrow">Fotos · ${fotos.length}</div><div class="thumbs">${fotos.slice(0,6).map((f,i)=>`<button type="button" class="th" data-foto="${i}" aria-label="Abrir foto ${i+1}"><img src="${esc(fotoMini(f))}" alt="" loading="lazy">${i===5&&fotos.length>6?`<span>+${fotos.length-6}</span>`:""}</button>`).join("")}</div>`:`<p class="foot-note">Fotos em breve.</p>`}
+    <p class="foot-note">${IMV.vendido?"Este imóvel já foi vendido.":"Toque numa foto para ampliar."}</p>`;
+}
 function salesHTML(){
+  if(IMV) return imovelPanelHTML();
   const pct = total? sold/total*100 : 0;
   const n=FINAIS.length;
   let rows = `<div></div>` + FINAIS.map(f=>`<div class="hd">${esc(f)}</div>`).join("");
@@ -503,9 +575,11 @@ function renderSales(){
   const openA = salesBox.querySelector("details")?.open ?? true;
   const openB = salesBoxM.querySelector("details")?.open ?? true;
   salesBox.innerHTML=salesHTML(); salesBoxM.innerHTML=salesHTML();
+  if(IMV) return;
   salesBox.querySelector("details").open=openA; salesBoxM.querySelector("details").open=openB;
 }
 [salesBox,salesBoxM].forEach(el=>el.addEventListener("click",e=>{
+  const ft=e.target.closest("[data-foto]"); if(ft){ abrirFoto(+ft.dataset.foto); return; }
   const b=e.target.closest("[data-unit]"); if(!b) return;
   selectUnit(byId[b.dataset.unit], true);
 }));
@@ -513,10 +587,31 @@ function renderSales(){
 /* ---------- card da unidade ---------- */
 const card=document.getElementById("unitCard");
 const sunIcon=`<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="3.2" fill="#f6c66b"/><g stroke="#f6c66b" stroke-width="1.3" stroke-linecap="round"><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3 3l1.4 1.4M11.6 11.6L13 13M3 13l1.4-1.4M11.6 4.4L13 3"/></g></svg>`;
+function imovelCardHTML(){
+  const fotos=fotosDoImovel(), d=DADOS;
+  const facts=[["Área",d.area?NUM2.format(d.area)+" m²":""],["Quartos",d.quartos!=null?String(d.quartos):""],["Vagas",d.vagas!=null?String(d.vagas):""]];
+  return `
+    <div class="unit-head"><div class="eyebrow">${esc(d.finalidade||"Venda")} · ${esc(IMV.codigo)}</div><button class="close" type="button" id="closeCard" aria-label="Fechar">×</button></div>
+    ${fotos.length?`<button type="button" class="capa" data-foto="0" aria-label="Ampliar a foto de capa"><img src="${esc(fotoGrande(fotos[0]))}" alt="Foto do imóvel"></button>`:""}
+    <div class="u-id"><b style="font-size:30px">${esc(TIPOS.X.nome)}</b><span class="badge ${IMV.vendido?"off":"on"}">${IMV.vendido?"Vendido":"Disponível"}</span></div>
+    <p class="u-tipo">${esc([d.bairro,d.cidade].filter(Boolean).join(", "))}</p>
+    <dl class="facts">${facts.map(([k,v])=>`<div><dt>${k}</dt><dd>${esc(v||"—")}</dd></div>`).join("")}</dl>
+    ${d.andar?`<div class="sun">${sunIcon}<span>${esc(d.andar)}</span></div>`:""}
+    <div class="price"><div class="eyebrow">Valor</div><div class="val">${d.valor?BRL.format(d.valor):"Sob consulta"}</div>${d.valor&&d.area?`<div class="m2">${BRL.format(d.valor/d.area)} por m²</div>`:""}</div>
+    <ul class="flow">
+      ${d.condominio!=null?`<li><span>Condomínio</span><span>${BRL.format(d.condominio)}/mês</span></li>`:""}
+      ${d.iptu!=null?`<li><span>IPTU</span><span>${BRL.format(d.iptu)}/ano</span></li>`:""}
+      ${(d.financiamento||d.fgts||d.permuta)?`<li><span>Aceita</span><span>${[d.financiamento&&"Financiamento",d.fgts&&"FGTS",d.permuta&&"Permuta"].filter(Boolean).join(" · ")}</span></li>`:""}
+    </ul>
+    ${d.descricao?`<p class="legal" style="font-size:13px;color:#cfd5f3">${esc(d.descricao)}</p>`:""}
+    ${IMV.vendido?"":`<div class="u-actions"><button class="btn btn-lamp" type="button" id="wantBtn">Tenho interesse neste imóvel</button></div>`}
+    <div class="u-nav"><a href="/imoveis.html#${encodeURIComponent(IMV.codigo)}" style="color:var(--muted);font-size:13px">Ver na vitrine</a><a href="#outros" data-scroll="outros" style="color:var(--muted);font-size:13px">Outros imóveis ›</a></div>`;
+}
 function renderCard(){
   const u=state.selected;
   if(!u){ card.hidden=true; updateViewOffset(); return; }
   card.hidden=false;
+  if(IMV){ card.innerHTML=imovelCardHTML(); updateViewOffset(); return; }
   const t=TIPOS[u.tipo], on=disponivel(u);
   let body;
   if(on && u.price){
@@ -553,7 +648,8 @@ card.addEventListener("click",e=>{
   if(e.target.closest("#prevA")){ const n=nextAvail(state.selected,-1,state.filter); if(n) selectUnit(n,true); return; }
   if(e.target.closest("#nextA")){ const n=nextAvail(state.selected,1,state.filter); if(n) selectUnit(n,true); return; }
   const go=e.target.closest("[data-go]"); if(go){ selectUnit(byId[go.dataset.go],true); return; }
-  if(e.target.closest("#wantBtn")){ fUnit.value=state.selected.id; document.getElementById("contato").scrollIntoView({behavior:reduceMotion?"auto":"smooth"}); }
+  const ft=e.target.closest("[data-foto]"); if(ft){ abrirFoto(+ft.dataset.foto); return; }
+  if(e.target.closest("#wantBtn")){ if(!IMV) fUnit.value=state.selected.id; document.getElementById("contato").scrollIntoView({behavior:reduceMotion?"auto":"smooth"}); }
 });
 function nextAvail(from, dir, tipo){
   const list = sortedUnits.filter(u=>disponivel(u) && (!tipo || u.tipo===tipo));
@@ -565,6 +661,7 @@ function nextAvail(from, dir, tipo){
 
 /* ---------- plantas ---------- */
 function renderPlans(){
+  if(IMV) return;
   document.getElementById("plans").innerHTML = TIPO_ORDER.map(k=>{
     const t=TIPOS[k], list=sortedUnits.filter(u=>u.tipo===k), av=list.filter(disponivel);
     if(!list.length) return "";
@@ -598,9 +695,10 @@ document.getElementById("clearFilter").addEventListener("click",()=>setFilter(nu
 const nomeC = CONTATO.nome || "Corretor";
 document.getElementById("brokerName").textContent = nomeC;
 document.getElementById("brokerInitials").textContent = nomeC.split(" ").map(s=>s[0]).slice(0,2).join("").toUpperCase();
-document.getElementById("brokerText").textContent = `Atendo o ${emp.nome}. Tiro dúvidas sobre planta, financiamento e fluxo de pagamento, e acompanho você na visita.`;
+document.getElementById("brokerText").textContent = IMV ? `Sou o corretor responsável pelo imóvel ${IMV.codigo}. Tiro dúvidas sobre o imóvel, financiamento e documentação, e acompanho você na visita.` : `Atendo o ${emp.nome}. Tiro dúvidas sobre planta, financiamento e fluxo de pagamento, e acompanho você na visita.`;
 const whats = String(CONTATO.whatsapp||"").replace(/\D/g,"");
 const fUnit=document.getElementById("fUnit");
+if(IMV) fUnit.closest(".field").hidden=true;
 fUnit.innerHTML = `<option value="">Ainda não escolhi</option>` + sortedUnits.filter(disponivel).map(u=>`<option value="${esc(u.id)}">${esc(u.id)} · ${esc(TIPOS[u.tipo].nome)}${u.price?" · "+BRL.format(u.price):""}</option>`).join("");
 document.getElementById("leadForm").addEventListener("submit",e=>{
   e.preventDefault();
@@ -610,8 +708,8 @@ document.getElementById("leadForm").addEventListener("submit",e=>{
   if(!name || phone.length<10){ err.hidden=false; document.getElementById("sent").hidden=true; return; }
   err.hidden=true;
   const u=byId[fUnit.value];
-  let text=`Olá, ${nomeC.split(" ")[0]}! Sou ${name} e vi o ${emp.nome} na tabela 3D.`;
-  if(u) text+=` Tenho interesse na unidade ${u.id} (${TIPOS[u.tipo].nome}${TIPOS[u.tipo].area?`, ${NUM2.format(TIPOS[u.tipo].area)} m²`:""}${u.price?`, ${BRL.format(u.price)}`:""}).`;
+  let text = IMV ? `Olá, ${nomeC.split(" ")[0]}! Sou ${name} e vi o imóvel ${IMV.codigo} (${TIPOS.X.nome}${DADOS.bairro?", "+DADOS.bairro:""}${DADOS.valor?", "+BRL.format(DADOS.valor):""}). Quero mais informações.` : `Olá, ${nomeC.split(" ")[0]}! Sou ${name} e vi o ${emp.nome} na tabela 3D.`;
+  if(u && !IMV) text+=` Tenho interesse na unidade ${u.id} (${TIPOS[u.tipo].nome}${TIPOS[u.tipo].area?`, ${NUM2.format(TIPOS[u.tipo].area)} m²`:""}${u.price?`, ${BRL.format(u.price)}`:""}).`;
   const m=document.getElementById("fMsg").value.trim(); if(m) text+=` ${m}`;
   text+=` Meu WhatsApp: ${document.getElementById("fPhone").value.trim()}.`;
   const link=document.getElementById("waLink");
@@ -619,6 +717,12 @@ document.getElementById("leadForm").addEventListener("submit",e=>{
   else { link.hidden=true; document.getElementById("sentText").textContent="O WhatsApp do corretor ainda não foi cadastrado. Esta é a mensagem que seria enviada:"; document.getElementById("sentCopy").textContent=text; }
   document.getElementById("sent").hidden=false;
 });
+
+/* ---------- fotos ampliadas ---------- */
+const lb=document.getElementById("lb"); let lbI=0;
+function abrirFoto(i){ const f=fotosDoImovel(); if(!f.length) return; lbI=(i+f.length)%f.length; lb.querySelector("img").src=fotoGrande(f[lbI]); lb.querySelector(".lb-n").textContent=`${lbI+1} de ${f.length}`; lb.hidden=false; }
+lb.addEventListener("click",e=>{ if(e.target.closest(".lb-prev")) abrirFoto(lbI-1); else if(e.target.closest(".lb-next")) abrirFoto(lbI+1); else if(e.target===lb||e.target.closest(".lb-x")) lb.hidden=true; });
+document.addEventListener("keydown",e=>{ if(lb.hidden) return; if(e.key==="Escape") lb.hidden=true; if(e.key==="ArrowLeft") abrirFoto(lbI-1); if(e.key==="ArrowRight") abrirFoto(lbI+1); });
 
 /* ---------- 3D ---------- */
 const stage=document.getElementById("stage"), canvas=document.getElementById("c");
@@ -630,14 +734,14 @@ function syncSpinBtn(){ document.getElementById("spinBtn").setAttribute("aria-pr
 function updateViewOffset(){ if(three) three.resize(); }
 
 renderSales(); renderPlans();
-const inicial = byId[unidadeAtual()] || sortedUnits.find(disponivel) || null;
+const inicial = (alvoCodigo && byId[alvoCodigo]) || byId[unidadeAtual()] || sortedUnits.find(disponivel) || null;
 state.selected = inicial;
 renderCard();
 
 if(!window.THREE){ document.getElementById("loading").textContent="Não foi possível carregar o 3D nesta conexão."; return; }
 three = build3D();
 document.getElementById("loading").remove();
-if(inicial && unidadeAtual()) three.flyTo(inicial);
+if(inicial && (unidadeAtual() || IMV)){ state.spin=false; syncSpinBtn(); three.flyTo(inicial); }
 
 function build3D(){
   const W=T.largura, D=T.profundidade;
@@ -816,8 +920,15 @@ function build3D(){
     hlGroup.scale.set(x1-x0+1.1, u.h-.15, z1-z0+1.1);
     hlGroup.visible=true;
   }
+  const vizR=rngFrom(91);
+  units.forEach(u=>{ if(u.status==="vizinha") u.acesa = vizR()<.35; });
   function lookFor(u){
     const night=state.mode==="night", on=disponivel(u);
+    if(u.status==="vizinha"){
+      const c=new THREE.Color();
+      if(night){ if(u.acesa){ c.set("#7d6a4c"); return {map:texLit,col:c}; } c.set("#ffffff"); return {map:texDark,col:c}; }
+      c.set("#c3cbdc"); return {map:texDay,col:c};
+    }
     const out = state.filter && u.tipo!==state.filter;
     let map, col=new THREE.Color();
     if(night){ map = on?texLit:texDark; col.copy(on?u.tint:new THREE.Color(1,1,1)); }
@@ -874,7 +985,8 @@ function build3D(){
     ndc.set((cx-r.left)/r.width*2-1, -((cy-r.top)/r.height)*2+1);
     ray.setFromCamera(ndc,camera);
     const hit=ray.intersectObjects(pickList,false)[0];
-    return hit && hit.object.userData.unit || null;
+    const hu = hit && hit.object.userData.unit || null;
+    return hu && hu.status==="vizinha" ? null : hu;
   }
   const hint=document.getElementById("hint");
   canvas.addEventListener("pointercancel",()=>{ down=null; canvas.classList.remove("dragging"); });
@@ -952,7 +1064,8 @@ iniciar().catch(err=>{ console.error(err); escolherPredio("Não foi possível ab
     sb.from("unidades").select("empreendimento_id,status,preco"),
     sb.from("vitrine").select("*").eq("vendido",false).order("publicado_em",{ascending:false}).limit(12)
   ]).then(function(r){
-    var emps=(r[0].data||[]).filter(function(e){return e.slug!==atual;}), unis=r[1].data||[], vit=r[2].data||[];
+    var atualCod=decodeURIComponent((location.hash.split("/")[1])||"");
+    var emps=(r[0].data||[]).filter(function(e){return e.slug!==atual;}), unis=r[1].data||[], vit=(r[2].data||[]).filter(function(v){return v.codigo!==atualCod;});
     var cards=emps.map(function(e){
       var us=unis.filter(function(u){return u.empreendimento_id===e.id;}), livres=us.filter(function(u){return u.status==="disponivel";});
       var precos=livres.map(function(u){return Number(u.preco);}).filter(Boolean), min=precos.length?Math.min.apply(null,precos):null;
@@ -963,7 +1076,8 @@ iniciar().catch(err=>{ console.error(err); escolherPredio("Não foi possível ab
     vit.forEach(function(v){
       var d=v.dados||{}, capa=(d.fotos||[])[0];
       var q=d.quartos?(" · "+d.quartos+" quarto"+(d.quartos>1?"s":"")):"";
-      cards.push('<a class="oc" href="/imoveis.html#'+encodeURIComponent(v.codigo)+'"><div class="ph">'+(capa?'<img src="'+FOTO+String(capa).split("/").map(encodeURIComponent).join("/")+'" alt="" loading="lazy">':'<span class="lo">sem foto</span>')+'<span class="tag code">'+esc(v.codigo)+'</span></div>'+
+      var em3d=(d.predio||d.tipo==="Apartamento"||d.tipo==="Cobertura");
+      cards.push('<a class="oc" href="'+(em3d?'/predio.html#imovel/'+encodeURIComponent(v.codigo):'/imoveis.html#'+encodeURIComponent(v.codigo))+'"><div class="ph">'+(capa?'<img src="'+(/^https?:/.test(capa)?String(capa).split("?")[0]+(/unsplash/.test(capa)?"?w=600&q=70&auto=format&fit=crop":""):FOTO+String(capa).split("/").map(encodeURIComponent).join("/"))+'" alt="" loading="lazy">':'<span class="lo">sem foto</span>')+'<span class="tag code">'+esc(v.codigo)+'</span></div>'+
         '<div class="bd"><div class="pr">'+(d.valor?BRL.format(d.valor):"Sob consulta")+'</div><div class="ti">'+esc(d.tipo||"Imóvel")+esc(q)+'</div><div class="lo">'+esc(d.bairro||"")+(d.cidade?", "+esc(d.cidade):"")+'</div></div></a>');
     });
     box.innerHTML = cards.length ? cards.join("") : '<p class="foot-note">Nenhum outro imóvel publicado ainda.</p>';
