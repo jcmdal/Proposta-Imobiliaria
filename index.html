@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-predio="mirante-340">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -10,7 +10,7 @@
 <meta name="theme-color" content="#090e2b">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23090e2b'/%3E%3Crect x='10' y='5' width='12' height='23' fill='%231b2357'/%3E%3Crect x='12' y='8' width='3' height='3' fill='%23f6c66b'/%3E%3Crect x='17' y='13' width='3' height='3' fill='%23f6c66b'/%3E%3Crect x='12' y='18' width='3' height='3' fill='%23f6c66b'/%3E%3Crect x='17' y='22' width='3' height='3' fill='%2386e8ff'/%3E%3C/svg%3E">
 <style>html{-webkit-text-size-adjust:100%}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}html{scroll-behavior:smooth}</style>
-<title>Mirante 340</title>
+<title>Mirante 340 · Tabela de vendas em 3D</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gloock&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -231,6 +231,40 @@ footer{border-top:1px solid var(--line);padding-block:28px;color:var(--muted);fo
 footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto !important;transition:none !important}}
 </style>
+<style>
+.pick{min-height:100vh;padding-block:64px;background:var(--night)}
+.pick .wrap{display:flex;flex-direction:column;gap:16px}
+.pick h1{font-family:var(--display);font-weight:400;font-size:clamp(32px,5vw,52px);margin:0}
+.pick-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-top:12px}
+.pick-item{display:flex;flex-direction:column;gap:4px;padding:18px 20px;border:1px solid var(--line);border-radius:14px;background:var(--ink);text-decoration:none}
+.pick-item:hover{border-color:var(--lamp)}
+.pick-item b{font-family:var(--display);font-weight:400;font-size:24px}
+.pick-item span{color:var(--muted);font-size:14px}
+#sobre dl.specs{max-width:760px}
+.lbl{font-size:13px;color:var(--muted)}
+.pills{display:flex;flex-wrap:wrap;gap:8px}
+.pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:transparent;color:var(--fg);border-radius:999px;padding:8px 14px;font:inherit;font-size:14px;cursor:pointer}
+.pill:hover{border-color:var(--muted)}
+.pill[aria-pressed="true"],.pill.on{background:var(--lamp);border-color:var(--lamp);color:#1c1405;font-weight:600}
+.pill.on button{border:0;background:rgba(28,20,5,.15);color:#1c1405;width:22px;height:22px;border-radius:50%;cursor:pointer;font-size:14px;line-height:1;padding:0}
+.addrow select{font:inherit;font-size:14px;color:var(--fg);background:var(--night);border:1px dashed var(--line);border-radius:10px;padding:9px 12px;width:100%;max-width:100%}
+.preview{display:flex;flex-direction:column;gap:6px;padding:14px;border-radius:10px;background:var(--night);border:1px solid var(--line)}
+.preview p{margin:0;font-size:14.5px;line-height:1.5;color:#dfe4fb;white-space:pre-wrap;overflow-wrap:anywhere}
+.cell.fav{box-shadow:0 0 0 2px var(--pick) inset}
+.thumbs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.th{position:relative;aspect-ratio:4/3;border:0;padding:0;border-radius:8px;overflow:hidden;cursor:pointer;background:var(--panel-solid);max-width:100%}
+.th img{width:100%;height:100%;object-fit:cover;display:block}
+.th span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(9,14,43,.6);font-family:var(--mono);font-size:13px}
+.capa{display:block;width:100%;aspect-ratio:16/10;border:0;padding:0;margin:8px 0 4px;border-radius:10px;overflow:hidden;cursor:zoom-in;background:var(--panel-solid);max-width:100%}
+.capa img{width:100%;height:100%;object-fit:cover;display:block}
+.lb{position:fixed;inset:0;z-index:60;background:rgba(5,8,30,.92);display:flex;align-items:center;justify-content:center;padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.lb img{max-width:min(1200px,100%);max-height:84vh;border-radius:10px;object-fit:contain}
+.lb button{position:absolute;border:0;background:rgba(238,241,255,.12);color:var(--fg);width:46px;height:46px;border-radius:50%;font-size:26px;cursor:pointer}
+.lb .lb-x{top:max(16px,env(safe-area-inset-top,0px));right:max(16px,env(safe-area-inset-right,0px))}
+.lb .lb-prev{left:max(16px,env(safe-area-inset-left,0px));top:50%;transform:translateY(-50%)}
+.lb .lb-next{right:max(16px,env(safe-area-inset-right,0px));top:50%;transform:translateY(-50%)}
+.lb .lb-n{position:absolute;bottom:max(16px,env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);color:var(--muted);font-size:13px}
+</style>
 
 <style>
 .others{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
@@ -252,21 +286,20 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
 </head>
 <body>
 <header class="nav">
-  <a class="brand" href="#hero"><b>Mirante 340</b><span>Jardim das Acácias</span></a>
+  <a class="brand" href="#" id="brandLink"><b id="brandName">Prédios em 3D</b><span id="brandSub">Tabela de vendas</span></a>
   <nav aria-label="Seções">
-    <a href="#hero">Tabela 3D</a>
-    <a href="#plantas">Plantas</a>
-    <a href="#predio">O prédio</a>
-    <a href="#local">Localização</a>
-    <a href="#outros">Outros imóveis</a>
+    <a href="#hero" data-scroll="hero">Tabela 3D</a>
+    <a href="#plantas" data-scroll="plantas">Plantas</a>
+    <a href="#local" data-scroll="local" id="navLocal" hidden>Localização</a>
+    <a href="#outros" data-scroll="outros">Outros imóveis</a>
   </nav>
-  <a class="btn btn-lamp" href="#contato">Falar com o corretor</a>
+  <a class="btn btn-lamp" href="#contato" data-scroll="contato">Falar com o corretor</a>
 </header>
 
 <section class="hero" id="hero" aria-label="Tabela de vendas em 3D">
   <div class="intro">
-    <div class="eyebrow">Lançamento · 66 unidades · Tabela de out/2026</div>
-    <h1>Escolha seu apartamento <em>pela janela</em>.</h1>
+    <div class="eyebrow" id="heroEyebrow">Carregando…</div>
+    <h1 id="heroTitle">Escolha seu apartamento <em>pela janela</em>.</h1>
     <p class="lede">Cada luz acesa no prédio é uma unidade disponível. Clique em uma janela para ver planta, andar, posição do sol, preço e fluxo de pagamento.</p>
     <div class="glass sales" id="salesBox"></div>
   </div>
@@ -286,7 +319,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
         <button type="button" data-view="front">Frente</button>
         <button type="button" data-view="side">Lateral</button>
         <button type="button" data-view="back">Fundos</button>
-        <button type="button" data-view="roof">Rooftop</button>
+        <button type="button" data-view="roof">Cobertura</button>
       </div>
       <div class="seg">
         <button type="button" id="spinBtn" aria-pressed="true">Girar</button>
@@ -299,7 +332,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
     </div>
   </div>
 
-  <aside class="glass unit" id="unitCard" aria-live="polite"></aside>
+  <aside class="glass unit" id="unitCard" aria-live="polite" hidden></aside>
   <div class="glass sales sales-mobile" id="salesBoxMobile"></div>
 </section>
 
@@ -307,55 +340,28 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
   <section class="block" id="plantas">
     <div class="wrap">
       <div class="sec-head">
-        <div><div class="eyebrow">Plantas</div><h2>Cinco plantas, do studio à cobertura.</h2></div>
+        <div><div class="eyebrow">Plantas</div><h2 id="plantasTitle">As plantas do prédio.</h2></div>
         <p>Os quadradinhos mostram quantas unidades de cada planta ainda estão à venda. Toque em “Ver no prédio” e só elas ficam acesas na tabela 3D.</p>
       </div>
       <div class="plans" id="plans"></div>
     </div>
   </section>
 
-  <section class="block" id="predio">
+  <section class="block" id="sobre">
     <div class="wrap">
-      <div class="sec-head">
-        <div><div class="eyebrow">O prédio</div><h2>Torre única, 19 pavimentos, rooftop aberto.</h2></div>
-        <p>Projeto com quatro apartamentos por andar e duas coberturas duplex. Fachada principal voltada para o norte, com sol pela manhã e à tarde nas unidades de frente.</p>
-      </div>
-      <div class="two">
-        <dl class="specs">
-          <div><dt>Rooftop</dt><dd>Piscina aquecida com raia de 18 m, lounge e churrasqueira com vista para a serra.</dd></div>
-          <div><dt>Térreo</dt><dd>Lobby com pé-direito duplo, coworking, bicicletário e espaço de entregas refrigerado.</dd></div>
-          <div><dt>Garagem</dt><dd>Dois subsolos, vagas demarcadas e pontos de recarga para carro elétrico.</dd></div>
-          <div><dt>Unidades</dt><dd>Infraestrutura para ar-condicionado em todos os ambientes, fechadura digital e medição individual de água e gás.</dd></div>
-          <div><dt>Ficha técnica</dt><dd>66 unidades · terreno de 1.420 m² · 4 por andar do 3º ao 18º · 2 coberturas duplex.</dd></div>
-        </dl>
-        <div class="obra">
-          <div class="eyebrow">Andamento da obra · set/2026</div>
-          <div class="obra-row"><header><span>Fundação</span><span>100%</span></header><div class="bar"><i style="width:100%"></i></div></div>
-          <div class="obra-row"><header><span>Estrutura</span><span>34%</span></header><div class="bar"><i style="width:34%"></i></div></div>
-          <div class="obra-row"><header><span>Alvenaria</span><span>12%</span></header><div class="bar"><i style="width:12%"></i></div></div>
-          <div class="obra-row"><header><span>Acabamento</span><span>0%</span></header><div class="bar"><i style="width:0%"></i></div></div>
-          <div class="delivery"><span class="eyebrow">Entrega prevista</span><b>Dezembro de 2028</b></div>
-        </div>
-      </div>
+      <div class="sec-head" id="sobreHead" hidden><div><div class="eyebrow">O prédio</div><h2 id="sobreTitle"></h2></div><p id="sobreTexto"></p></div>
+      <div class="two"><dl class="specs" id="specs"></dl><div class="obra" id="obraBox" hidden></div></div>
     </div>
   </section>
-
-  <section class="block" id="local">
+  <section class="block" id="local" hidden>
     <div class="wrap two">
       <div>
         <div class="eyebrow">Localização</div>
-        <p class="addr" style="margin-top:10px">Rua das Acácias, 340</p>
-        <p style="color:var(--muted);margin:0 0 20px;max-width:46ch">Jardim das Acácias, numa rua residencial a duas quadras da avenida principal. Os tempos ao lado são a pé, saindo da portaria.</p>
-        <a class="btn btn-ghost" href="#contato">Agendar visita ao decorado</a>
+        <p class="addr" style="margin-top:10px" id="localAddr"></p>
+        <p style="color:var(--muted);margin:0 0 20px;max-width:46ch" id="localTexto"></p>
+        <a class="btn btn-ghost" href="#contato" data-scroll="contato">Agendar uma visita</a>
       </div>
-      <ul class="near">
-        <li><span>Estação de metrô</span><span>6 min</span></li>
-        <li><span>Parque linear e ciclovia</span><span>3 min</span></li>
-        <li><span>Supermercado e padaria</span><span>4 min</span></li>
-        <li><span>Escolas de ensino infantil e fundamental</span><span>8 min</span></li>
-        <li><span>Hospital e pronto-atendimento</span><span>12 min</span></li>
-        <li><span>Shopping</span><span>15 min</span></li>
-      </ul>
+      <ul class="near" id="localNear"></ul>
     </div>
   </section>
 
@@ -363,24 +369,31 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
     <div class="wrap broker">
       <div class="card-b">
         <div class="eyebrow">Atendimento</div>
-        <div class="who"><div class="avatar" id="brokerInitials">L</div><div><b id="brokerName">Leonardo</b><span id="brokerCreci">Corretor · CRECI 000000-F</span></div></div>
-        <p>Atendo o Mirante 340 desde o lançamento. Tiro dúvidas sobre planta, financiamento e fluxo de pagamento, e acompanho você na visita ao decorado.</p>
-        <div class="phone"><span class="num" id="brokerPhone">(11) 99999-9999</span><button type="button" class="btn btn-ghost" id="copyPhone">Copiar número</button></div>
-        <p class="foot-note" id="copyMsg" hidden>Número copiado.</p>
+        <div class="who"><div class="avatar" id="brokerInitials">L</div><div><b id="brokerName">Corretor</b><span id="brokerCreci">Atendimento pelo WhatsApp</span></div></div>
+        <p id="brokerText">Tiro dúvidas sobre planta, financiamento e fluxo de pagamento, e acompanho você na visita.</p>
       </div>
       <form class="lead" id="leadForm" novalidate>
+        <div class="field">
+          <span class="lbl">Unidades que você escolheu</span>
+          <div class="pills" id="pickUnits"></div>
+          <div class="addrow" id="addUnitRow"><select id="fUnit" aria-label="Adicionar outra unidade"></select></div>
+        </div>
+        <div class="field">
+          <span class="lbl">O que você quer saber?</span>
+          <div class="pills" id="pickTopics" role="group" aria-label="Assuntos"></div>
+        </div>
+        <div class="field">
+          <span class="lbl">Melhor horário para falar</span>
+          <div class="pills" id="pickTime" role="group" aria-label="Horário"></div>
+        </div>
         <div class="row2">
-          <div class="field"><label for="fName">Seu nome</label><input id="fName" name="name" autocomplete="name" required placeholder="Como devo te chamar"></div>
-          <div class="field"><label for="fPhone">WhatsApp</label><input id="fPhone" name="phone" autocomplete="tel" inputmode="tel" required placeholder="(00) 00000-0000"></div>
+          <div class="field"><label for="fName">Seu nome (opcional)</label><input id="fName" name="name" autocomplete="name" placeholder="Como devo te chamar"></div>
+          <div class="field"><label for="fMsg">Algo mais? (opcional)</label><input id="fMsg" name="msg" placeholder="Ex.: tenho um carro para dar de entrada"></div>
         </div>
-        <div class="field"><label for="fUnit">Unidade de interesse</label><select id="fUnit" name="unit"></select></div>
-        <div class="field"><label for="fMsg">Mensagem (opcional)</label><textarea id="fMsg" name="msg" placeholder="Ex.: quero simular com FGTS, prefiro visitar no sábado"></textarea></div>
-        <p class="err" id="fErr" hidden>Preencha seu nome e um WhatsApp com DDD.</p>
-        <button class="btn btn-lamp" type="submit">Montar mensagem para o corretor</button>
-        <div class="sent" id="sent" hidden>
-          <span>Mensagem pronta. Abra o WhatsApp para enviar ao corretor.</span>
-          <a class="btn btn-lamp" id="waLink" href="#" target="_blank" rel="noopener">Abrir no WhatsApp</a>
-        </div>
+        <div class="preview"><span class="lbl">Sua mensagem</span><p id="msgPreview"></p></div>
+        <a class="btn btn-lamp" id="waLink" href="#" target="_blank" rel="noopener">Enviar pelo WhatsApp</a>
+        <button class="btn btn-ghost" type="button" id="copyMsgBtn" hidden>Copiar mensagem</button>
+        <p class="foot-note" id="waNote"></p>
       </form>
     </div>
   </section>
@@ -398,86 +411,198 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
 
 <footer>
   <div class="wrap">
-    <span><a href="/imoveis.html">Ver todos os imóveis</a> · <a href="/portal.html">Área do corretor</a></span>
-    <span>Mirante 340 · Modelo de demonstração. Empreendimento, valores e disponibilidade são fictícios.</span>
-    <span>Imagens ilustrativas. Valores de tabela sujeitos a alteração sem aviso.</span>
+    <span id="footNote">Valores de tabela sujeitos a alteração sem aviso.</span>
+    <span>Imagens ilustrativas. <a href="/imoveis.html">Ver todos os imóveis</a></span>
   </div>
 </footer>
 
+<div class="pick" id="pick" hidden></div>
+<div class="lb" id="lb" hidden role="dialog" aria-label="Fotos do imóvel"><button type="button" class="lb-x" aria-label="Fechar">×</button><button type="button" class="lb-prev" aria-label="Foto anterior">‹</button><img alt="Foto do imóvel"><button type="button" class="lb-next" aria-label="Próxima foto">›</button><span class="lb-n mono"></span></div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script>
 (function(){
-/* ============ DADOS DO EMPREENDIMENTO (edite aqui) ============ */
-const CONFIG = {
-  corretor:{ nome:"Leonardo", creci:"Corretor · CRECI 000000-F", telefone:"(11) 99999-9999", whatsapp:"5511999999999" },
-  precoM2: 12400,          // R$ por m² privativo no 3º andar
-  premioAndar: 0.011,      // valorização por andar
-  fluxo: [                 // fluxo de pagamento
-    { nome:"Entrada", pct:.10, n:1 },
-    { nome:"Mensais", pct:.12, n:36 },
-    { nome:"Reforços anuais", pct:.13, n:3 },
-    { nome:"Parcela das chaves", pct:.65, n:1 }
-  ]
-};
-const TIPOS = {
-  "01":{ nome:"2 suítes", area:74.20, vaga:"2 vagas", sol:"Norte e oeste · sol da tarde", fator:.98 },
-  "02":{ nome:"1 suíte + 1 quarto", area:58.40, vaga:"1 vaga", sol:"Norte e leste · sol da manhã", fator:1.0 },
-  "03":{ nome:"1 suíte", area:44.10, vaga:"1 vaga", sol:"Sul e leste · sol da manhã", fator:1.06 },
-  "04":{ nome:"Studio", area:31.60, vaga:"Sem vaga", sol:"Sul e oeste · sol da tarde", fator:1.12 },
-  "C": { nome:"Cobertura duplex", area:148.50, vaga:"3 vagas", sol:"Vista 360° · piscina privativa", fator:1.10 }
-};
-const TIPO_ORDER = ["04","03","02","01","C"];
-const TIPO_DESC = {
-  "04":"Living integrado com cozinha, banheiro e varanda. Final 04, fundos.",
-  "03":"Suíte, living com varanda e cozinha americana. Final 03, fundos.",
-  "02":"Suíte, quarto, lavabo e varanda gourmet. Final 02, frente.",
-  "01":"Duas suítes, lavabo e varanda gourmet de esquina. Final 01, frente.",
-  "C":"Dois pavimentos, terraço com piscina. Apenas duas no prédio."
-};
-
-/* ============ GERAÇÃO DAS UNIDADES ============ */
-function rngFrom(seed){ return function(){ seed|=0; seed=seed+0x6D2B79F5|0; let t=Math.imul(seed^seed>>>15,1|seed); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
-const rnd = rngFrom(340);
-const FH=3.06, PODIUM=7;
-const floorBase = f => PODIUM + (f-3)*FH;
-const units=[];
-for(let f=3; f<=18; f++){
-  for(const fin of ["01","02","03","04"]){
-    const pSold = .84 - (f-3)*.026;
-    units.push({ id:`${f}${fin}`, floor:f, fin, tipo:fin, status: rnd()<pSold ? "vendida":"disponivel" });
-  }
-}
-units.push({ id:"1901", floor:19, fin:"01", tipo:"C", duplex:true, status:"vendida" });
-units.push({ id:"1902", floor:19, fin:"02", tipo:"C", duplex:true, status:"disponivel" });
-["1201","1403","1603","1504"].forEach(id=>{ const u=units.find(x=>x.id===id); if(u) u.status="disponivel"; });
-units.forEach(u=>{
-  const t=TIPOS[u.tipo];
-  const base = t.area*CONFIG.precoM2*t.fator*(1+CONFIG.premioAndar*(u.floor-3));
-  u.price = Math.round(base*100 + rnd()*9999)/100;
-  u.cota = floorBase(u.floor);
-});
-const byId = Object.fromEntries(units.map(u=>[u.id,u]));
-const sortedUnits = units.slice().sort((a,b)=> a.floor-b.floor || a.fin.localeCompare(b.fin));
+"use strict";
+const SUPA_URL = "https://slcysfthwrrtzekkhwer.supabase.co";
+const SUPA_KEY = "sb_publishable_-4YZgdv1VO3Ne-XAlLhkjQ_xsbOVx5C";
+const sb = window.supabase.createClient(SUPA_URL, SUPA_KEY, { auth:{ persistSession:false } });
 
 const BRL = new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"});
 const NUM1 = new Intl.NumberFormat("pt-BR",{minimumFractionDigits:1,maximumFractionDigits:1});
 const NUM2 = new Intl.NumberFormat("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2});
 const INT = new Intl.NumberFormat("pt-BR",{maximumFractionDigits:0});
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function rngFrom(seed){ return function(){ seed|=0; seed=seed+0x6D2B79F5|0; let t=Math.imul(seed^seed>>>15,1|seed); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+
+/* scroll nos links internos (o # é reservado para o prédio) */
+document.addEventListener("click",e=>{
+  const a=e.target.closest("[data-scroll]"); if(!a) return;
+  e.preventDefault(); document.getElementById(a.dataset.scroll).scrollIntoView({behavior:"smooth"});
+});
+
+/* ---------- carregar o prédio ---------- */
+const SLUG_PADRAO = document.documentElement.dataset.predio || "";
+function slugAtual(){ try{ return decodeURIComponent(location.hash.slice(1)).split("/")[0].trim() || SLUG_PADRAO; }catch(e){ return SLUG_PADRAO; } }
+function unidadeAtual(){ try{ return decodeURIComponent(location.hash.slice(1)).split("/")[1]||""; }catch(e){ return ""; } }
+window.addEventListener("hashchange", ()=>location.reload());
+
+const fotoUrl = p => /^https?:\/\//i.test(String(p)) ? String(p) : `${SUPA_URL}/storage/v1/object/public/fotos/${String(p).split("/").map(encodeURIComponent).join("/")}`;
+const fotoGrande = p => /images\.unsplash\.com/.test(String(p)) ? String(p).split("?")[0]+"?w=1600&q=80&auto=format&fit=crop" : fotoUrl(p);
+const fotoMini = p => /images\.unsplash\.com/.test(String(p)) ? String(p).split("?")[0]+"?w=480&q=70&auto=format&fit=crop" : fotoUrl(p);
+
+/* imóvel avulso da vitrine: abre no prédio cadastrado, ou num prédio ilustrativo */
+async function abrirImovel(codigo){
+  const { data:v, error } = await sb.from("vitrine").select("*").eq("codigo", codigo).maybeSingle();
+  if(error || !v) return escolherPredio(error ? "Não foi possível carregar o imóvel." : "Esse imóvel não está mais na vitrine.");
+  const d = v.dados||{};
+  if(d.predio){ location.hash = d.predio + (d.unidade ? "/"+d.unidade : ""); return; }
+  const isCob = d.tipo==="Cobertura";
+  const nAndar = parseInt((String(d.andar||"").match(/\d+/)||[])[0],10);
+  const andar = nAndar>0 ? nAndar : (isCob ? 8 : 3);
+  const ultimo = isCob ? Math.max(andar-1,1) : Math.max(andar+3, 6);
+  const quartos = d.quartos ? ` ${d.quartos} quarto${d.quartos>1?"s":""}` : "";
+  const titulo = `${d.tipo||"Imóvel"}${quartos}`;
+  const vagas = d.vagas!=null ? (d.vagas===0 ? "Sem vaga" : `${d.vagas} vaga${d.vagas>1?"s":""}`) : "";
+  const alvo = isCob ? `${andar}01` : `${andar}02`;
+  const cfg = {
+    imovel: v, bairro: d.bairro, endereco: d.endereco, chamada: `${titulo}${d.bairro?" na "+d.bairro:""}.`,
+    torre:{ largura:20, profundidade:14, peDireito:3, podio:4, primeiroAndar:1, ultimoAndar:ultimo, aletas:false, piscinaRooftop:false },
+    finais:["01","02","03","04"],
+    coberturas: isCob ? { andar, duplex:false, unidades:{ [alvo]:"inteira" } } : null,
+    tipologias:{ X:{ nome:titulo, area:d.area||0, vagas, sol:d.andar||"", descricao:d.descricao||"" }, V:{ nome:"Unidade vizinha", area:0 } },
+    fluxo:[], contato:{ nome:v.corretor_nome||"Corretor", whatsapp:v.corretor_whats||"" }
+  };
+  const linhas=[];
+  for(let f=1; f<=ultimo; f++) for(const fin of cfg.finais) linhas.push({codigo:`${f}${fin}`, andar:f, final:fin, tipologia:"V", status:"vizinha", preco:null});
+  if(isCob) linhas.push({codigo:alvo, andar, final:"01", tipologia:"X", status:"disponivel", preco:d.valor||null});
+  else { const t=linhas.find(x=>x.codigo===alvo); t.tipologia="X"; t.status="disponivel"; t.preco=d.valor||null; }
+  montar({ id:"imovel", slug:"imovel/"+v.codigo, nome:v.codigo, config:cfg }, linhas, alvo);
+}
+
+async function iniciar(){
+  const slug = slugAtual();
+  if(slug==="imovel") return abrirImovel(unidadeAtual());
+  if(!slug) return escolherPredio();
+  const { data:emp, error } = await sb.from("empreendimentos").select("*").eq("slug", slug).maybeSingle();
+  if(error || !emp) return escolherPredio(error ? "Não foi possível carregar o prédio. Verifique a internet." : "Esse prédio não foi encontrado.");
+  const { data:uni, error:e2 } = await sb.from("unidades").select("*").eq("empreendimento_id", emp.id);
+  if(e2) return escolherPredio("Não foi possível carregar as unidades.");
+  montar(emp, uni||[]);
+}
+async function escolherPredio(msg){
+  const { data } = await sb.from("empreendimentos").select("slug,nome,config").order("criado_em");
+  const el=document.getElementById("pick");
+  document.querySelectorAll("body > :not(#pick):not(script)").forEach(n=>n.hidden=true);
+  el.hidden=false;
+  el.innerHTML = `<div class="wrap"><div class="eyebrow">Tabela de vendas em 3D</div><h1>Escolha o empreendimento</h1>
+    ${msg?`<p class="err" style="font-size:15px">${esc(msg)}</p>`:""}
+    <div class="pick-list">${(data||[]).map(p=>`<a class="pick-item" href="#${esc(p.slug)}"><b>${esc(p.nome)}</b><span>${esc(p.config?.bairro||"")}</span></a>`).join("") || `<p>Nenhum prédio cadastrado ainda.</p>`}</div></div>`;
+}
+
+/* ---------- montar a página a partir do cadastro ---------- */
+function montar(emp, linhas, alvoCodigo){
+const CFG = emp.config||{};
+const IMV = CFG.imovel || null, DADOS = IMV ? (IMV.dados||{}) : null;
+const T = Object.assign({ largura:20, profundidade:14, peDireito:3.06, podio:7, primeiroAndar:3, ultimoAndar:18, aletas:false, piscinaRooftop:false }, CFG.torre||{});
+const TIPOS = CFG.tipologias||{};
+const FINAIS = (CFG.finais && CFG.finais.length) ? CFG.finais : [...new Set(linhas.filter(u=>u.andar<=T.ultimoAndar).map(u=>u.final))].sort();
+const COB = CFG.coberturas || null;
+const COB_ANDAR = COB ? COB.andar : null;
+const FLUXO = CFG.fluxo || [];
+const CONTATO = CFG.contato || {};
+const FH=T.peDireito, PODIUM=T.podio;
+const floorBase = f => PODIUM + (f-T.primeiroAndar)*FH;
+const TOP = COB ? floorBase(COB_ANDAR) + (COB.duplex?2:1)*FH : floorBase(T.ultimoAndar+1);
+
+document.title = IMV ? `${TIPOS.X.nome} · ${IMV.codigo}` : `${emp.nome} · Tabela de vendas em 3D`;
+document.getElementById("brandName").textContent = IMV ? TIPOS.X.nome : emp.nome;
+document.getElementById("brandSub").textContent = IMV ? `${IMV.codigo}${CFG.bairro?" · "+CFG.bairro:""}` : (CFG.bairro||"Tabela de vendas");
+document.getElementById("brandLink").href = "#"+emp.slug;
+
+const units = linhas.map(r=>({
+  id:r.codigo, floor:r.andar, fin:r.final, tipo:r.tipologia,
+  status: r.status==="vendida" ? "vendida" : r.status==="reservada" ? "reservada" : r.status==="vizinha" ? "vizinha" : "disponivel",
+  price: r.preco!=null ? Number(r.preco) : null,
+  cob: COB && r.andar===COB_ANDAR,
+  lado: COB && r.andar===COB_ANDAR ? (COB.unidades?.[r.codigo] || "inteira") : null,
+  duplex: !!(COB && r.andar===COB_ANDAR && COB.duplex)
+}));
+units.forEach(u=>{ u.cota=floorBase(u.floor); if(!TIPOS[u.tipo]) TIPOS[u.tipo]={nome:"Unidade "+u.tipo, area:0, vagas:"", sol:"", descricao:""}; });
+const byId = Object.fromEntries(units.map(u=>[u.id,u]));
+const finIdx = f => { const i=FINAIS.indexOf(f); return i<0?99:i; };
+const sortedUnits = units.slice().sort((a,b)=> a.floor-b.floor || finIdx(a.fin)-finIdx(b.fin));
+const TIPO_ORDER = Object.keys(TIPOS).sort((a,b)=>(TIPOS[a].area||0)-(TIPOS[b].area||0));
+const disponivel = u => u.status==="disponivel";
+const andarTxt = u => u.duplex ? `${u.floor}º e ${u.floor+1}º` : `${u.floor}º`;
+
+const total=units.length, sold=units.filter(u=>!disponivel(u)).length;
+document.getElementById("heroEyebrow").textContent = IMV ? [`Imóvel ${IMV.codigo}`, DADOS.finalidade||"Venda", CFG.bairro].filter(Boolean).join(" · ") : [CFG.demonstracao?"Modelo de demonstração":"Lançamento", `${total} unidades`, CFG.bairro].filter(Boolean).join(" · ");
+if(IMV){
+  document.querySelector(".intro .lede").textContent = "A janela acesa é o apartamento à venda. Veja as fotos, o valor e as condições, e fale com o corretor pelo WhatsApp.";
+  document.getElementById("plantas").hidden = true;
+  document.getElementById("glowBtn").hidden = true;
+  document.getElementById("hint").textContent = "Arraste para girar · o apartamento à venda está destacado";
+  document.querySelectorAll('.nav nav a[data-scroll="plantas"]').forEach(a=>a.hidden=true);
+}
+if(CFG.chamada){ document.getElementById("heroTitle").textContent = CFG.chamada; }
+if(!IMV) document.getElementById("plantasTitle").textContent = `${Object.keys(TIPOS).length} planta${Object.keys(TIPOS).length===1?"":"s"} no ${emp.nome}.`;
+document.getElementById("footNote").textContent = IMV ? `${IMV.codigo} · O prédio em 3D é uma representação ilustrativa. Valores sujeitos a alteração sem aviso.` : `${emp.nome} · ${CFG.demonstracao?"Modelo de demonstração. Empreendimento, valores e disponibilidade são fictícios.":"Valores de tabela sujeitos a alteração sem aviso."}`;
+const specs = IMV ? [
+  ["Endereço", DADOS.endereco], ["Bairro", [DADOS.bairro, DADOS.cidade].filter(Boolean).join(", ")], ["Andar e posição", DADOS.andar],
+  ["Condomínio", DADOS.condominio!=null ? BRL.format(DADOS.condominio)+" por mês" : ""], ["IPTU", DADOS.iptu!=null ? BRL.format(DADOS.iptu)+" por ano" : ""],
+  ["Pagamento", [DADOS.financiamento&&"Aceita financiamento", DADOS.fgts&&"FGTS", DADOS.permuta&&"Permuta"].filter(Boolean).join(" · ")],
+  ["Diferenciais", (DADOS.diferenciais||[]).join(" · ")]
+].filter(x=>x[1]) : [["Endereço",CFG.endereco],["Bairro",CFG.bairro],["Entrega prevista",CFG.entrega],["Prédio",`${T.ultimoAndar-T.primeiroAndar+1} andares-tipo, ${FINAIS.length} apartamentos por andar${COB?`, ${Object.keys(COB.unidades||{}).length} cobertura${Object.keys(COB.unidades||{}).length===1?"":"s"}${COB.duplex?" duplex":""}`:""}`]].filter(x=>x[1]);
+const fichaExtra = Array.isArray(CFG.ficha) ? CFG.ficha.filter(x=>Array.isArray(x)&&x[1]) : [];
+document.getElementById("specs").innerHTML = [...fichaExtra, ...specs.filter(([k])=>!(fichaExtra.length && (k==="Endereço"||k==="Bairro")) && !(k==="Entrega prevista" && CFG.obra))].map(([k,v])=>`<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("");
+if(fichaExtra.length && !IMV){
+  document.getElementById("sobreHead").hidden=false;
+  document.getElementById("sobreTitle").textContent = CFG.tituloPredio || `${T.ultimoAndar-T.primeiroAndar+1+(COB&&COB.duplex?2:COB?1:0)} pavimentos de apartamentos${T.piscinaRooftop?", rooftop aberto":""}.`;
+  document.getElementById("sobreTexto").textContent = CFG.textoPredio || `Projeto com ${FINAIS.length} apartamentos por andar${COB?` e ${Object.keys(COB.unidades||{}).length} cobertura${Object.keys(COB.unidades||{}).length===1?"":"s"}${COB.duplex?" duplex":""}`:""}.`;
+}
+if(CFG.obra && Array.isArray(CFG.obra.etapas)){
+  const ob=document.getElementById("obraBox"); ob.hidden=false;
+  ob.innerHTML = `<div class="eyebrow">Andamento da obra${CFG.obra.referencia?" · "+esc(CFG.obra.referencia):""}</div>` +
+    CFG.obra.etapas.map(([n,pc])=>`<div class="obra-row"><header><span>${esc(n)}</span><span>${Math.max(0,Math.min(100,+pc||0))}%</span></header><div class="bar"><i style="width:${Math.max(0,Math.min(100,+pc||0))}%"></i></div></div>`).join("") +
+    (CFG.entrega?`<div class="delivery"><span class="eyebrow">Entrega prevista</span><b>${esc(CFG.entrega)}</b></div>`:"");
+}
+if(CFG.local && !IMV){
+  document.getElementById("local").hidden=false; document.getElementById("navLocal").hidden=false;
+  document.getElementById("localAddr").textContent = CFG.endereco || CFG.bairro || "";
+  document.getElementById("localTexto").textContent = CFG.local.texto || "";
+  document.getElementById("localNear").innerHTML = (CFG.local.proximidades||[]).map(([n,t])=>`<li><span>${esc(n)}</span><span>${esc(t)}</span></li>`).join("");
+}
 
 const state = { mode:"night", selected:null, hover:null, filter:null, glow:false, spin:true };
 const reduceMotion = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
 if(reduceMotion) state.spin=false;
 
-/* ============ UI: painel de vendas + espelho ============ */
+/* ---------- painel de vendas + espelho ---------- */
+function fotosDoImovel(){ return (DADOS && DADOS.fotos) || []; }
+function imovelPanelHTML(){
+  const fotos=fotosDoImovel();
+  const specs=[DADOS.area&&NUM2.format(DADOS.area)+" m²", DADOS.quartos!=null&&DADOS.quartos+" quarto"+(DADOS.quartos>1?"s":""), DADOS.suites&&DADOS.suites+" suíte"+(DADOS.suites>1?"s":""), DADOS.vagas!=null&&(DADOS.vagas+" vaga"+(DADOS.vagas===1?"":"s"))].filter(Boolean);
+  return `
+    <div class="sales-top"><div class="pct" style="font-size:28px">${DADOS.valor?BRL.format(DADOS.valor):"Sob consulta"}</div><span class="mono" style="font-size:12px;color:var(--muted)">${esc(IMV.codigo)}</span></div>
+    ${specs.length?`<div class="legend" style="gap:10px">${specs.map(x=>`<span class="mono">${esc(x)}</span>`).join("")}</div>`:""}
+    ${fotos.length?`<div class="eyebrow">Fotos · ${fotos.length}</div><div class="thumbs">${fotos.slice(0,6).map((f,i)=>`<button type="button" class="th" data-foto="${i}" aria-label="Abrir foto ${i+1}"><img src="${esc(fotoMini(f))}" alt="" loading="lazy">${i===5&&fotos.length>6?`<span>+${fotos.length-6}</span>`:""}</button>`).join("")}</div>`:`<p class="foot-note">Fotos em breve.</p>`}
+    <p class="foot-note">${IMV.vendido?"Este imóvel já foi vendido.":"Toque numa foto para ampliar."}</p>`;
+}
 function salesHTML(){
-  const total=units.length, sold=units.filter(u=>u.status==="vendida").length;
-  const pct = sold/total*100;
-  let rows="";
-  rows += `<div></div>` + ["01","02","03","04"].map(f=>`<div class="hd">${f}</div>`).join("");
-  const c19=[byId["1901"],byId["1902"]];
-  rows += `<div class="fl">19</div>` + c19.map(u=>cellHTML(u,true)).join("");
-  for(let f=18; f>=3; f--){
-    rows += `<div class="fl">${f}</div>` + ["01","02","03","04"].map(fin=>cellHTML(byId[`${f}${fin}`])).join("");
+  if(IMV) return imovelPanelHTML();
+  const pct = total? sold/total*100 : 0;
+  const n=FINAIS.length;
+  let rows = `<div></div>` + FINAIS.map(f=>`<div class="hd">${esc(f)}</div>`).join("");
+  if(COB){
+    const cobs=sortedUnits.filter(u=>u.cob);
+    rows += `<div class="fl">${COB_ANDAR}</div>`;
+    let used=0;
+    cobs.forEach(u=>{ const span = u.lado==="inteira"||cobs.length===1 ? n : Math.max(1,Math.round(n/cobs.length)); used+=span; rows+=cellHTML(u,span); });
+    if(used<n) rows += `<div style="grid-column:span ${n-used}"></div>`;
+  }
+  for(let f=T.ultimoAndar; f>=T.primeiroAndar; f--){
+    rows += `<div class="fl">${f}</div>` + FINAIS.map(fin=>{ const u=units.find(x=>x.floor===f&&x.fin===fin&&!x.cob); return u?cellHTML(u,1):`<div></div>`; }).join("");
   }
   return `
     <div class="sales-top"><div class="pct">${NUM1.format(pct)}%<small>vendido</small></div><span class="mono" style="font-size:12px;color:var(--muted)">${total-sold} de ${total} livres</span></div>
@@ -485,64 +610,86 @@ function salesHTML(){
     <div class="legend"><span><i class="sw on"></i>Luz acesa · disponível</span><span><i class="sw off"></i>Apagada · vendida</span></div>
     <details class="mirror" open>
       <summary><span class="eyebrow">Espelho por pavimento</span></summary>
-      <div class="grid">${rows}</div>
+      <div class="grid" style="grid-template-columns:28px repeat(${n},1fr)">${rows}</div>
     </details>
     <p class="foot-note">Clique em qualquer unidade do espelho ou da fachada.</p>`;
 }
 function cellHTML(u,span){
-  const cls=["cell", u.status==="disponivel"?"on":"off"];
-  if(span) cls.push("span2");
+  const cls=["cell", disponivel(u)?"on":"off"];
   if(state.filter && u.tipo!==state.filter) cls.push("dim");
   if(state.selected===u) cls.push("sel");
-  return `<button type="button" class="${cls.join(" ")}" data-unit="${u.id}" aria-label="Unidade ${u.id}, ${u.status==="disponivel"?"disponível":"vendida"}">${u.id}</button>`;
+  if(typeof lead!=="undefined" && lead.units.includes(u.id)) cls.push("fav");
+  return `<button type="button" class="${cls.join(" ")}" ${span>1?`style="grid-column:span ${span}"`:""} data-unit="${esc(u.id)}" aria-label="Unidade ${esc(u.id)}, ${disponivel(u)?"disponível":"vendida"}">${esc(u.id)}</button>`;
 }
 const salesBox=document.getElementById("salesBox"), salesBoxM=document.getElementById("salesBoxMobile");
 function renderSales(){
   const openA = salesBox.querySelector("details")?.open ?? true;
   const openB = salesBoxM.querySelector("details")?.open ?? true;
   salesBox.innerHTML=salesHTML(); salesBoxM.innerHTML=salesHTML();
+  if(IMV) return;
   salesBox.querySelector("details").open=openA; salesBoxM.querySelector("details").open=openB;
 }
 [salesBox,salesBoxM].forEach(el=>el.addEventListener("click",e=>{
+  const ft=e.target.closest("[data-foto]"); if(ft){ abrirFoto(+ft.dataset.foto); return; }
   const b=e.target.closest("[data-unit]"); if(!b) return;
   selectUnit(byId[b.dataset.unit], true);
 }));
 
-/* ============ UI: card da unidade ============ */
+/* ---------- card da unidade ---------- */
 const card=document.getElementById("unitCard");
 const sunIcon=`<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="3.2" fill="#f6c66b"/><g stroke="#f6c66b" stroke-width="1.3" stroke-linecap="round"><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3 3l1.4 1.4M11.6 11.6L13 13M3 13l1.4-1.4M11.6 4.4L13 3"/></g></svg>`;
+function imovelCardHTML(){
+  const fotos=fotosDoImovel(), d=DADOS;
+  const facts=[["Área",d.area?NUM2.format(d.area)+" m²":""],["Quartos",d.quartos!=null?String(d.quartos):""],["Vagas",d.vagas!=null?String(d.vagas):""]];
+  return `
+    <div class="unit-head"><div class="eyebrow">${esc(d.finalidade||"Venda")} · ${esc(IMV.codigo)}</div><button class="close" type="button" id="closeCard" aria-label="Fechar">×</button></div>
+    ${fotos.length?`<button type="button" class="capa" data-foto="0" aria-label="Ampliar a foto de capa"><img src="${esc(fotoGrande(fotos[0]))}" alt="Foto do imóvel"></button>`:""}
+    <div class="u-id"><b style="font-size:30px">${esc(TIPOS.X.nome)}</b><span class="badge ${IMV.vendido?"off":"on"}">${IMV.vendido?"Vendido":"Disponível"}</span></div>
+    <p class="u-tipo">${esc([d.bairro,d.cidade].filter(Boolean).join(", "))}</p>
+    <dl class="facts">${facts.map(([k,v])=>`<div><dt>${k}</dt><dd>${esc(v||"—")}</dd></div>`).join("")}</dl>
+    ${d.andar?`<div class="sun">${sunIcon}<span>${esc(d.andar)}</span></div>`:""}
+    <div class="price"><div class="eyebrow">Valor</div><div class="val">${d.valor?BRL.format(d.valor):"Sob consulta"}</div>${d.valor&&d.area?`<div class="m2">${BRL.format(d.valor/d.area)} por m²</div>`:""}</div>
+    <ul class="flow">
+      ${d.condominio!=null?`<li><span>Condomínio</span><span>${BRL.format(d.condominio)}/mês</span></li>`:""}
+      ${d.iptu!=null?`<li><span>IPTU</span><span>${BRL.format(d.iptu)}/ano</span></li>`:""}
+      ${(d.financiamento||d.fgts||d.permuta)?`<li><span>Aceita</span><span>${[d.financiamento&&"Financiamento",d.fgts&&"FGTS",d.permuta&&"Permuta"].filter(Boolean).join(" · ")}</span></li>`:""}
+    </ul>
+    ${d.descricao?`<p class="legal" style="font-size:13px;color:#cfd5f3">${esc(d.descricao)}</p>`:""}
+    ${IMV.vendido?"":`<div class="u-actions"><button class="btn btn-lamp" type="button" id="wantBtn">Tenho interesse neste imóvel</button></div>`}
+    <div class="u-nav"><a href="/imoveis.html#${encodeURIComponent(IMV.codigo)}" style="color:var(--muted);font-size:13px">Ver na vitrine</a><a href="#outros" data-scroll="outros" style="color:var(--muted);font-size:13px">Outros imóveis ›</a></div>`;
+}
 function renderCard(){
   const u=state.selected;
   if(!u){ card.hidden=true; updateViewOffset(); return; }
   card.hidden=false;
-  const t=TIPOS[u.tipo], on=u.status==="disponivel";
-  const andar = u.duplex ? "19º e 20º" : `${u.floor}º`;
+  if(IMV){ card.innerHTML=imovelCardHTML(); updateViewOffset(); return; }
+  const t=TIPOS[u.tipo], on=disponivel(u);
   let body;
-  if(on){
-    const flow = CONFIG.fluxo.map(p=>{
-      const v=u.price*p.pct, each=v/p.n;
-      return `<li><span>${p.nome} · ${INT.format(p.pct*100)}%</span><span>${p.n>1?`${p.n}× `:""}${BRL.format(each)}</span></li>`;
-    }).join("");
+  if(on && u.price){
+    const flow = FLUXO.map(p=>{ const v=u.price*p.pct, each=v/p.n;
+      return `<li><span>${esc(p.nome)} · ${INT.format(p.pct*100)}%</span><span>${p.n>1?`${p.n}× `:""}${BRL.format(each)}</span></li>`; }).join("");
     body = `
-      <div class="price"><div class="eyebrow">Valor de tabela</div><div class="val">${BRL.format(u.price)}</div><div class="m2">${BRL.format(u.price/t.area)} por m² privativo</div></div>
-      <ul class="flow">${flow}</ul>
-      <p class="legal">Mensais e reforços corrigidos pelo INCC até a entrega das chaves. Parcela das chaves pode ser financiada pelo banco.</p>
-      <div class="u-actions"><a class="btn btn-lamp" href="#contato" id="wantBtn">Tenho interesse no ${u.id}</a></div>`;
+      <div class="price"><div class="eyebrow">Valor de tabela</div><div class="val">${BRL.format(u.price)}</div>${t.area?`<div class="m2">${BRL.format(u.price/t.area)} por m² privativo</div>`:""}</div>
+      ${flow?`<ul class="flow">${flow}</ul>`:""}
+      ${CFG.notaFluxo?`<p class="legal">${esc(CFG.notaFluxo)}</p>`:""}
+      <div class="u-actions"><button class="btn btn-lamp" type="button" id="wantBtn">${lead.units.includes(u.id)?`O ${esc(u.id)} já está na sua mensagem ›`:`Tenho interesse no ${esc(u.id)}`}</button></div>`;
+  } else if(on){
+    body = `<p class="sold-msg">Valor sob consulta.</p><div class="u-actions"><button class="btn btn-lamp" type="button" id="wantBtn">Tenho interesse no ${esc(u.id)}</button></div>`;
   } else {
     const alt = nextAvail(u, 1, u.tipo);
-    body = `<p class="sold-msg">Esta unidade já foi vendida.${alt?` A próxima ${t.nome.toLowerCase()} disponível é a <b>${alt.id}</b>, no ${alt.duplex?"19º":alt.floor+"º"} andar.`:""}</p>
-      ${alt?`<div class="u-actions"><button type="button" class="btn btn-ghost" data-go="${alt.id}">Ver unidade ${alt.id}</button></div>`:""}`;
+    body = `<p class="sold-msg">Esta unidade ${u.status==="reservada"?"está reservada":"já foi vendida"}.${alt?` A próxima ${esc(t.nome.toLowerCase())} disponível é a <b>${esc(alt.id)}</b>, no ${andarTxt(alt)} andar.`:""}</p>
+      ${alt?`<div class="u-actions"><button type="button" class="btn btn-ghost" data-go="${esc(alt.id)}">Ver unidade ${esc(alt.id)}</button></div>`:""}`;
   }
   card.innerHTML = `
-    <div class="unit-head"><div class="eyebrow">${u.duplex?"Cobertura":"Apartamento"} · final ${u.fin}</div><button class="close" type="button" id="closeCard" aria-label="Fechar">×</button></div>
-    <div class="u-id"><b>${u.id}</b><span class="badge ${on?"on":"off"}">${on?"Disponível":"Vendida"}</span></div>
-    <p class="u-tipo">${t.nome}</p>
+    <div class="unit-head"><div class="eyebrow">${u.cob?"Cobertura":"Apartamento"} · final ${esc(u.fin)}</div><button class="close" type="button" id="closeCard" aria-label="Fechar">×</button></div>
+    <div class="u-id"><b>${esc(u.id)}</b><span class="badge ${on?"on":"off"}">${on?"Disponível":u.status==="reservada"?"Reservada":"Vendida"}</span></div>
+    <p class="u-tipo">${esc(t.nome)}</p>
     <dl class="facts">
-      <div><dt>Área privativa</dt><dd>${NUM2.format(t.area)} m²</dd></div>
-      <div><dt>Pavimento</dt><dd>${andar}<small>cota +${NUM2.format(u.cota)} m</small></dd></div>
-      <div><dt>Vaga</dt><dd>${t.vaga}</dd></div>
+      <div><dt>Área privativa</dt><dd>${t.area?NUM2.format(t.area)+" m²":"—"}</dd></div>
+      <div><dt>Pavimento</dt><dd>${andarTxt(u)}<small>cota +${NUM2.format(u.cota)} m</small></dd></div>
+      <div><dt>Vaga</dt><dd>${esc(t.vagas||"—")}</dd></div>
     </dl>
-    <div class="sun">${sunIcon}<span>${t.sol}</span></div>
+    ${t.sol?`<div class="sun">${sunIcon}<span>${esc(t.sol)}</span></div>`:""}
     ${body}
     <div class="u-nav"><button type="button" id="prevA">‹ Disponível anterior</button><button type="button" id="nextA">Próxima disponível ›</button></div>`;
   updateViewOffset();
@@ -552,104 +699,139 @@ card.addEventListener("click",e=>{
   if(e.target.closest("#prevA")){ const n=nextAvail(state.selected,-1,state.filter); if(n) selectUnit(n,true); return; }
   if(e.target.closest("#nextA")){ const n=nextAvail(state.selected,1,state.filter); if(n) selectUnit(n,true); return; }
   const go=e.target.closest("[data-go]"); if(go){ selectUnit(byId[go.dataset.go],true); return; }
-  if(e.target.closest("#wantBtn")){ document.getElementById("fUnit").value=state.selected.id; }
+  const ft=e.target.closest("[data-foto]"); if(ft){ abrirFoto(+ft.dataset.foto); return; }
+  if(e.target.closest("#wantBtn")){ if(!IMV) incluirUnidade(state.selected); else renderLead(); document.getElementById("contato").scrollIntoView({behavior:reduceMotion?"auto":"smooth"}); }
 });
 function nextAvail(from, dir, tipo){
-  const list = sortedUnits.filter(u=>u.status==="disponivel" && (!tipo || u.tipo===tipo));
+  const list = sortedUnits.filter(u=>disponivel(u) && (!tipo || u.tipo===tipo));
   if(!list.length) return null;
   const i = sortedUnits.indexOf(from);
   if(dir>0){ return list.find(u=>sortedUnits.indexOf(u)>i) || list[0]; }
   const prev = list.filter(u=>sortedUnits.indexOf(u)<i); return prev[prev.length-1] || list[list.length-1];
 }
 
-/* ============ UI: plantas ============ */
+/* ---------- plantas ---------- */
 function renderPlans(){
+  if(IMV) return;
   document.getElementById("plans").innerHTML = TIPO_ORDER.map(k=>{
-    const t=TIPOS[k], list=sortedUnits.filter(u=>u.tipo===k), av=list.filter(u=>u.status==="disponivel");
-    const min = av.length ? Math.min(...av.map(u=>u.price)) : null;
+    const t=TIPOS[k], list=sortedUnits.filter(u=>u.tipo===k), av=list.filter(disponivel);
+    if(!list.length) return "";
+    const precos=av.map(u=>u.price).filter(Boolean);
+    const min = precos.length ? Math.min(...precos) : null;
     return `<div class="plan">
-      <div class="n"><h3>${t.nome}</h3><div class="sub">${TIPO_DESC[k]}</div></div>
-      <div class="area">${NUM2.format(t.area)} m²</div>
-      <div class="avail"><span>${av.length} de ${list.length} disponíveis</span><div class="dots">${list.map(u=>`<i class="${u.status==="disponivel"?"on":""}"></i>`).join("")}</div></div>
-      <div class="from"><small>A partir de</small><b>${min?BRL.format(min):"Esgotada"}</b></div>
-      <button type="button" class="btn btn-ghost" data-filter="${k}" ${av.length?"":"disabled"}>Ver no prédio</button>
+      <div class="n"><h3>${esc(t.nome)}</h3><div class="sub">${esc(t.descricao||"")}</div></div>
+      <div class="area">${t.area?NUM2.format(t.area)+" m²":""}</div>
+      <div class="avail"><span>${av.length} de ${list.length} disponíveis</span><div class="dots">${list.map(u=>`<i class="${disponivel(u)?"on":""}"></i>`).join("")}</div></div>
+      <div class="from"><small>A partir de</small><b>${min?BRL.format(min):av.length?"Sob consulta":"Esgotada"}</b></div>
+      <button type="button" class="btn btn-ghost" data-filter="${esc(k)}" ${av.length?"":"disabled"}>Ver no prédio</button>
     </div>`;
   }).join("");
 }
 document.getElementById("plans").addEventListener("click",e=>{
   const b=e.target.closest("[data-filter]"); if(!b) return;
   setFilter(b.dataset.filter);
-  const first = sortedUnits.find(u=>u.tipo===b.dataset.filter && u.status==="disponivel");
+  const first = sortedUnits.find(u=>u.tipo===b.dataset.filter && disponivel(u));
   if(first) selectUnit(first,true);
   document.getElementById("hero").scrollIntoView({behavior:reduceMotion?"auto":"smooth"});
 });
 function setFilter(k){
   state.filter=k;
-  const chip=document.getElementById("filterChip");
-  chip.hidden=!k;
+  document.getElementById("filterChip").hidden=!k;
   if(k) document.getElementById("filterText").textContent=`Mostrando só: ${TIPOS[k].nome}`;
   refreshAll();
 }
 document.getElementById("clearFilter").addEventListener("click",()=>setFilter(null));
 
-/* ============ UI: contato ============ */
-const C=CONFIG.corretor;
-document.getElementById("brokerName").textContent=C.nome;
-document.getElementById("brokerCreci").textContent=C.creci;
-document.getElementById("brokerPhone").textContent=C.telefone;
-document.getElementById("brokerInitials").textContent=C.nome.split(" ").map(s=>s[0]).slice(0,2).join("").toUpperCase();
+/* ---------- contato ---------- */
+const nomeC = CONTATO.nome || "Corretor";
+document.getElementById("brokerName").textContent = nomeC;
+document.getElementById("brokerInitials").textContent = nomeC.split(" ").map(s=>s[0]).slice(0,2).join("").toUpperCase();
+document.getElementById("brokerText").textContent = IMV ? `Sou o corretor responsável pelo imóvel ${IMV.codigo}. Tiro dúvidas sobre o imóvel, financiamento e documentação, e acompanho você na visita.` : `Atendo o ${emp.nome}. Tiro dúvidas sobre planta, financiamento e fluxo de pagamento, e acompanho você na visita.`;
+const whats = String(CONTATO.whatsapp||"").replace(/\D/g,"");
 const fUnit=document.getElementById("fUnit");
-fUnit.innerHTML = `<option value="">Ainda não escolhi</option>` + sortedUnits.filter(u=>u.status==="disponivel").map(u=>`<option value="${u.id}">${u.id} · ${TIPOS[u.tipo].nome} · ${BRL.format(u.price)}</option>`).join("");
-document.getElementById("copyPhone").addEventListener("click",()=>{
-  const msg=document.getElementById("copyMsg");
-  const done=()=>{ msg.hidden=false; setTimeout(()=>msg.hidden=true,2200); };
-  try{
-    navigator.clipboard.writeText(C.telefone).then(done).catch(()=>selectPhone());
-  }catch(e){ selectPhone(); }
-  function selectPhone(){ const r=document.createRange(); r.selectNodeContents(document.getElementById("brokerPhone")); const s=getSelection(); s.removeAllRanges(); s.addRange(r); }
+const TOPICOS = IMV
+  ? [["visita","Agendar uma visita"],["financiamento","Simular financiamento"],["fgts","Usar o FGTS"],["fotos","Mais fotos e vídeo"],["custos","Condomínio e IPTU"],["documentos","Documentação do imóvel"],["proposta","Fazer uma proposta"]]
+  : [["condicoes","Valor e condições de pagamento"],["financiamento","Simular financiamento"],["fgts","Usar o FGTS"],["visita","Agendar visita ao decorado"],["planta","Receber a planta"],["entrega","Prazo de entrega"],["permuta","Dar um imóvel na troca"]];
+const FRASES = { condicoes:"saber o valor e as condições de pagamento", financiamento:"simular o financiamento", fgts:"usar o FGTS", visita: IMV?"agendar uma visita":"agendar uma visita ao decorado", planta:"receber a planta", entrega:"saber o prazo de entrega", permuta:"saber se aceitam um imóvel na troca", fotos:"ver mais fotos e vídeo", custos:"confirmar condomínio e IPTU", documentos:"saber da documentação do imóvel", proposta:"fazer uma proposta" };
+const HORARIOS = [["manha","Manhã"],["tarde","Tarde"],["noite","Noite"]];
+const lead = { units:[], topics:new Set(IMV?["visita"]:["condicoes"]), time:"" };
+if(!IMV && inicialUnidade()) lead.units.push(inicialUnidade().id);
+function inicialUnidade(){ const c=unidadeAtual(); return c && byId[c] && disponivel(byId[c]) ? byId[c] : null; }
+document.getElementById("pickTopics").innerHTML = TOPICOS.map(([k,l])=>`<button type="button" class="pill" data-topic="${k}" aria-pressed="false">${l}</button>`).join("");
+document.getElementById("pickTime").innerHTML = HORARIOS.map(([k,l])=>`<button type="button" class="pill" data-time="${k}" aria-pressed="false">${l}</button>`).join("");
+if(IMV) document.getElementById("pickUnits").closest(".field").hidden = true;
+function unidadeTxt(u){ const t=TIPOS[u.tipo]; return `${u.id} (${t.nome}${t.area?`, ${NUM2.format(t.area)} m²`:""}${u.price?`, ${BRL.format(u.price)}`:""})`; }
+function listaPt(a){ return a.length<=1 ? a.join("") : a.slice(0,-1).join(", ")+" e "+a[a.length-1]; }
+function montarMensagem(){
+  const nome=document.getElementById("fName").value.trim(), extra=document.getElementById("fMsg").value.trim();
+  const p1 = nomeC.split(" ")[0];
+  let t = `Olá, ${p1}!${nome?` Meu nome é ${nome}.`:""}`;
+  if(IMV){
+    t += ` Vi o imóvel ${IMV.codigo} (${TIPOS.X.nome}${DADOS.bairro?", "+DADOS.bairro:""}${DADOS.valor?", "+BRL.format(DADOS.valor):""}) no site.`;
+  } else {
+    const us = lead.units.map(id=>byId[id]).filter(Boolean);
+    t += ` Vi o ${emp.nome} na tabela 3D`;
+    t += us.length ? ` e tenho interesse ${us.length>1?"nas unidades":"na unidade"} ${listaPt(us.map(unidadeTxt))}.` : `.`;
+  }
+  const tp = TOPICOS.filter(([k])=>lead.topics.has(k)).map(([k])=>FRASES[k]);
+  if(tp.length) t += ` Gostaria de ${listaPt(tp)}.`;
+  if(lead.time) t += ` Prefiro contato ${lead.time==="manha"?"pela manhã":lead.time==="tarde"?"à tarde":"à noite"}.`;
+  if(extra) t += ` ${extra}${/[.!?]$/.test(extra)?"":"."}`;
+  return t;
+}
+function renderLead(){
+  document.getElementById("pickUnits").innerHTML = lead.units.length
+    ? lead.units.map(id=>`<span class="pill on">${esc(id)}<button type="button" data-rmunit="${esc(id)}" aria-label="Tirar a unidade ${esc(id)}">×</button></span>`).join("")
+    : `<span class="foot-note">Toque numa janela acesa do prédio e em “Tenho interesse”, ou escolha abaixo.</span>`;
+  fUnit.innerHTML = `<option value="">+ Adicionar uma unidade</option>` + sortedUnits.filter(u=>disponivel(u) && !lead.units.includes(u.id)).map(u=>`<option value="${esc(u.id)}">${esc(u.id)} · ${esc(TIPOS[u.tipo].nome)}${u.price?" · "+BRL.format(u.price):""}</option>`).join("");
+  document.querySelectorAll("[data-topic]").forEach(b=>b.setAttribute("aria-pressed", String(lead.topics.has(b.dataset.topic))));
+  document.querySelectorAll("[data-time]").forEach(b=>b.setAttribute("aria-pressed", String(lead.time===b.dataset.time)));
+  const text = montarMensagem();
+  document.getElementById("msgPreview").textContent = text;
+  const link=document.getElementById("waLink"), copyB=document.getElementById("copyMsgBtn"), note=document.getElementById("waNote");
+  if(whats.length>=10){ link.hidden=false; copyB.hidden=true; link.href=`https://wa.me/${whats.startsWith("55")?whats:"55"+whats}?text=${encodeURIComponent(text)}`; note.textContent="O WhatsApp abre com a mensagem pronta. É só tocar em enviar."; }
+  else { link.hidden=true; copyB.hidden=false; note.textContent=`O WhatsApp do corretor ainda não foi cadastrado ${IMV?"neste imóvel":"neste prédio"}. Copie a mensagem para enviar.`; }
+  if(!IMV) renderSales();
+}
+function incluirUnidade(u){ if(u && disponivel(u) && !lead.units.includes(u.id)){ lead.units.push(u.id); } renderLead(); }
+document.getElementById("leadForm").addEventListener("click", async e=>{
+  const tb=e.target.closest("[data-topic]"); if(tb){ const k=tb.dataset.topic; lead.topics.has(k)?lead.topics.delete(k):lead.topics.add(k); renderLead(); return; }
+  const hb=e.target.closest("[data-time]"); if(hb){ lead.time = lead.time===hb.dataset.time ? "" : hb.dataset.time; renderLead(); return; }
+  const rb=e.target.closest("[data-rmunit]"); if(rb){ lead.units=lead.units.filter(x=>x!==rb.dataset.rmunit); renderLead(); return; }
+  if(e.target.closest("#copyMsgBtn")){ const t=montarMensagem(); try{ await navigator.clipboard.writeText(t); document.getElementById("waNote").textContent="Mensagem copiada."; }catch(err){ const r=document.createRange(); r.selectNodeContents(document.getElementById("msgPreview")); const sel=getSelection(); sel.removeAllRanges(); sel.addRange(r); document.getElementById("waNote").textContent="Mensagem selecionada. Copie e cole no WhatsApp."; } }
 });
-document.getElementById("leadForm").addEventListener("submit",e=>{
-  e.preventDefault();
-  const name=document.getElementById("fName").value.trim();
-  const phone=document.getElementById("fPhone").value.replace(/\D/g,"");
-  const err=document.getElementById("fErr");
-  if(!name || phone.length<10){ err.hidden=false; document.getElementById("sent").hidden=true; return; }
-  err.hidden=true;
-  const u=byId[fUnit.value];
-  let text=`Olá, ${C.nome.split(" ")[0]}! Sou ${name} e vi o Mirante 340 na tabela 3D.`;
-  if(u) text+=` Tenho interesse na unidade ${u.id} (${TIPOS[u.tipo].nome}, ${NUM2.format(TIPOS[u.tipo].area)} m², ${BRL.format(u.price)}).`;
-  const m=document.getElementById("fMsg").value.trim(); if(m) text+=` ${m}`;
-  text+=` Meu WhatsApp: ${document.getElementById("fPhone").value.trim()}.`;
-  document.getElementById("waLink").href=`https://wa.me/${C.whatsapp}?text=${encodeURIComponent(text)}`;
-  document.getElementById("sent").hidden=false;
-});
+fUnit.addEventListener("change",()=>{ if(fUnit.value) incluirUnidade(byId[fUnit.value]); });
+["fName","fMsg"].forEach(id=>document.getElementById(id).addEventListener("input",()=>{ clearTimeout(renderLead._t); renderLead._t=setTimeout(renderLead,150); }));
+document.getElementById("leadForm").addEventListener("submit",e=>e.preventDefault());
 
-/* ============ 3D ============ */
+/* ---------- fotos ampliadas ---------- */
+const lb=document.getElementById("lb"); let lbI=0;
+function abrirFoto(i){ const f=fotosDoImovel(); if(!f.length) return; lbI=(i+f.length)%f.length; lb.querySelector("img").src=fotoGrande(f[lbI]); lb.querySelector(".lb-n").textContent=`${lbI+1} de ${f.length}`; lb.hidden=false; }
+lb.addEventListener("click",e=>{ if(e.target.closest(".lb-prev")) abrirFoto(lbI-1); else if(e.target.closest(".lb-next")) abrirFoto(lbI+1); else if(e.target===lb||e.target.closest(".lb-x")) lb.hidden=true; });
+document.addEventListener("keydown",e=>{ if(lb.hidden) return; if(e.key==="Escape") lb.hidden=true; if(e.key==="ArrowLeft") abrirFoto(lbI-1); if(e.key==="ArrowRight") abrirFoto(lbI+1); });
+
+/* ---------- 3D ---------- */
 const stage=document.getElementById("stage"), canvas=document.getElementById("c");
 const tip=document.getElementById("tip");
 let three=null;
-function refreshAll(){
-  renderSales(); renderCard();
-  if(three) three.refresh();
-}
-function selectUnit(u, fly){
-  state.selected=u; state.spin=false; syncSpinBtn();
-  refreshAll();
-  if(three && fly) three.flyTo(u);
-}
+function refreshAll(){ renderSales(); renderCard(); if(three) three.refresh(); }
+function selectUnit(u, fly){ if(!u) return; state.selected=u; state.spin=false; syncSpinBtn(); refreshAll(); if(three && fly) three.flyTo(u); }
 function syncSpinBtn(){ document.getElementById("spinBtn").setAttribute("aria-pressed", String(state.spin)); }
 function updateViewOffset(){ if(three) three.resize(); }
 
 renderSales(); renderPlans();
-state.selected = byId["1201"];
+const inicial = (alvoCodigo && byId[alvoCodigo]) || byId[unidadeAtual()] || sortedUnits.find(disponivel) || null;
+state.selected = inicial;
 renderCard();
+renderLead();
 
 if(!window.THREE){ document.getElementById("loading").textContent="Não foi possível carregar o 3D nesta conexão."; return; }
 three = build3D();
 document.getElementById("loading").remove();
+if(inicial && (unidadeAtual() || IMV)){ state.spin=false; syncSpinBtn(); three.flyTo(inicial); }
 
 function build3D(){
-  const W=20, D=14, TOP=floorBase(19)+2*FH;
+  const W=T.largura, D=T.profundidade;
   const renderer=new THREE.WebGLRenderer({canvas, antialias:true, powerPreference:"high-performance"});
   renderer.setPixelRatio(Math.min(devicePixelRatio||1, 2));
   const scene=new THREE.Scene();
@@ -671,11 +853,9 @@ function build3D(){
       g.fillStyle=day?"#c3cadb":"#000000"; g.fillRect(0,0,6,6); }); }
   const cityNightTex=cityTex(false), cityDayTex=cityTex(true);
   [cityNightTex,cityDayTex].forEach(t=>{ t.wrapS=t.wrapT=THREE.RepeatWrapping; });
-
   function skyTex(stops){ return tex(4,512,(g,w,h)=>{ const gr=g.createLinearGradient(0,0,0,h); stops.forEach(s=>gr.addColorStop(s[0],s[1])); g.fillStyle=gr; g.fillRect(0,0,w,h); }); }
   const skyNight=skyTex([[0,"#050824"],[.45,"#13205f"],[.8,"#2b45a6"],[1,"#3554b8"]]);
   const skyDay=skyTex([[0,"#3f7fd0"],[.6,"#9cc2ec"],[1,"#e3edf7"]]);
-
   const LOOK={
     night:{ sky:skyNight, fog:0x24399a, hemiSky:0x6378d8, hemiGround:0x080c22, hemiI:.85, dirC:0x9fb2ff, dirI:.55,
       body:0x1b2357, podium:0x161d4a, slab:0xc9d2f5, slabE:0x2a3270, ground:0x0b1131, road:0x151c48, park:0x0f2550, tree:0x24539a, mtn:0x1b2a6f, fin:0xf2f5ff, lobby:0xffcc80, pool:0x45d4ff },
@@ -685,33 +865,24 @@ function build3D(){
   scene.fog=new THREE.Fog(0x24399a, 260, 1300);
   const hemi=new THREE.HemisphereLight(0xffffff,0x000000,1); scene.add(hemi);
   const dir=new THREE.DirectionalLight(0xffffff,1); dir.position.set(-120,200,160); scene.add(dir);
-
   const mats={
-    body:new THREE.MeshLambertMaterial({color:0x1b2357}),
-    podium:new THREE.MeshLambertMaterial({color:0x161d4a}),
-    slab:new THREE.MeshLambertMaterial({color:0xc9d2f5}),
-    ground:new THREE.MeshLambertMaterial({color:0x0b1131}),
-    road:new THREE.MeshLambertMaterial({color:0x151c48}),
-    park:new THREE.MeshLambertMaterial({color:0x0f2550}),
-    tree:new THREE.MeshPhongMaterial({color:0x24539a, flatShading:true, shininess:0}),
-    mtn:new THREE.MeshPhongMaterial({color:0x1b2a6f, flatShading:true, shininess:0}),
-    fin:new THREE.MeshBasicMaterial({color:0xf2f5ff}),
-    lobby:new THREE.MeshBasicMaterial({color:0xffcc80}),
-    pool:new THREE.MeshBasicMaterial({color:0x45d4ff}),
+    body:new THREE.MeshLambertMaterial({color:0x1b2357}), podium:new THREE.MeshLambertMaterial({color:0x161d4a}),
+    slab:new THREE.MeshLambertMaterial({color:0xc9d2f5}), ground:new THREE.MeshLambertMaterial({color:0x0b1131}),
+    road:new THREE.MeshLambertMaterial({color:0x151c48}), park:new THREE.MeshLambertMaterial({color:0x0f2550}),
+    tree:new THREE.MeshPhongMaterial({color:0x24539a, flatShading:true, shininess:0}), mtn:new THREE.MeshPhongMaterial({color:0x1b2a6f, flatShading:true, shininess:0}),
+    fin:new THREE.MeshBasicMaterial({color:0xf2f5ff}), lobby:new THREE.MeshBasicMaterial({color:0xffcc80}), pool:new THREE.MeshBasicMaterial({color:0x45d4ff}),
     cityNight:new THREE.MeshLambertMaterial({color:0x1a2254, emissive:0xffffff, emissiveMap:cityNightTex}),
     cityDay:new THREE.MeshLambertMaterial({color:0xb7bfcf, map:cityDayTex})
   };
 
-  /* chão, ruas, parque */
+  /* entorno: chão, ruas, parque, cidade, árvores, serra, estrelas */
   const ground=new THREE.Mesh(new THREE.PlaneGeometry(3000,3000), mats.ground); ground.rotation.x=-Math.PI/2; scene.add(ground);
-  const BLK=26, NB=9;
+  const BLK=26, NB=9, CLEAR=Math.max(1, Math.ceil((Math.max(W,D)/2+14)/BLK));
   for(let k=-NB;k<=NB;k++){
     const a=new THREE.Mesh(new THREE.PlaneGeometry(BLK*NB*2+40,7), mats.road); a.rotation.x=-Math.PI/2; a.position.set(0,.04,k*BLK+BLK/2); scene.add(a);
     const b=new THREE.Mesh(new THREE.PlaneGeometry(7,BLK*NB*2+40), mats.road); b.rotation.x=-Math.PI/2; b.position.set(k*BLK+BLK/2,.04,0); scene.add(b);
   }
-  const park=new THREE.Mesh(new THREE.CircleGeometry(36,48), mats.park); park.rotation.x=-Math.PI/2; park.position.y=.08; scene.add(park);
-
-  /* lâmpadas de rua */
+  const park=new THREE.Mesh(new THREE.CircleGeometry(Math.max(36, Math.max(W,D)/2+18),48), mats.park); park.rotation.x=-Math.PI/2; park.position.y=.08; scene.add(park);
   const lampPos=[];
   for(let k=-NB;k<=NB;k++) for(let s=-NB*BLK; s<=NB*BLK; s+=10){
     const z=k*BLK+BLK/2+3.6, x=k*BLK+BLK/2+3.6;
@@ -720,54 +891,36 @@ function build3D(){
   }
   const lg=new THREE.BufferGeometry(); lg.setAttribute("position",new THREE.Float32BufferAttribute(lampPos,3));
   const lamps=new THREE.Points(lg,new THREE.PointsMaterial({color:0xffc977,size:1.3,sizeAttenuation:true})); scene.add(lamps);
-
-  /* cidade */
   const cityMeshes=[]; const cr=rngFrom(77);
   for(let gx=-NB;gx<=NB;gx++) for(let gz=-NB;gz<=NB;gz++){
-    if(Math.abs(gx)<=1 && Math.abs(gz)<=1) continue;
+    if(Math.abs(gx)<=CLEAR && Math.abs(gz)<=CLEAR) continue;
     const cx=gx*BLK, cz=gz*BLK, r=Math.hypot(cx,cz); if(r>245) continue;
     const n = cr()<.3?2:1;
     for(let i=0;i<n;i++){
       const w=7+cr()*9, d=7+cr()*9;
       let h=5+Math.pow(cr(),2.1)*44; h=Math.min(h, r<80?15 : r<190?28 : 49);
-      const geo=new THREE.BoxGeometry(w,h,d);
-      const uv=geo.attributes.uv;
-      for(let f=0;f<6;f++){
-        const fw = (f<2)? d : w;
-        for(let v=0;v<4;v++){
-          const idx=f*4+v;
-          if(f===2||f===3){ uv.setXY(idx,.005,.005); }
-          else uv.setXY(idx, uv.getX(idx)*fw/4/8*1.0*8/8, uv.getY(idx)*h/3.2/8);
-        }
-      }
+      const geo=new THREE.BoxGeometry(w,h,d); const uv=geo.attributes.uv;
+      for(let f=0;f<6;f++){ const fw=(f<2)?d:w; for(let v=0;v<4;v++){ const idx=f*4+v; if(f===2||f===3) uv.setXY(idx,.005,.005); else uv.setXY(idx, uv.getX(idx)*fw/32, uv.getY(idx)*h/3.2/8); } }
       const m=new THREE.Mesh(geo, mats.cityNight);
       const ox=(cr()-.5)*(17-w)*(n===1?1:.4), oz=(cr()-.5)*(17-d);
-      m.position.set(cx+ox+(n===2?(i?4.5:-4.5):0), h/2, cz+oz);
-      scene.add(m); cityMeshes.push(m);
+      m.position.set(cx+ox+(n===2?(i?4.5:-4.5):0), h/2, cz+oz); scene.add(m); cityMeshes.push(m);
     }
   }
-
-  /* árvores */
   const TREES=300; const trees=new THREE.InstancedMesh(new THREE.IcosahedronGeometry(1,0), mats.tree, TREES);
-  const dm=new THREE.Object3D(); const tr=rngFrom(5); let ti=0;
-  while(ti<TREES){
+  const dm=new THREE.Object3D(); const tr=rngFrom(5); let ti=0, guard=0;
+  const RIN=Math.max(18, Math.max(W,D)/2+8);
+  while(ti<TREES && guard++<20000){
     let x,z;
-    if(ti<120){ const a=tr()*Math.PI*2, rr=18+tr()*17; x=Math.cos(a)*rr; z=Math.sin(a)*rr; if(Math.abs(x)<18 && Math.abs(z)<14) continue; }
+    if(ti<120){ const a=tr()*Math.PI*2, rr=RIN+tr()*17; x=Math.cos(a)*rr; z=Math.sin(a)*rr; if(Math.abs(x)<W/2+8 && Math.abs(z)<D/2+7) continue; }
     else { const k=Math.floor(tr()*NB*2)-NB; const along=(tr()-.5)*360; const side=tr()<.5?-5.2:5.2;
       if(tr()<.5){ x=along; z=k*BLK+BLK/2+side; } else { x=k*BLK+BLK/2+side; z=along; }
-      if(Math.hypot(x,z)>230 || Math.hypot(x,z)<38) continue; }
+      if(Math.hypot(x,z)>230 || Math.hypot(x,z)<RIN+20) continue; }
     const s=1.3+tr()*1.6; dm.position.set(x,s*1.05,z); dm.scale.set(s,s*1.15,s); dm.rotation.y=tr()*3; dm.updateMatrix(); trees.setMatrixAt(ti++,dm.matrix);
   }
-  scene.add(trees);
-
-  /* serra ao fundo */
+  trees.count=ti; scene.add(trees);
   const mr=rngFrom(9);
-  for(let i=0;i<34;i++){
-    const a=i/34*Math.PI*2+mr()*.1, dist=760+mr()*260, h=60+mr()*120, rad=170+mr()*190;
-    const m=new THREE.Mesh(new THREE.ConeGeometry(rad,h,7), mats.mtn); m.position.set(Math.cos(a)*dist,h/2-4,Math.sin(a)*dist); m.rotation.y=mr()*3; scene.add(m);
-  }
-
-  /* estrelas */
+  for(let i=0;i<34;i++){ const a=i/34*Math.PI*2+mr()*.1, dist=760+mr()*260, h=60+mr()*120, rad=170+mr()*190;
+    const m=new THREE.Mesh(new THREE.ConeGeometry(rad,h,7), mats.mtn); m.position.set(Math.cos(a)*dist,h/2-4,Math.sin(a)*dist); m.rotation.y=mr()*3; scene.add(m); }
   const sp=[]; const sr=rngFrom(3);
   for(let i=0;i<900;i++){ const a=sr()*Math.PI*2, e=.12+sr()*1.3, R=2200; sp.push(Math.cos(a)*Math.cos(e)*R, Math.sin(e)*R, Math.sin(a)*Math.cos(e)*R); }
   const sg=new THREE.BufferGeometry(); sg.setAttribute("position",new THREE.Float32BufferAttribute(sp,3));
@@ -777,22 +930,36 @@ function build3D(){
   const tower=new THREE.Group(); scene.add(tower);
   const blockers=[];
   const podium=new THREE.Mesh(new THREE.BoxGeometry(W+14,PODIUM,D+12), mats.podium); podium.position.y=PODIUM/2; tower.add(podium); blockers.push(podium);
-  const lobby=new THREE.Mesh(new THREE.PlaneGeometry(W+8,4.2), mats.lobby); lobby.position.set(0,2.4,(D+12)/2+.05); tower.add(lobby);
-  const lobbyS=new THREE.Mesh(new THREE.PlaneGeometry(D+6,3.2), mats.lobby); lobbyS.position.set((W+14)/2+.05,2.2,0); lobbyS.rotation.y=Math.PI/2; tower.add(lobbyS);
+  const lobbyH=Math.min(4.2, PODIUM*.6);
+  const lobby=new THREE.Mesh(new THREE.PlaneGeometry(W+8,lobbyH), mats.lobby); lobby.position.set(0,lobbyH/2+.3,(D+12)/2+.05); tower.add(lobby);
+  const lobbyS=new THREE.Mesh(new THREE.PlaneGeometry(D+6,lobbyH*.76), mats.lobby); lobbyS.position.set((W+14)/2+.05,lobbyH*.38+.3,0); lobbyS.rotation.y=Math.PI/2; tower.add(lobbyS);
   const bodyH=TOP-PODIUM;
   const body=new THREE.Mesh(new THREE.BoxGeometry(W-.4,bodyH,D-.4), mats.body); body.position.y=PODIUM+bodyH/2; tower.add(body); blockers.push(body);
-  for(let f=3; f<=19; f++){ const s=new THREE.Mesh(new THREE.BoxGeometry(W+.7,.3,D+.7), mats.slab); s.position.y=floorBase(f); tower.add(s); }
+  const lastSlab = COB ? COB_ANDAR : T.ultimoAndar+1;
+  for(let f=T.primeiroAndar; f<=lastSlab; f++){ const s=new THREE.Mesh(new THREE.BoxGeometry(W+.7,.3,D+.7), mats.slab); s.position.y=floorBase(f); tower.add(s); }
   const parapet=new THREE.Mesh(new THREE.BoxGeometry(W+.7,1.3,D+.7), mats.slab); parapet.position.y=TOP+.65; tower.add(parapet); blockers.push(parapet);
-  const pool=new THREE.Mesh(new THREE.PlaneGeometry(10,3.4), mats.pool); pool.rotation.x=-Math.PI/2; pool.position.set(-3,TOP+1.32,2); tower.add(pool);
-  for(let i=0;i<5;i++){ const p=new THREE.Mesh(new THREE.BoxGeometry(.3,.3,7), mats.slab); p.position.set(4+i*1.3,TOP+4,-1.5); tower.add(p); }
-  for(const [x,z] of [[4,-5],[4,2],[9.2,-5],[9.2,2]]){ const p=new THREE.Mesh(new THREE.BoxGeometry(.3,4,.3), mats.slab); p.position.set(x,TOP+2,z); tower.add(p); }
-  const fin1=new THREE.Mesh(new THREE.BoxGeometry(.45,TOP+16-PODIUM,.45), mats.fin); fin1.position.set(W/2-2.4,PODIUM+(TOP+16-PODIUM)/2,D/2+.55); tower.add(fin1);
-  const fin2=new THREE.Mesh(new THREE.BoxGeometry(.3,TOP+9-PODIUM,.3), mats.fin); fin2.position.set(W/2-3.4,PODIUM+(TOP+9-PODIUM)/2,D/2+.55); tower.add(fin2);
+  if(T.piscinaRooftop){
+    const pool=new THREE.Mesh(new THREE.PlaneGeometry(W*.5,D*.24), mats.pool); pool.rotation.x=-Math.PI/2; pool.position.set(-W*.15,TOP+1.32,D*.14); tower.add(pool);
+    for(let i=0;i<5;i++){ const p=new THREE.Mesh(new THREE.BoxGeometry(.3,.3,D*.5), mats.slab); p.position.set(W*.2+i*1.3,TOP+4,-D*.1); tower.add(p); }
+    for(const [x,z] of [[W*.2,-D*.35],[W*.2,D*.14],[W*.46,-D*.35],[W*.46,D*.14]]){ const p=new THREE.Mesh(new THREE.BoxGeometry(.3,4,.3), mats.slab); p.position.set(x,TOP+2,z); tower.add(p); }
+  }
+  if(T.aletas){
+    const fin1=new THREE.Mesh(new THREE.BoxGeometry(.45,TOP+16-PODIUM,.45), mats.fin); fin1.position.set(W/2-2.4,PODIUM+(TOP+16-PODIUM)/2,D/2+.55); tower.add(fin1);
+    const fin2=new THREE.Mesh(new THREE.BoxGeometry(.3,TOP+9-PODIUM,.3), mats.fin); fin2.position.set(W/2-3.4,PODIUM+(TOP+9-PODIUM)/2,D/2+.55); tower.add(fin2);
+  }
 
-  /* janelas = unidades */
+  /* posição de cada final na planta do andar:
+     metade dos finais na frente (esquerda → direita), a outra metade nos fundos (direita → esquerda) */
+  const nF=FINAIS.length, nFront=Math.ceil(nF/2), nBack=nF-nFront;
+  const POS={};
+  FINAIS.forEach((fin,i)=>{
+    if(i<nFront){ const sw=W/nFront, x0=-W/2+i*sw; POS[fin]={face:"F", x0, x1:x0+sw, z0: nBack?0:-D/2, z1:D/2, sideL:i===0, sideR:i===nFront-1}; }
+    else { const j=i-nFront, sw=W/nBack, x1=W/2-j*sw; POS[fin]={face:"B", x0:x1-sw, x1, z0:-D/2, z1:0, sideR:j===0, sideL:j===nBack-1}; }
+  });
+
   const winMeshes=[]; const tints=["#ffffff","#fff4e2","#ffeccd","#fff9f0","#ffe6c0"];
   const geoCache={};
-  function winGeo(w,h){ const k=w+"x"+h; return geoCache[k]||(geoCache[k]=new THREE.PlaneGeometry(w,h)); }
+  function winGeo(w,h){ const k=w.toFixed(2)+"x"+h.toFixed(2); return geoCache[k]||(geoCache[k]=new THREE.PlaneGeometry(w,h)); }
   function addWin(u,face,a,y,w,h){
     const m=new THREE.Mesh(winGeo(w,h),u.mat); const o=.09;
     if(face==="F") m.position.set(a,y,D/2+o);
@@ -801,29 +968,34 @@ function build3D(){
     if(face==="R"){ m.position.set(W/2+o,y,a); m.rotation.y=Math.PI/2; }
     m.userData.unit=u; tower.add(m); winMeshes.push(m);
   }
-  const LAYOUT={
-    "01":[["F",-7.6],["F",-3.2],["L",3.4]],
-    "02":[["F",3.2],["F",7.6],["R",3.4]],
-    "03":[["B",3.2],["B",7.6],["R",-3.4]],
-    "04":[["B",-3.2],["B",-7.6],["L",-3.4]]
-  };
-  const BOUNDS={ "01":[-W/2,0,0,D/2], "02":[0,W/2,0,D/2], "03":[0,W/2,-D/2,0], "04":[-W/2,0,-D/2,0] };
+  function janelasNaFaixa(u,face,x0,x1,y,h){
+    const sw=x1-x0, n = sw>14 ? 3 : 2, w=Math.min(3.7, sw/n*.74);
+    for(let k=0;k<n;k++) addWin(u,face,x0+sw*(k+.5)/n,y,w,h);
+  }
+  const winH = Math.min(2.25, FH*.74), winY = FH*.52;
   units.forEach((u,i)=>{
     u.tint=new THREE.Color(tints[i%tints.length]);
     u.mat=new THREE.MeshBasicMaterial({map:texLit,color:u.tint.clone()});
     u.base=new THREE.Color();
     const y0=floorBase(u.floor);
-    if(u.duplex){
-      const side = u.fin==="01" ? [["F",-7.6],["F",-3.2],["L",3.4],["L",-3.4],["B",-3.2],["B",-7.6]] : [["F",3.2],["F",7.6],["R",3.4],["R",-3.4],["B",3.2],["B",7.6]];
-      side.forEach(([f,a])=>addWin(u,f,a,y0+FH,3.7,5.3));
-      u.bounds = u.fin==="01" ? [-W/2,0,-D/2,D/2] : [0,W/2,-D/2,D/2]; u.h=2*FH;
+    if(u.cob){
+      const h = u.duplex ? 2*FH : FH, wy = y0 + h/2, wh = u.duplex ? Math.min(5.3,h*.87) : winH;
+      const [x0,x1] = u.lado==="esquerda" ? [-W/2,0] : u.lado==="direita" ? [0,W/2] : [-W/2,W/2];
+      janelasNaFaixa(u,"F",x0,x1,wy,wh); janelasNaFaixa(u,"B",x0,x1,wy,wh);
+      if(x0===-W/2){ addWin(u,"L",D/4,wy,Math.min(3.7,D*.26),wh); addWin(u,"L",-D/4,wy,Math.min(3.7,D*.26),wh); }
+      if(x1===W/2){ addWin(u,"R",D/4,wy,Math.min(3.7,D*.26),wh); addWin(u,"R",-D/4,wy,Math.min(3.7,D*.26),wh); }
+      u.bounds=[x0,x1,-D/2,D/2]; u.h=h; u.view = u.lado==="direita" ? .55 : u.lado==="esquerda" ? -.55 : 0;
     } else {
-      LAYOUT[u.fin].forEach(([f,a])=>addWin(u,f,a,y0+1.6,3.7,2.25));
-      u.bounds=BOUNDS[u.fin]; u.h=FH;
+      const p=POS[u.fin]; if(!p){ u.bounds=[0,0,0,0]; u.h=FH; u.view=0; return; }
+      janelasNaFaixa(u,p.face,p.x0,p.x1,y0+winY,winH);
+      const zc = p.face==="F" ? D/4 : -D/4, sideW=Math.min(3.7,D*.26);
+      if(p.sideL) addWin(u,"L",zc,y0+winY,sideW,winH);
+      if(p.sideR) addWin(u,"R",zc,y0+winY,sideW,winH);
+      u.bounds=[p.x0,p.x1,p.z0,p.z1]; u.h=FH;
+      const cx=(p.x0+p.x1)/2; u.view = p.face==="F" ? Math.atan2(cx, D*.9) : Math.PI - Math.atan2(cx, D*.9);
     }
   });
 
-  /* destaque da unidade selecionada */
   const hlGroup=new THREE.Group();
   const hlFill=new THREE.Mesh(new THREE.BoxGeometry(1,1,1), new THREE.MeshBasicMaterial({color:0x86e8ff,transparent:true,opacity:.16,depthWrite:false}));
   const hlEdge=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(1,1,1)), new THREE.LineBasicMaterial({color:0x86e8ff,transparent:true}));
@@ -835,9 +1007,15 @@ function build3D(){
     hlGroup.scale.set(x1-x0+1.1, u.h-.15, z1-z0+1.1);
     hlGroup.visible=true;
   }
-
+  const vizR=rngFrom(91);
+  units.forEach(u=>{ if(u.status==="vizinha") u.acesa = vizR()<.35; });
   function lookFor(u){
-    const night=state.mode==="night", on=u.status==="disponivel";
+    const night=state.mode==="night", on=disponivel(u);
+    if(u.status==="vizinha"){
+      const c=new THREE.Color();
+      if(night){ if(u.acesa){ c.set("#7d6a4c"); return {map:texLit,col:c}; } c.set("#ffffff"); return {map:texDark,col:c}; }
+      c.set("#c3cbdc"); return {map:texDay,col:c};
+    }
     const out = state.filter && u.tipo!==state.filter;
     let map, col=new THREE.Color();
     if(night){ map = on?texLit:texDark; col.copy(on?u.tint:new THREE.Color(1,1,1)); }
@@ -848,12 +1026,7 @@ function build3D(){
     if(u===state.selected){ map = night?texLit:texDay; col.set("#8fe9ff"); }
     return {map,col};
   }
-  function applyLook(u){
-    const {map,col}=lookFor(u);
-    if(u.mat.map!==map){ u.mat.map=map; u.mat.needsUpdate=true; }
-    u.base.copy(col); u.mat.color.copy(col);
-  }
-
+  function applyLook(u){ if(!u.mat) return; const {map,col}=lookFor(u); if(u.mat.map!==map){ u.mat.map=map; u.mat.needsUpdate=true; } u.base.copy(col); u.mat.color.copy(col); }
   function setMode(m){
     state.mode=m; const L=LOOK[m];
     scene.background=L.sky; scene.fog.color.setHex(L.fog);
@@ -870,32 +1043,27 @@ function build3D(){
     document.querySelectorAll("#modeSeg button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.mode===m)));
   }
 
-  /* câmera orbital */
-  const cam={ theta:-.55, phi:.15, dist:150, ty:34, tx:0 };
+  /* câmera: distâncias proporcionais ao tamanho do prédio */
+  const SIZE=Math.max(TOP, W*1.15, D*1.6);
+  const BASE_DIST=Math.max(110, SIZE*2.25), BASE_TY=Math.max(18, TOP*.55);
+  const cam={ theta:-.55, phi:.15, dist:BASE_DIST*1.1, ty:BASE_TY, tx:0 };
   const goal={...cam};
   let distScale=1;
   function wrapTo(cur, target){ let d=target-cur; d=((d+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI; return cur+d; }
   function setGoal(g){ Object.assign(goal,g); goal.theta=wrapTo(cam.theta,goal.theta); if(reduceMotion) Object.assign(cam,goal); }
-  const VIEWS={ front:{theta:0,phi:.1,dist:135,ty:34,tx:0}, side:{theta:Math.PI/2,phi:.1,dist:135,ty:34,tx:0}, back:{theta:Math.PI,phi:.1,dist:135,ty:34,tx:0}, roof:{theta:-.7,phi:.95,dist:95,ty:TOP-4,tx:0} };
-  function flyTo(u){
-    const th = {"01":-.55,"02":.55,"03":Math.PI-.55,"04":-(Math.PI-.55)}[u.fin];
-    const [x0,x1]=u.bounds;
-    setGoal({theta:th, phi:.06, dist:78, ty:floorBase(u.floor)+u.h/2, tx:(x0+x1)/4});
-  }
+  const VIEWS={ front:{theta:0,phi:.1,dist:BASE_DIST,ty:BASE_TY,tx:0}, side:{theta:Math.PI/2,phi:.1,dist:BASE_DIST,ty:BASE_TY,tx:0}, back:{theta:Math.PI,phi:.1,dist:BASE_DIST,ty:BASE_TY,tx:0}, roof:{theta:-.7,phi:.95,dist:Math.max(80,SIZE*1.5),ty:TOP-4,tx:0} };
+  function flyTo(u){ const [x0,x1]=u.bounds; setGoal({theta:u.view, phi:.06, dist:Math.max(64, W*2.6, D*3.2), ty:floorBase(u.floor)+u.h/2, tx:(x0+x1)/4}); }
 
   function resize(){
     const w=stage.clientWidth, h=stage.clientHeight; if(!w||!h) return;
     renderer.setSize(w,h,false); camera.aspect=w/h;
     distScale = camera.aspect<1 ? Math.min(1.6,.95/camera.aspect) : 1;
-    if(innerWidth>900){
-      const left=360, right= card.hidden?0:380;
-      camera.setViewOffset(w,h,-(left-right)/2,0,w,h);
-    } else camera.clearViewOffset();
+    if(innerWidth>900){ const left=360, right= card.hidden?0:380; camera.setViewOffset(w,h,-(left-right)/2,0,w,h); }
+    else camera.clearViewOffset();
     camera.updateProjectionMatrix();
   }
   addEventListener("resize",resize); resize();
 
-  /* interação */
   const ray=new THREE.Raycaster(); const ndc=new THREE.Vector2();
   let down=null, moved=false, ptr=null, hoverDirty=false;
   const pickList=[...winMeshes,...blockers];
@@ -904,7 +1072,8 @@ function build3D(){
     ndc.set((cx-r.left)/r.width*2-1, -((cy-r.top)/r.height)*2+1);
     ray.setFromCamera(ndc,camera);
     const hit=ray.intersectObjects(pickList,false)[0];
-    return hit && hit.object.userData.unit || null;
+    const hu = hit && hit.object.userData.unit || null;
+    return hu && hu.status==="vizinha" ? null : hu;
   }
   const hint=document.getElementById("hint");
   canvas.addEventListener("pointercancel",()=>{ down=null; canvas.classList.remove("dragging"); });
@@ -913,47 +1082,32 @@ function build3D(){
     if(down){
       const dx=e.clientX-down.x, dy=e.clientY-down.y;
       if(Math.abs(dx)+Math.abs(dy)>5){ moved=true; canvas.classList.add("dragging"); if(state.spin){ state.spin=false; syncSpinBtn(); } }
-      if(moved){
-        goal.theta=cam.theta=down.t - dx*.006;
-        if(down.type==="mouse"){ goal.phi=cam.phi=Math.max(-.02,Math.min(1.2,down.p+dy*.004)); }
-      }
+      if(moved){ goal.theta=cam.theta=down.t - dx*.006; if(down.type==="mouse"){ goal.phi=cam.phi=Math.max(-.02,Math.min(1.2,down.p+dy*.004)); } }
     } else if(e.target===canvas && e.pointerType==="mouse"){ ptr={x:e.clientX,y:e.clientY}; hoverDirty=true; }
   });
   addEventListener("pointerup",e=>{
-    if(down && !moved && e.target===canvas){
-      const u=pick(e.clientX,e.clientY);
-      if(u) selectUnit(u,true);
-    }
+    if(down && !moved && e.target===canvas){ const u=pick(e.clientX,e.clientY); if(u) selectUnit(u,true); }
     down=null; canvas.classList.remove("dragging");
   });
   canvas.addEventListener("pointerleave",()=>{ ptr=null; hoverDirty=true; });
-
   function updateHover(){
     hoverDirty=false;
     const u = ptr ? pick(ptr.x,ptr.y) : null;
-    if(u!==state.hover){
-      const prev=state.hover; state.hover=u;
-      if(prev) applyLook(prev); if(u) applyLook(u);
-    }
+    if(u!==state.hover){ const prev=state.hover; state.hover=u; if(prev) applyLook(prev); if(u) applyLook(u); }
     canvas.classList.toggle("pointing",!!u);
     if(u){
       const r=stage.getBoundingClientRect();
-      tip.innerHTML=`<b>${u.id}</b>${TIPOS[u.tipo].nome} · <span class="${u.status==="disponivel"?"st-on":"st-off"}">${u.status==="disponivel"?"Disponível":"Vendida"}</span>`;
+      tip.innerHTML=`<b>${esc(u.id)}</b>${esc(TIPOS[u.tipo].nome)} · <span class="${disponivel(u)?"st-on":"st-off"}">${disponivel(u)?"Disponível":u.status==="reservada"?"Reservada":"Vendida"}</span>`;
       tip.style.left=(ptr.x-r.left)+"px"; tip.style.top=(ptr.y-r.top)+"px"; tip.hidden=false;
     } else tip.hidden=true;
   }
-
-  document.getElementById("viewSeg").addEventListener("click",e=>{
-    const b=e.target.closest("[data-view]"); if(!b) return;
-    state.spin=false; syncSpinBtn(); setGoal({...VIEWS[b.dataset.view]});
-  });
+  document.getElementById("viewSeg").addEventListener("click",e=>{ const b=e.target.closest("[data-view]"); if(!b) return; state.spin=false; syncSpinBtn(); setGoal({...VIEWS[b.dataset.view]}); });
   document.getElementById("modeSeg").addEventListener("click",e=>{ const b=e.target.closest("[data-mode]"); if(b) setMode(b.dataset.mode); });
-  document.getElementById("spinBtn").addEventListener("click",()=>{ state.spin=!state.spin; syncSpinBtn(); if(state.spin) setGoal({phi:.15,dist:150,ty:34,tx:0}); });
+  document.getElementById("spinBtn").addEventListener("click",()=>{ state.spin=!state.spin; syncSpinBtn(); if(state.spin) setGoal({phi:.15,dist:BASE_DIST*1.1,ty:BASE_TY,tx:0}); });
   document.getElementById("glowBtn").addEventListener("click",e=>{ state.glow=!state.glow; e.currentTarget.setAttribute("aria-pressed",String(state.glow)); units.forEach(applyLook); });
   document.getElementById("zoomIn").addEventListener("click",()=>{ goal.dist=Math.max(40,goal.dist*.8); });
-  document.getElementById("zoomOut").addEventListener("click",()=>{ goal.dist=Math.min(260,goal.dist*1.25); });
+  document.getElementById("zoomOut").addEventListener("click",()=>{ goal.dist=Math.min(BASE_DIST*2,goal.dist*1.25); });
 
-  /* loop */
   let visible=true;
   if("IntersectionObserver" in window){ new IntersectionObserver(es=>{ visible=es[0].isIntersecting; },{threshold:0}).observe(stage); }
   const clock=new THREE.Clock();
@@ -970,25 +1124,19 @@ function build3D(){
     if(camera.position.y<minY) camera.position.y=minY;
     camera.lookAt(cam.tx,cam.ty,0);
     if(hoverDirty) updateHover();
-    if(state.glow){
-      const s=.72+.28*(.5+.5*Math.sin(t*3.2));
-      units.forEach(u=>{ if(u.status==="disponivel" && u!==state.selected && u!==state.hover) u.mat.color.copy(u.base).multiplyScalar(s); });
-    }
+    if(state.glow){ const s=.72+.28*(.5+.5*Math.sin(t*3.2)); units.forEach(u=>{ if(disponivel(u) && u!==state.selected && u!==state.hover && u.mat) u.mat.color.copy(u.base).multiplyScalar(s); }); }
     if(hlGroup.visible){ const p=.5+.5*Math.sin(t*4); hlFill.material.opacity=.10+.14*p; hlEdge.material.opacity=.55+.45*p; }
     renderer.render(scene,camera);
   }
   setMode("night"); placeHighlight();
   frameLoop();
-
-  return {
-    refresh(){ units.forEach(applyLook); placeHighlight(); },
-    flyTo, resize
-  };
+  return { refresh(){ units.forEach(applyLook); placeHighlight(); }, flyTo, resize };
 }
+}
+iniciar().catch(err=>{ console.error(err); escolherPredio("Não foi possível abrir o prédio."); });
 })();
 </script>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script>
 (function(){
   var box=document.getElementById("others"); if(!box) return;
@@ -997,7 +1145,7 @@ function build3D(){
   var BRL=new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL",maximumFractionDigits:0});
   var esc=function(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});};
   var FOTO="https://slcysfthwrrtzekkhwer.supabase.co/storage/v1/object/public/fotos/";
-  var atual="mirante-340";
+  var atual=decodeURIComponent(location.hash.slice(1)).split("/")[0] || document.documentElement.dataset.predio || "";
   Promise.all([
     sb.from("empreendimentos").select("id,slug,nome,config").order("criado_em"),
     sb.from("unidades").select("empreendimento_id,status,preco"),

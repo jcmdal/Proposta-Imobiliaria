@@ -223,6 +223,17 @@ legend{font-family:var(--display);font-size:20px;padding:0;margin-bottom:4px}
 .vc .feat span{font-size:12px;border:1px solid var(--line);border-radius:999px;padding:2px 8px;color:var(--muted)}
 .vc .act{margin-top:auto;padding-top:8px;display:flex;gap:8px;flex-wrap:wrap}
 .notice{border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:18px 20px;display:flex;flex-direction:column;gap:6px}
+.filterbar{display:flex;gap:12px;justify-content:space-between;align-items:center;flex-wrap:wrap}
+.selwrap{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+.selwrap select{border:1px solid var(--line);border-radius:999px;padding:6px 12px;background:var(--surface);font-size:13px;max-width:100%}
+.mrow{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:14px;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line)}
+.mrow:last-child{border-bottom:0}
+.mrow.off{opacity:.7}
+.mrow .t{font-weight:600}
+.mrow .s{font-size:13px;color:var(--muted)}
+.mact{display:flex;gap:6px;flex-wrap:wrap}
+@media (max-width:640px){.mrow{grid-template-columns:1fr}}
+.mform{display:flex;flex-direction:column;gap:12px;padding:16px;border-bottom:1px solid var(--line);background:var(--sunk)}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--surface);padding:10px 16px;border-radius:10px;font-size:14px;z-index:60;max-width:calc(100% - 32px)}
 @media (prefers-reduced-motion:no-preference){.sheet{animation:slide .18s ease-out}@keyframes slide{from{transform:translateX(24px);opacity:.6}}}
 </style>
@@ -277,7 +288,7 @@ const STATUS = { pendente:"Aguardando revisão", ajuste:"Ajuste pedido", publica
 const BRL = new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL",maximumFractionDigits:0});
 const NUM = new Intl.NumberFormat("pt-BR",{maximumFractionDigits:2});
 const DT = new Intl.DateTimeFormat("pt-BR",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"});
-const META_KEYS = ["id","corretorId","codigo","status","notaGestor","orcar3d","historico","criadoEm","atualizadoEm"];
+const META_KEYS = ["id","corretorId","equipeId","codigo","status","notaGestor","orcar3d","historico","criadoEm","atualizadoEm"];
 
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const fotoUrl = p => /^https?:\/\//i.test(String(p)) ? (/images\.unsplash\.com/.test(String(p)) ? String(p).split("?")[0]+"?w=1200&q=75&auto=format&fit=crop" : String(p)) : `${SUPA_URL}/storage/v1/object/public/fotos/${String(p).split("/").map(encodeURIComponent).join("/")}`;
@@ -291,7 +302,7 @@ const isApto = t => t==="Apartamento"||t==="Cobertura";
 /* ---------- estado ---------- */
 const S = {
   session:null, uid:null, email:"", gestor:false,
-  tab:"enviar", perfil:null, corretores:{}, itens:[], plano:{ chave:"profissional" },
+  tab:"enviar", perfil:null, corretores:{}, equipe:[], filtroCorretor:"", editMembro:null, itens:[], plano:{ chave:"profissional" },
   filtro:"pendente", aberto:null, editId:null, form:null, uploading:0, confirm:null, editPerfil:false,
   authModo:"entrar", authMsg:"", ready:false
 };
@@ -310,7 +321,7 @@ function falha(err, padrao){
 
 /* ---------- linha do banco <-> item ---------- */
 function rowToItem(r){
-  return { ...(r.dados||{}), id:r.id, corretorId:r.corretor_id, codigo:r.codigo, status:r.status,
+  return { ...(r.dados||{}), id:r.id, corretorId:r.corretor_id, equipeId:r.corretor_equipe_id||"", codigo:r.codigo, status:r.status,
     notaGestor:r.nota_gestor, orcar3d:r.orcar_3d, historico:r.historico||[], criadoEm:r.criado_em, atualizadoEm:r.atualizado_em };
 }
 function dadosDe(it){ const d={...it}; META_KEYS.forEach(k=>delete d[k]); delete d.plantaTipo; return d; }
@@ -358,7 +369,7 @@ async function aplicarSessao(session){
     const { data:g } = await sb.rpc("is_gestor");
     S.gestor = !!g;
     S.tab = S.gestor ? "gestao" : "enviar";
-    try{ const h=location.hash.slice(1); if(h==="enviar"||(h==="gestao"&&S.gestor)) S.tab=h; }catch(e){}
+    try{ const h=location.hash.slice(1); if(h==="enviar"||((h==="gestao"||h==="equipe")&&S.gestor)) S.tab=h; }catch(e){}
     await carregar();
   }
   S.ready=true; render();
@@ -366,11 +377,13 @@ async function aplicarSessao(session){
 async function carregar(){
   const tasks = [
     sb.from("corretores").select("*"),
-    sb.from("imoveis").select("*").order("atualizado_em",{ascending:false})
+    sb.from("imoveis").select("*").order("atualizado_em",{ascending:false}),
+    sb.from("equipe").select("*").order("nome")
   ];
   if(S.gestor) tasks.push(sb.from("config").select("*").eq("chave","plano").maybeSingle());
-  const [c, i, p] = await Promise.all(tasks);
+  const [c, i, eq, p] = await Promise.all(tasks);
   if(c.error||i.error){ toast(falha(c.error||i.error,"Não foi possível carregar as fichas.")); return; }
+  S.equipe = eq.error ? [] : (eq.data||[]);
   S.corretores = Object.fromEntries((c.data||[]).map(r=>[r.id, r]));
   S.perfil = S.corretores[S.uid] || null;
   S.itens = (i.data||[]).map(rowToItem);
@@ -378,6 +391,11 @@ async function carregar(){
   render();
 }
 function todosItens(){ return S.itens; }
+function membroPorId(id){ return S.equipe.find(m=>m.id===id) || null; }
+function membro(it){ const m=membroPorId(it.equipeId); if(m) return m; const c=S.corretores[it.corretorId]; return c && c.nome!=="Conta da equipe" ? c : {nome:"Corretor não informado", creci:"", whatsapp:""}; }
+function equipeAtiva(){ return S.equipe.filter(m=>m.ativo); }
+function lembrarCorretor(id){ try{ localStorage.setItem("corretorEscolhido", id||""); }catch(e){} }
+function corretorLembrado(){ try{ const id=localStorage.getItem("corretorEscolhido")||""; return equipeAtiva().some(m=>m.id===id) ? id : ""; }catch(e){ return ""; } }
 function meusItens(){ return S.itens.filter(i=>i.corretorId===S.uid); }
 
 /* ---------- render ---------- */
@@ -387,13 +405,14 @@ function render(){
   if(S.recuperando && S.uid){ app.innerHTML = novaSenhaHTML(); sheetRoot.innerHTML=""; return; }
   if(!S.uid){ app.innerHTML = loginHTML(); sheetRoot.innerHTML=""; return; }
   if(S.tab==="gestao" && S.gestor) app.innerHTML = gestaoHTML();
+  else if(S.tab==="equipe" && S.gestor) app.innerHTML = equipeHTML();
   else renderEnviar();
   renderSheet();
 }
 function renderTop(){
   const tabs=[];
   if(S.uid){
-    if(S.gestor){ const n=todosItens().filter(i=>i.status==="pendente").length; tabs.push(["gestao","Gestão",n]); }
+    if(S.gestor){ const n=todosItens().filter(i=>i.status==="pendente").length; tabs.push(["gestao","Gestão",n]); tabs.push(["equipe","Equipe",0]); }
     const n=meusItens().filter(i=>i.status==="ajuste").length; tabs.push(["enviar",S.gestor?"Enviar imóvel":"Meus imóveis",n]);
   }
   const el=document.getElementById("tabs");
@@ -401,7 +420,7 @@ function renderTop(){
     + `<a class="tablink" href="/imoveis.html">Vitrine</a>`;
   const role = S.gestor ? "Gestor" : S.uid ? "Corretor" : "";
   document.getElementById("who").innerHTML = S.uid
-    ? `<span title="${esc(S.email)}">${esc(S.perfil?.nome||S.email)}</span><span class="role">${role}</span><button class="link" type="button" id="sair">Sair</button>`
+    ? `<span title="${esc(S.email)}">${esc(S.gestor ? (S.perfil?.nome||S.email) : "Conta da equipe")}</span><span class="role">${role}</span><button class="link" type="button" id="sair">Sair</button>`
     : "";
 }
 document.getElementById("tabs").addEventListener("click",e=>{
@@ -493,12 +512,13 @@ function gestaoHTML(){
   const pct = Math.min(100, mes/plano.limite*100);
   const exced = Math.max(0, mes-plano.limite);
   const cnt = k => all.filter(i=>i.status===k).length;
-  const lista = all.filter(i=> S.filtro==="todos" ? true : S.filtro==="fora" ? (i.status==="vendido"||i.status==="arquivado") : i.status===S.filtro);
-  const nCorr = Object.keys(S.corretores).length;
+  const porCorretor = i => !S.filtroCorretor || (S.filtroCorretor==="-" ? !membroPorId(i.equipeId) : i.equipeId===S.filtroCorretor);
+  const lista = all.filter(porCorretor).filter(i=> S.filtro==="todos" ? true : S.filtro==="fora" ? (i.status==="vendido"||i.status==="arquivado") : i.status===S.filtro);
+  const nCorr = equipeAtiva().length;
   const filtros = [["pendente","Aguardando",cnt("pendente")],["ajuste","Em ajuste",cnt("ajuste")],["publicado","Na vitrine",cnt("publicado")],["fora","Vendidos e arquivados",cnt("vendido")+cnt("arquivado")],["todos","Todos",all.length]];
   return `<section class="view" aria-labelledby="hG">
     <div class="head"><div><div class="eyebrow">Painel do gestor</div><h2 id="hG">Fichas enviadas pelos corretores</h2>
-      <p>Revise cada ficha, peça o que faltar e publique na vitrine. ${nCorr} corretor${nCorr===1?"":"es"} com cadastro no portal.</p></div>
+      <p>Revise cada ficha, peça o que faltar e publique na vitrine. ${nCorr} corretor${nCorr===1?"":"es"} ativo${nCorr===1?"":"s"} na equipe.</p></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" type="button" id="atualizar">Atualizar</button><button class="btn" type="button" data-go="enviar">Enviar um imóvel de teste</button></div></div>
     <div class="strip">
       <div>
@@ -513,7 +533,8 @@ function gestaoHTML(){
       <div><div class="eyebrow">Em ajuste</div><div class="big mono">${cnt("ajuste")}</div></div>
       <div><div class="eyebrow">Na vitrine</div><div class="big mono">${cnt("publicado")}</div></div>
     </div>
-    <div class="chips" role="group" aria-label="Filtrar por situação">${filtros.map(([k,l,n])=>`<button type="button" data-filtro="${k}" aria-pressed="${S.filtro===k}">${l} · ${n}</button>`).join("")}</div>
+    <div class="filterbar"><div class="chips" role="group" aria-label="Filtrar por situação">${filtros.map(([k,l,n])=>`<button type="button" data-filtro="${k}" aria-pressed="${S.filtro===k}">${l} · ${n}</button>`).join("")}</div>
+      <label class="selwrap"><span>Corretor</span><select id="filtroCorretor"><option value="">Todos os corretores</option>${S.equipe.map(m=>`<option value="${m.id}" ${S.filtroCorretor===m.id?"selected":""}>${esc(m.nome)}${m.ativo?"":" (inativo)"} · ${all.filter(i=>i.equipeId===m.id).length}</option>`).join("")}${all.some(i=>!membroPorId(i.equipeId))?`<option value="-" ${S.filtroCorretor==="-"?"selected":""}>Sem corretor informado</option>`:""}</select></label></div>
     <div class="list">${lista.length ? lista.map(rowHTML).join("") : emptyGestao(all.length)}</div>
   </section>`;
 }
@@ -522,7 +543,7 @@ function emptyGestao(total){
   return `<div class="empty"><b>Nada nesta situação</b><p>Troque o filtro acima para ver as outras fichas.</p></div>`;
 }
 function rowHTML(it){
-  const a=avaliar(it), c=S.corretores[it.corretorId]||{};
+  const a=avaliar(it), c=membro(it);
   const th = it.fotos?.[0] ? `<img src="${fotoUrl(it.fotos[0])}" alt="" loading="lazy">` : "sem foto";
   return `<button type="button" class="row" data-abrir="${it.id}">
     <span class="thumb">${th}</span>
@@ -541,7 +562,7 @@ function acharItem(id){ return id ? S.itens.find(i=>i.id===id)||null : null; }
 function renderSheet(){
   const it = acharItem(S.aberto);
   if(!it){ sheetRoot.innerHTML=""; return; }
-  const a=avaliar(it), c=S.corretores[it.corretorId] || {};
+  const a=avaliar(it), c=membro(it);
   const gestor = S.gestor;
   const fotos=(it.fotos||[]);
   const gal = fotos.length ? `<div class="gallery">${fotos.slice(0,7).map(f=>`<a href="${fotoUrl(f)}" target="_blank" rel="noopener"><img src="${fotoUrl(f)}" alt="Foto do imóvel" loading="lazy"></a>`).join("")}</div>${fotos.length>7?`<p style="font-size:12.5px;color:var(--muted)">+${fotos.length-7} fotos</p>`:""}` : `<div class="note"><b>Sem fotos</b>Esta ficha ainda não tem fotos.</div>`;
@@ -608,7 +629,7 @@ function renderSheet(){
 }
 function hist(it,acao){ return [...(it.historico||[]), {em:now(), acao}].slice(-30); }
 function vitrineRow(it){
-  const c=S.corretores[it.corretorId]||{};
+  const c=membro(it);
   const pub = {};
   ["finalidade","tipo","bairro","cidade","area","quartos","suites","banheiros","vagas","andar","valor","condominio","iptu","financiamento","fgts","permuta","diferenciais","descricao","fotos","planta","video","lancamento"].forEach(k=>{ if(it[k]!==undefined && it[k]!==null) pub[k]=it[k]; });
   if(!it.ocultarEndereco && it.endereco) pub.endereco=it.endereco;
@@ -670,6 +691,7 @@ app.addEventListener("click", async e=>{
   const ab=e.target.closest("[data-abrir]"); if(ab){ S.aberto=ab.dataset.abrir; S.confirm=null; renderSheet(); return; }
 });
 app.addEventListener("change", async e=>{
+  if(e.target.id==="filtroCorretor"){ S.filtroCorretor=e.target.value; render(); return; }
   if(e.target.id==="planoSel"){
     const { error } = await sb.from("config").upsert({chave:"plano", valor:{chave:e.target.value}, atualizado_em:now()});
     if(error){ toast(falha(error,"Não foi possível trocar o plano.")); return; }
@@ -677,11 +699,61 @@ app.addEventListener("change", async e=>{
   }
 });
 
+/* ---------- EQUIPE (gestor) ---------- */
+function equipeHTML(){
+  const ed = S.editMembro ? (S.editMembro==="novo" ? {id:"",nome:"",creci:"",whatsapp:"",ativo:true} : membroPorId(S.editMembro)) : null;
+  const conta = i => S.itens.filter(x=>x.equipeId===i).length;
+  const linhas = S.equipe.map(m=> ed && ed.id===m.id ? formMembro(ed) : `<div class="mrow ${m.ativo?"":"off"}">
+      <div style="min-width:0"><div class="t">${esc(m.nome)}${m.ativo?"":` <span class="pill st-arquivado">Inativo</span>`}</div><div class="s mono">${m.creci?"CRECI "+esc(m.creci)+" · ":""}${esc(m.whatsapp||"sem WhatsApp")}</div></div>
+      <div class="s">${conta(m.id)} ficha${conta(m.id)===1?"":"s"}</div>
+      <div class="mact"><button class="btn sm" type="button" data-membro-edit="${m.id}">Editar</button><button class="btn sm ghost" type="button" data-membro-ativo="${m.id}">${m.ativo?"Desativar":"Reativar"}</button></div>
+    </div>`).join("");
+  return `<section class="view" aria-labelledby="hEq">
+    <div class="head"><div><div class="eyebrow">Equipe</div><h2 id="hEq">Corretores da imobiliária</h2>
+      <p>Todos usam a mesma conta para entrar no portal e escolhem o próprio nome na ficha. O WhatsApp cadastrado aqui é o que aparece na vitrine.</p></div>
+      ${S.editMembro==="novo"?"":`<button class="btn lamp" type="button" data-membro-edit="novo">Adicionar corretor</button>`}</div>
+    <div class="list">${S.editMembro==="novo"?formMembro(ed):""}${linhas || (S.editMembro==="novo"?"":`<div class="empty"><b>Nenhum corretor cadastrado</b><p>Adicione os corretores da equipe com nome, CRECI e WhatsApp. Eles aparecem como opção no topo da ficha.</p></div>`)}</div>
+    <div class="notice"><b>Conta compartilhada da equipe</b><p style="color:var(--muted)">Crie uma conta em “Criar conta de corretor” com um e-mail da imobiliária e passe o e-mail e a senha aos corretores. Se alguém sair da equipe, desative o nome aqui e troque a senha da conta.</p></div>
+  </section>`;
+}
+function formMembro(m){
+  return `<form class="mform" id="membroForm" novalidate>
+    <div class="grid3"><div class="f"><label for="mNome">Nome</label><input id="mNome" value="${esc(m.nome)}" autocomplete="off"></div>
+    <div class="f"><label for="mCreci">CRECI</label><input id="mCreci" value="${esc(m.creci)}" placeholder="000000-F"></div>
+    <div class="f"><label for="mWhats">WhatsApp com DDD</label><input id="mWhats" inputmode="tel" value="${esc(m.whatsapp)}" placeholder="(22) 99999-9999"></div></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn lamp" type="submit">${m.id?"Salvar alterações":"Adicionar à equipe"}</button><button class="btn ghost" type="button" data-membro-cancel>Cancelar</button></div>
+  </form>`;
+}
+app.addEventListener("click", async e=>{
+  if(!S.gestor || S.tab!=="equipe") return;
+  const ed=e.target.closest("[data-membro-edit]"); if(ed){ S.editMembro=ed.dataset.membroEdit; render(); document.getElementById("mNome")?.focus(); return; }
+  if(e.target.closest("[data-membro-cancel]")){ S.editMembro=null; render(); return; }
+  const at=e.target.closest("[data-membro-ativo]"); if(at){
+    const m=membroPorId(at.dataset.membroAtivo); if(!m) return; at.disabled=true;
+    const { error } = await sb.from("equipe").update({ ativo:!m.ativo, atualizado_em:now() }).eq("id", m.id);
+    if(error){ toast(falha(error,"Não foi possível salvar.")); at.disabled=false; return; }
+    toast(m.ativo?`${m.nome} desativado. As fichas dele continuam no histórico.`:`${m.nome} reativado.`); await carregar(); return;
+  }
+});
+app.addEventListener("submit", async e=>{
+  if(e.target.id!=="membroForm") return;
+  e.preventDefault();
+  const nome=document.getElementById("mNome").value.trim(), creci=document.getElementById("mCreci").value.trim(), whatsapp=document.getElementById("mWhats").value.trim();
+  if(!nome){ toast("Digite o nome do corretor."); return; }
+  if(whatsapp && digits(whatsapp).length<10){ toast("Digite o WhatsApp com DDD, ou deixe em branco."); return; }
+  const btn=e.target.querySelector('[type="submit"]'); btn.disabled=true;
+  const novo = S.editMembro==="novo";
+  const q = novo ? sb.from("equipe").insert({ nome, creci, whatsapp }) : sb.from("equipe").update({ nome, creci, whatsapp, atualizado_em:now() }).eq("id", S.editMembro);
+  const { error } = await q;
+  if(error){ toast(falha(error,"Não foi possível salvar.")); btn.disabled=false; return; }
+  S.editMembro=null; toast(novo?`${nome} adicionado à equipe.`:"Dados atualizados."); await carregar();
+});
+
 /* ---------- ENVIAR (corretor) ---------- */
 function formVazio(){
   return { finalidade:"Venda", tipo:"", lancamento:false, unidades:"", bairro:"", cidade:"São Pedro da Aldeia", endereco:"", ocultarEndereco:true,
     area:"", quartos:"", suites:"", banheiros:"", vagas:"", andar:"", valor:"", condominio:"", iptu:"",
-    financiamento:true, fgts:false, permuta:false, diferenciais:[], descricao:"", fotos:[], planta:null, video:"", exclusividade:false, autorizado:false };
+    financiamento:true, fgts:false, permuta:false, diferenciais:[], descricao:"", fotos:[], planta:null, video:"", exclusividade:false, autorizado:false, equipeId:corretorLembrado() };
 }
 function itemParaForm(it){
   const f=formVazio();
@@ -699,13 +771,13 @@ function renderEnviar(){
 function enviarHTML(){
   const f=S.form, p=S.perfil;
   const meus=meusItens();
-  const perfilHTML = p && !S.editPerfil
-    ? `<div class="card"><div class="profile"><div><div class="eyebrow">Corretor responsável</div><div class="pn">${esc(p.nome)}</div><div class="pc mono">${p.creci?"CRECI "+esc(p.creci)+" · ":""}${esc(p.whatsapp)}</div></div><button class="btn sm" type="button" id="editPerfil">Alterar dados</button></div></div>`
-    : `<div class="card"><div><div class="eyebrow">Seus dados</div><h3 style="margin-top:4px">Quem está enviando</h3><p style="color:var(--muted);font-size:14px;margin-top:4px">Aparecem para o gestor e no botão de WhatsApp da vitrine. Você preenche uma vez.</p></div>
-      <div class="grid3"><div class="f"><label for="pNome">Nome</label><input id="pNome" autocomplete="name" value="${esc(p?.nome||"")}"></div>
-      <div class="f"><label for="pCreci">CRECI</label><input id="pCreci" value="${esc(p?.creci||"")}" placeholder="000000-F"></div>
-      <div class="f"><label for="pWhats">WhatsApp com DDD</label><input id="pWhats" inputmode="tel" autocomplete="tel" value="${esc(p?.whatsapp||"")}" placeholder="(22) 99999-9999"></div></div>
-      <div><button class="btn lamp" type="button" id="salvarPerfil">Salvar meus dados</button></div></div>`;
+  const ativos=equipeAtiva(), escolhido=membroPorId(f.equipeId);
+  const perfilHTML = ativos.length
+    ? `<div class="card"><div class="profile" style="align-items:flex-end"><div class="f" style="flex:1;min-width:240px"><label for="f_equipe">Corretor responsável por este imóvel</label>
+        <select id="f_equipe" data-k="equipeId"><option value="">Escolha seu nome</option>${ativos.map(m=>`<option value="${m.id}" ${f.equipeId===m.id?"selected":""}>${esc(m.nome)}</option>`).join("")}</select>
+        <span class="hint">O WhatsApp de quem você escolher vai no botão da vitrine. Este aparelho lembra a última escolha.</span></div>
+        ${escolhido?`<div class="pc mono" style="padding-bottom:22px">${escolhido.creci?"CRECI "+esc(escolhido.creci)+" · ":""}${esc(escolhido.whatsapp||"sem WhatsApp cadastrado")}</div>`:""}</div></div>`
+    : `<div class="note"><b>Equipe ainda não cadastrada</b>${S.gestor?`Cadastre os corretores na aba <button class="link" type="button" data-go="equipe">Equipe</button> antes de enviar fichas.`:"Peça ao gestor para cadastrar a lista de corretores. Sem ela, não dá para indicar o responsável pela ficha."}</div>`;
   const a=avaliar(fToItem(f));
   const ed = S.editId ? meus.find(i=>i.id===S.editId) : null;
   const radio=(name,val,label)=>`<label><input type="radio" name="${name}" value="${val}" ${f[name]===val?"checked":""}><span>${label}</span></label>`;
@@ -776,7 +848,7 @@ function enviarHTML(){
         </div>
       </aside>
     </div>
-    <div class="head" style="margin-top:12px"><div><div class="eyebrow">Acompanhamento</div><h2>Meus envios</h2></div></div>
+    <div class="head" style="margin-top:12px"><div><div class="eyebrow">Acompanhamento</div><h2>${S.gestor?"Meus envios":"Fichas enviadas pela equipe"}</h2></div></div>
     <div class="list">${meus.length?meus.map(rowHTML).join(""):`<div class="empty"><b>Você ainda não enviou imóveis</b><p>Depois de enviar, a ficha aparece aqui com a situação: aguardando revisão, ajuste pedido ou na vitrine.</p></div>`}</div>
   </section>`;
 }
@@ -804,7 +876,7 @@ app.addEventListener("change", e=>{
   if(el.name==="finalidade"){ S.form.finalidade=el.value; renderEnviar(); return; }
   if(el.dataset.dif){ const d=el.dataset.dif; S.form.diferenciais = el.checked ? [...S.form.diferenciais,d] : S.form.diferenciais.filter(x=>x!==d); refreshSide(); return; }
   if(el.type==="checkbox" && el.dataset.k){ syncField(el); if(el.dataset.k==="lancamento") renderEnviar(); else refreshSide(); return; }
-  if(el.tagName==="SELECT" && el.dataset.k){ syncField(el); renderEnviar(); return; }
+  if(el.tagName==="SELECT" && el.dataset.k){ syncField(el); if(el.dataset.k==="equipeId") lembrarCorretor(el.value); renderEnviar(); return; }
   if(el.id==="f_fotos"){ subirFotos([...el.files]); el.value=""; return; }
   if(el.id==="f_planta"){ subirPlanta(el.files[0]); el.value=""; return; }
 });
@@ -877,24 +949,31 @@ app.addEventListener("click", async e=>{
 function novoCodigo(){ const a="ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; let s=""; for(let i=0;i<5;i++) s+=a[Math.floor(Math.random()*a.length)]; return "SPA-"+s; }
 async function enviarFicha(btn){
   const errEl=document.getElementById("fErr");
-  if(!S.perfil){ errEl.textContent="Salve seus dados de corretor no topo antes de enviar."; errEl.hidden=false; errEl.scrollIntoView({block:"center"}); return; }
+  const resp=membroPorId(S.form.equipeId);
+  if(!resp){ errEl.textContent="Escolha o corretor responsável no topo da ficha."; errEl.hidden=false; document.getElementById("f_equipe")?.scrollIntoView({block:"center"}); return; }
   const it=fToItem(S.form), a=avaliar(it);
   const faltam=a.req.filter(x=>!x.ok && x.txt!=="Pelo menos 1 foto").map(x=>x.txt);
   if(faltam.length){ errEl.textContent="Falta preencher: "+faltam.join(", ")+"."; errEl.hidden=false; errEl.scrollIntoView({block:"center"}); return; }
   errEl.hidden=true; btn.disabled=true;
+  if(!S.perfil){
+    const { error } = await sb.from("corretores").upsert({ id:S.uid, nome:"Conta da equipe", creci:"", whatsapp:"", atualizado_em:now() });
+    if(error){ btn.disabled=false; toast(falha(error,"Não foi possível preparar a conta. Tente de novo.")); return; }
+    S.perfil={ id:S.uid, nome:"Conta da equipe" };
+  }
   const anterior = S.editId ? meusItens().find(i=>i.id===S.editId) : null;
   const dados = dadosDe(it);
   let res;
   if(anterior){
-    res = await sb.from("imoveis").update({ dados, status:"pendente", nota_gestor:"", atualizado_em:now(), historico:hist(anterior,"Corretor reenviou a ficha") }).eq("id", anterior.id).select("codigo").single();
+    res = await sb.from("imoveis").update({ dados, corretor_equipe_id:resp.id, status:"pendente", nota_gestor:"", atualizado_em:now(), historico:hist(anterior,`Ficha reenviada por ${resp.nome}`) }).eq("id", anterior.id).select("codigo").single();
   } else {
     for(let tent=0; tent<3; tent++){
-      res = await sb.from("imoveis").insert({ corretor_id:S.uid, codigo:novoCodigo(), status:"pendente", dados, historico:[{em:now(), acao:"Ficha enviada pelo corretor"}] }).select("codigo").single();
+      res = await sb.from("imoveis").insert({ corretor_id:S.uid, corretor_equipe_id:resp.id, codigo:novoCodigo(), status:"pendente", dados, historico:[{em:now(), acao:`Ficha enviada por ${resp.nome}`}] }).select("codigo").single();
       if(!res.error || !/duplicate|unique/i.test(res.error.message)) break;
     }
   }
   btn.disabled=false;
   if(res.error){ toast(falha(res.error,"Não foi possível enviar. Tente de novo.")); return; }
+  lembrarCorretor(resp.id);
   S.form=formVazio(); S.editId=null;
   toast(anterior?"Ficha reenviada para revisão.":`Ficha ${res.data.codigo} enviada para revisão.`);
   await carregar(); window.scrollTo(0,0);

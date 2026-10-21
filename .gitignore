@@ -1,0 +1,5 @@
+# Arquivos que não devem ir para o site público
+*.pptx
+*.pdf
+*.mp4
+*.mov
