@@ -1,0 +1,734 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Portal Torres de Áries</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Escolha seu apartamento no Portal Torres de Áries pela fachada: unidade, valor e condições, direto para o WhatsApp do corretor.">
+<meta property="og:title" content="Portal Torres de Áries · São Pedro da Aldeia">
+<meta property="og:description" content="Escolha a unidade pela fachada e fale com o corretor já com tudo na mensagem.">
+<meta property="og:image" content="img/fachada-1000.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: a fachada real é o seletor. Desktop em duas colunas (fachada fixa à esquerda, unidade à direita);
+   celular com a fachada recortada nas varandas e a unidade numa folha inferior. Navy da marca + "janela acesa" dourada. */
+:root{
+  --ink:#16204a;          /* navy do logo Torres de Áries */
+  --ink-2:#4a5478;
+  --bg:#eef0f3;           /* céu claro, levemente azulado */
+  --surface:#ffffff;
+  --line:#d6dae3;
+  --sand:#cfc4b4;         /* reboco da fachada */
+  --lume:#f0b93f;         /* janela acesa = disponível */
+  --lume-ink:#3a2a05;
+  --sold:#1a2147;
+  --ok:#1f7a5a;
+  --f-display:"Newsreader", "Iowan Old Style", Georgia, serif;
+  --f-body:"Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --r:14px;
+  --gut-l:max(16px, env(safe-area-inset-left, 0px));
+  --gut-r:max(16px, env(safe-area-inset-right, 0px));
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ink:#e8ebf6; --ink-2:#a3abc6; --bg:#0c1124; --surface:#151c38; --line:#28305a;
+    --sand:#5c5547; --lume:#f3c04f; --lume-ink:#2b1f03; --sold:#05081a; --ok:#4cc79a; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --ink:#e8ebf6; --ink-2:#a3abc6; --bg:#0c1124; --surface:#151c38; --line:#28305a;
+  --sand:#5c5547; --lume:#f3c04f; --lume-ink:#2b1f03; --sold:#05081a; --ok:#4cc79a; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.5 var(--f-body);-webkit-tap-highlight-color:transparent}
+img,video{max-width:100%;display:block}
+[hidden]{display:none!important}
+button{font:inherit;color:inherit;cursor:pointer}
+a{color:inherit}
+:focus-visible{outline:2.5px solid var(--lume);outline-offset:2px;border-radius:6px}
+.wrap{max-width:1200px;margin:0 auto;padding-left:var(--gut-l);padding-right:var(--gut-r)}
+.eyebrow{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2)}
+h1,h2{font-family:var(--f-display);font-weight:500;letter-spacing:-.01em;text-wrap:balance;margin:0}
+h1{font-size:clamp(30px,4.2vw,46px);line-height:1.05}
+h2{font-size:clamp(26px,3.2vw,36px);line-height:1.1}
+.num{font-variant-numeric:tabular-nums}
+
+/* ---------- topo ---------- */
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--bg)}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;gap:14px;padding-block:10px}
+.mark{display:flex;align-items:center;gap:10px;text-decoration:none;min-width:0}
+.mark svg{flex:none}
+.mark b{font-family:var(--f-display);font-weight:500;font-size:19px;line-height:1;display:block;white-space:nowrap}
+.mark span{font-size:12px;color:var(--ink-2);white-space:nowrap}
+.top nav{margin-left:auto;display:flex;gap:4px;align-items:center}
+.top nav a{font-size:14px;font-weight:500;text-decoration:none;padding:8px 10px;border-radius:999px;color:var(--ink-2)}
+.top nav a:hover{color:var(--ink);background:var(--surface)}
+.top nav a.btn,.top nav a.btn:hover{color:var(--bg);background:var(--ink)}
+@media (max-width:760px){.top nav a.opt{display:none}}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:999px;padding:13px 20px;font-weight:600;font-size:15px;text-decoration:none;line-height:1.1;transition:transform .15s ease,background .2s ease}
+.btn:active{transform:scale(.97)}
+.btn-main{background:var(--ink);color:var(--bg)}
+.btn-main:hover{background:color-mix(in srgb,var(--ink) 86%,var(--lume))}
+.btn-lume{background:var(--lume);color:var(--lume-ink)}
+.btn-ghost{background:transparent;border:1.5px solid var(--line);color:var(--ink)}
+.btn-ghost:hover{border-color:var(--ink-2)}
+.btn-sm{padding:9px 14px;font-size:14px}
+.btn svg{flex:none}
+
+/* ---------- seletor ---------- */
+.picker{padding-block:22px 40px}
+.picker .wrap{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:36px;align-items:start}
+.stage-col{position:sticky;top:calc(env(safe-area-inset-top,0px) + 74px)}
+.stage{position:relative;overflow:hidden;border-radius:var(--r);background:var(--sand);
+  --cx:.02;--cy:.05;--cw:.96;--ch:.88;--ar:1.093;aspect-ratio:var(--ar);max-width:100%;touch-action:manipulation}
+.facade{position:absolute;left:0;top:0;width:calc(100% / var(--cw));aspect-ratio:1000/998;transform:translate(calc(var(--cx)*-100%),calc(var(--cy)*-100%))}
+.facade img{width:100%;height:100%;object-fit:cover;user-select:none;-webkit-user-drag:none}
+.hs{position:absolute;border-radius:3px;border:0;padding:0;background:transparent;transition:background .25s ease,box-shadow .25s ease,opacity .3s ease}
+.hs::after{content:"";position:absolute;inset:-3px}
+.hs.disp{background:color-mix(in srgb,var(--lume) 42%,transparent);box-shadow:inset 0 0 0 1.5px var(--lume),0 0 14px color-mix(in srgb,var(--lume) 55%,transparent)}
+.hs.disp:hover{background:color-mix(in srgb,var(--lume) 70%,transparent)}
+.hs.res{background:repeating-linear-gradient(135deg,rgba(255,255,255,.55) 0 3px,rgba(255,255,255,.12) 3px 7px);box-shadow:inset 0 0 0 1px rgba(255,255,255,.7)}
+.hs.vend{background:rgba(14,19,45,.58)}
+.hs.on{background:var(--lume);box-shadow:0 0 0 2.5px #fff,0 0 0 5px var(--sold),0 0 22px var(--lume);z-index:2}
+.hs.picked:not(.on){box-shadow:inset 0 0 0 2px #fff,0 0 14px var(--lume)}
+.hs.dim{opacity:.18}
+@media (prefers-reduced-motion:no-preference){
+  .stage.lighting .hs.disp{animation:acende .7s ease both;animation-delay:var(--d,0ms)}
+  @keyframes acende{from{background:transparent;box-shadow:none}}
+}
+.floorlbl{position:absolute;left:0;font-size:10px;font-weight:700;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.6);transform:translate(-110%,-50%);pointer-events:none}
+.stage-foot{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;margin-top:12px;font-size:13px;color:var(--ink-2)}
+.key{display:inline-flex;align-items:center;gap:6px}
+.key i{width:14px;height:10px;border-radius:2px;display:inline-block}
+.key .k-d{background:color-mix(in srgb,var(--lume) 55%,transparent);box-shadow:inset 0 0 0 1.5px var(--lume)}
+.key .k-r{background:repeating-linear-gradient(135deg,var(--ink-2) 0 2px,transparent 2px 5px);box-shadow:inset 0 0 0 1px var(--ink-2)}
+.key .k-v{background:var(--sold);opacity:.8}
+.stage-foot .tip{margin-left:auto}
+
+.side{display:flex;flex-direction:column;gap:22px;min-width:0}
+.intro{display:flex;flex-direction:column;gap:12px}
+.facts{display:flex;flex-wrap:wrap;gap:8px;margin:2px 0 0;padding:0;list-style:none}
+.facts li{font-size:14px;font-weight:500;padding:7px 12px;border-radius:999px;background:var(--surface);border:1px solid var(--line)}
+.demo-flag{font-size:12.5px;color:var(--ink-2);display:flex;gap:8px;align-items:flex-start;padding:10px 12px;border-radius:10px;border:1px dashed var(--line)}
+.demo-flag b{color:var(--ink)}
+
+.towers{display:flex;flex-direction:column;gap:10px}
+.towers-lbl{display:none}
+.towers-row{display:flex;gap:6px;flex-wrap:wrap}
+.tw{border:1.5px solid var(--line);background:var(--surface);border-radius:12px;padding:8px 12px;min-width:74px;text-align:left;transition:border-color .2s}
+.tw b{display:block;font-size:15px}
+.tw small{font-size:12px;color:var(--ink-2)}
+.tw[aria-pressed="true"]{border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
+.meter{display:flex;align-items:center;gap:10px;font-size:13.5px;color:var(--ink-2)}
+.meter .bar{flex:1;height:6px;border-radius:9px;background:var(--line);overflow:hidden}
+.meter .bar i{display:block;height:100%;background:var(--ink);border-radius:9px;transition:width .5s ease}
+
+.filters{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1.5px solid var(--line);background:transparent;border-radius:999px;padding:7px 13px;font-size:14px;font-weight:500}
+.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+
+/* cartão da unidade */
+.unit{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:20px;display:flex;flex-direction:column;gap:16px}
+.unit-empty{color:var(--ink-2);font-size:15px;display:flex;gap:12px;align-items:center}
+.unit-empty svg{flex:none;color:var(--lume)}
+.u-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.u-head h3{margin:2px 0 0;font-family:var(--f-display);font-weight:500;font-size:30px;line-height:1}
+.u-tag{font-size:12px;font-weight:700;padding:5px 9px;border-radius:999px;white-space:nowrap}
+.u-tag.disp{background:color-mix(in srgb,var(--lume) 30%,transparent);color:var(--ink)}
+.u-tag.res{background:var(--line);color:var(--ink)}
+.u-tag.vend{background:var(--sold);color:#fff}
+.u-specs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line);border-radius:10px;overflow:hidden;margin:0}
+.u-specs div{background:var(--surface);padding:10px 12px}
+.u-specs dt{font-size:12px;color:var(--ink-2)}
+.u-specs dd{margin:0;font-weight:600}
+.price{display:flex;flex-direction:column;gap:2px}
+.price .v{font-family:var(--f-display);font-size:36px;line-height:1.05;font-weight:500}
+.price small{color:var(--ink-2);font-size:13px}
+.flow{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;font-size:14.5px}
+.flow li{display:flex;justify-content:space-between;gap:12px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+.flow li:last-child{border:0;padding:0}
+.flow span{color:var(--ink-2)}
+.flow b{font-weight:600;text-align:right}
+.u-actions{display:flex;gap:8px;flex-wrap:wrap}
+.u-actions .btn{flex:1 1 180px}
+.u-nav{display:flex;justify-content:space-between;gap:8px}
+.u-nav button{background:none;border:0;padding:6px 0;font-size:14px;font-weight:500;color:var(--ink-2)}
+.u-nav button:hover{color:var(--ink)}
+.sheet-x{display:none;background:none;border:0;font-size:26px;line-height:1;padding:0 4px;color:var(--ink-2)}
+
+/* lista acessível de disponíveis */
+details.list{font-size:14px}
+details.list summary{cursor:pointer;font-weight:600;color:var(--ink-2);padding:4px 0}
+.avail{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:6px;margin-top:10px}
+.avail button{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:7px 4px;font-size:13.5px;font-weight:600}
+.avail button:hover{border-color:var(--lume)}
+
+/* ---------- condomínio ---------- */
+.band{padding-block:56px}
+.band + .band{border-top:1px solid var(--line)}
+.sec-head{display:flex;justify-content:space-between;align-items:end;gap:20px;flex-wrap:wrap;margin-bottom:22px}
+.sec-head p{margin:6px 0 0;color:var(--ink-2);max-width:52ch}
+.tour{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:14px}
+.tour video,.tour .big{width:100%;border-radius:var(--r);background:var(--sold);aspect-ratio:16/9;object-fit:cover}
+.tour .duo{display:grid;grid-template-rows:1fr 1fr;gap:14px;min-width:0}
+.tour .duo figure{margin:0;position:relative;border-radius:var(--r);overflow:hidden;min-height:0}
+.tour .duo img{width:100%;height:100%;object-fit:cover}
+figcaption.over{position:absolute;left:10px;bottom:10px;font-size:13px;font-weight:600;color:#fff;background:rgba(12,17,36,.55);padding:5px 10px;border-radius:999px;backdrop-filter:blur(4px)}
+.strip{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(220px,26%);gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:10px;margin-top:14px;scrollbar-width:thin}
+.strip figure{margin:0;scroll-snap-align:start;display:flex;flex-direction:column;gap:8px}
+.strip button{border:0;padding:0;background:none;border-radius:12px;overflow:hidden}
+.strip img{width:100%;height:auto;aspect-ratio:16/10;object-fit:cover;transition:transform .4s ease}
+.strip button:hover img{transform:scale(1.04)}
+.strip figcaption{font-size:14px;font-weight:600}
+.strip-ctl{display:flex;gap:6px}
+.strip-ctl button{width:40px;height:40px;border-radius:50%;border:1.5px solid var(--line);background:var(--surface);font-size:18px}
+
+/* ---------- local ---------- */
+.place{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:28px;align-items:center}
+.place figure{margin:0;position:relative}
+.place img{border-radius:var(--r);width:100%;aspect-ratio:16/9;object-fit:cover}
+.pin{position:absolute;left:47%;top:58%;transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center;pointer-events:none}
+.pin span{background:var(--ink);color:var(--bg);font-size:12.5px;font-weight:700;padding:6px 10px;border-radius:999px;white-space:nowrap}
+.pin i{width:2px;height:22px;background:var(--ink)}
+.addr{display:flex;flex-direction:column;gap:18px}
+.addr dl{margin:0;display:flex;flex-direction:column;gap:14px}
+.addr dt{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2)}
+.addr dd{margin:2px 0 0;font-size:16px}
+
+/* ---------- agendar ---------- */
+.book{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:36px;align-items:start}
+.broker{display:flex;flex-direction:column;gap:16px}
+.who{display:flex;align-items:center;gap:12px}
+.avatar{width:52px;height:52px;border-radius:50%;background:var(--ink);color:var(--bg);display:grid;place-items:center;font-family:var(--f-display);font-size:24px}
+.who b{display:block;font-size:17px}
+.who span{font-size:14px;color:var(--ink-2)}
+.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;font-size:15px}
+.steps li{display:flex;gap:10px;align-items:baseline}
+.steps li b{font-variant-numeric:tabular-nums;color:var(--ink-2);font-weight:600;min-width:18px}
+form.lead{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:22px;display:flex;flex-direction:column;gap:18px}
+.q{display:flex;flex-direction:column;gap:8px;border:0;margin:0;padding:0;min-width:0}
+.q legend,.q label.l{font-size:14px;font-weight:600;padding:0;margin-bottom:8px}
+.q .opts{display:flex;flex-wrap:wrap;gap:6px}
+.picked-units{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.pu{display:inline-flex;align-items:center;gap:6px;background:color-mix(in srgb,var(--lume) 28%,transparent);border-radius:999px;padding:6px 6px 6px 12px;font-size:14px;font-weight:600}
+.pu button{border:0;background:var(--surface);width:22px;height:22px;border-radius:50%;line-height:1;font-size:14px}
+.none-picked{font-size:14px;color:var(--ink-2)}
+.none-picked a{font-weight:600}
+input[type=text]{width:100%;font:inherit;padding:12px 14px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink)}
+input[type=text]:focus{outline:none;border-color:var(--ink)}
+.preview{background:var(--bg);border-radius:12px;padding:14px;font-size:14px;white-space:pre-line;color:var(--ink);border-left:3px solid var(--lume)}
+.preview-lbl{font-size:12px;font-weight:600;color:var(--ink-2);margin-bottom:6px;letter-spacing:.04em;text-transform:uppercase}
+.send{display:flex;flex-direction:column;gap:8px}
+.send .btn{width:100%;padding-block:16px;font-size:16px}
+.note{font-size:13px;color:var(--ink-2);margin:0;text-align:center}
+
+/* ---------- rodapé ---------- */
+footer{padding-block:28px calc(28px + 76px);border-top:1px solid var(--line);font-size:12.5px;color:var(--ink-2)}
+footer .wrap{display:flex;flex-direction:column;gap:12px}
+footer details summary{cursor:pointer;font-weight:600}
+footer details p{max-width:90ch}
+
+/* barra fixa (celular) */
+.dock{position:fixed;left:0;right:0;bottom:0;z-index:25;padding:10px var(--gut-r) calc(10px + env(safe-area-inset-bottom,0px)) var(--gut-l);background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid var(--line);display:none;gap:10px;align-items:center}
+.dock .info{flex:1;min-width:0;font-size:13px;line-height:1.25}
+.dock .info b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* lightbox */
+.lb{position:fixed;inset:0;z-index:40;background:rgba(6,9,22,.92);display:grid;place-items:center;padding:calc(20px + env(safe-area-inset-top,0px)) var(--gut-r) calc(20px + env(safe-area-inset-bottom,0px)) var(--gut-l)}
+.lb img{max-height:82vh;border-radius:10px}
+.lb p{color:#fff;margin:12px 0 0;text-align:center;font-weight:600}
+.lb button{position:absolute;top:calc(12px + env(safe-area-inset-top,0px));right:calc(12px + env(safe-area-inset-right,0px));background:rgba(255,255,255,.12);color:#fff;border:0;border-radius:50%;width:44px;height:44px;font-size:24px}
+
+/* ---------- responsivo ---------- */
+@media (max-width:920px){
+  .picker .wrap{grid-template-columns:1fr;gap:18px}
+  .stage-col{position:static}
+  .side{display:contents}
+  .intro{order:1}
+  .towers{order:2}
+  .stage-col{order:3}
+  .towers-row{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px}
+  .tw{min-width:0;padding:7px 4px;text-align:center}
+  .tw .lg{display:none}
+  .tw small{font-size:11px}
+  .towers-lbl{display:block}
+  .unit-slot{order:4}
+  .side-list{order:5}
+  .demo-flag{order:6}
+  .stage{--cx:.175;--cy:.29;--cw:.61;--ch:.44;--ar:1.389}
+  .floorlbl{display:none}
+  .tour,.place,.book{grid-template-columns:1fr}
+  .tour .duo{grid-template-rows:none;grid-template-columns:1fr 1fr}
+  .tour .duo figure{aspect-ratio:4/3}
+  .strip{grid-auto-columns:minmax(200px,62%)}
+  .dock{display:flex}
+  /* cartão vira folha inferior */
+  .unit.is-sheet{position:fixed;left:0;right:0;bottom:0;z-index:35;border-radius:20px 20px 0 0;max-height:82vh;overflow:auto;
+    padding:18px var(--gut-r) calc(18px + env(safe-area-inset-bottom,0px)) var(--gut-l);box-shadow:0 -12px 40px rgba(6,9,22,.25);border-bottom:0}
+  .unit.is-sheet .sheet-x{display:block}
+  @media (prefers-reduced-motion:no-preference){.unit.is-sheet{animation:sobe .28s cubic-bezier(.2,.8,.2,1)}@keyframes sobe{from{transform:translateY(40%);opacity:.4}}}
+  .scrim{position:fixed;inset:0;z-index:34;background:rgba(6,9,22,.35)}
+  .stage-foot .tip{margin-left:0;width:100%}
+}
+@media (min-width:921px){.scrim{display:none!important}}
+@media (max-width:420px){
+  .u-specs{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .price .v{font-size:32px}
+  h1{font-size:30px}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="mark" href="#escolher" aria-label="Portal Torres de Áries, início">
+      <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><rect x="1" y="1" width="28" height="28" rx="3" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M6 21 L12 14 L19 10 L24 9" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="6" cy="21" r="1.4" fill="currentColor"/><circle cx="12" cy="14" r="1.8" fill="currentColor"/><circle cx="19" cy="10" r="1.4" fill="currentColor"/><circle cx="24" cy="9" r="1.4" fill="currentColor"/></svg>
+      <div><b>Torres de Áries</b><span id="brokerTop">com Leonardo, corretor</span></div>
+    </a>
+    <nav aria-label="Seções">
+      <a class="opt" href="#condominio">Condomínio</a>
+      <a class="opt" href="#local">Localização</a>
+      <a class="btn btn-main btn-sm" href="#agendar">Agendar visita</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+<section class="picker" id="escolher" aria-label="Escolha da unidade">
+  <div class="wrap">
+    <div class="stage-col">
+      <div class="stage lighting" id="stage">
+        <div class="facade" id="facade">
+          <img src="img/fachada-2000.webp" srcset="img/fachada-1000.webp 1000w, img/fachada-2000.webp 2000w" sizes="(max-width:920px) 170vw, 640px" alt="Fachada de uma torre do Portal Torres de Áries, com as varandas marcadas por situação de venda" width="1000" height="998">
+        </div>
+      </div>
+      <div class="stage-foot" aria-hidden="true">
+        <span class="key"><i class="k-d"></i>Disponível</span>
+        <span class="key"><i class="k-r"></i>Reservado</span>
+        <span class="key"><i class="k-v"></i>Vendido</span>
+        <span class="tip">Toque numa varanda acesa</span>
+      </div>
+    </div>
+
+    <div class="side">
+      <div class="intro">
+        <div class="eyebrow">Campo de Fora · São Pedro da Aldeia</div>
+        <h1>Escolha seu apartamento pela varanda.</h1>
+        <ul class="facts">
+          <li>1 e 2 quartos</li>
+          <li>Minha Casa Minha Vida</li>
+          <li>Entrega prevista jul/2028</li>
+        </ul>
+      </div>
+
+      <div class="towers">
+        <span class="eyebrow towers-lbl">Escolha a torre</span>
+        <div class="towers-row" id="towers" role="group" aria-label="Torre"></div>
+        <div class="meter"><span id="meterTxt" class="num"></span><span class="bar"><i id="meterBar"></i></span></div>
+        <div class="filters" id="filters" role="group" aria-label="Filtrar por quartos">
+          <button type="button" class="chip" data-q="0" aria-pressed="true">Todos</button>
+          <button type="button" class="chip" data-q="1" aria-pressed="false">1 quarto</button>
+          <button type="button" class="chip" data-q="2" aria-pressed="false">2 quartos</button>
+        </div>
+      </div>
+
+      <div class="unit-slot">
+        <div class="scrim" id="scrim" hidden></div>
+        <article class="unit" id="unit" aria-live="polite"></article>
+      </div>
+
+      <details class="list side-list">
+        <summary>Ver disponíveis em lista</summary>
+        <div class="avail" id="avail"></div>
+      </details>
+
+      <p class="demo-flag" id="demoFlag"><span>●</span><span><b>Tabela de demonstração.</b> Situação, valores e fluxo são ilustrativos até carregarmos a tabela oficial da BRZ.</span></p>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="condominio" aria-labelledby="condTitle">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <div class="eyebrow">O condomínio</div>
+        <h2 id="condTitle">Piscina, academia e coworking sem sair de casa.</h2>
+        <p>Seis torres num terreno de quase 24 mil m², com Empório e café no próprio condomínio.</p>
+      </div>
+      <div class="strip-ctl" aria-hidden="true">
+        <button type="button" data-dir="-1" aria-label="Fotos anteriores">‹</button>
+        <button type="button" data-dir="1" aria-label="Próximas fotos">›</button>
+      </div>
+    </div>
+    <div class="tour">
+      <video controls preload="none" playsinline poster="img/tour-poster.jpg" aria-label="Tour em vídeo pelo condomínio, 2 minutos">
+        <source src="tour.mp4" type="video/mp4">
+      </video>
+      <div class="duo">
+        <figure><img src="img/praca-1000.webp" alt="Praça interna entre as torres, com caminho de pedra e paisagismo" loading="lazy"><figcaption class="over">Praça interna</figcaption></figure>
+        <figure><img src="img/lazer-1000.webp" alt="Área de lazer com pet place, playground e bicicletário" loading="lazy"><figcaption class="over">Pet place e playground</figcaption></figure>
+      </div>
+    </div>
+    <div class="strip" id="strip"></div>
+  </div>
+</section>
+
+<section class="band" id="local" aria-labelledby="localTitle">
+  <div class="wrap place">
+    <figure>
+      <img src="img/aerea-1000.webp" srcset="img/aerea-1000.webp 1000w, img/aerea-2000.webp 2000w" sizes="(max-width:920px) 100vw, 700px" alt="Foto aérea com a inserção do empreendimento ao lado da rodovia, com a lagoa e as salinas ao fundo" loading="lazy">
+      <div class="pin" aria-hidden="true"><span>Portal Torres de Áries</span><i></i></div>
+    </figure>
+    <div class="addr">
+      <div>
+        <div class="eyebrow">Localização</div>
+        <h2 id="localTitle">Na beira da rodovia, de frente para a lagoa.</h2>
+      </div>
+      <dl>
+        <div><dt>Empreendimento</dt><dd>Campo de Fora, São Pedro da Aldeia, RJ</dd></div>
+        <div><dt>Stand de vendas</dt><dd>Rodovia Amaral Peixoto, 283, Balneário, São Pedro da Aldeia</dd></div>
+      </dl>
+      <div class="u-actions">
+        <a class="btn btn-ghost" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&amp;query=Rodovia%20Amaral%20Peixoto%2C%20283%2C%20Balne%C3%A1rio%2C%20S%C3%A3o%20Pedro%20da%20Aldeia%20RJ">Abrir no Maps</a>
+        <a class="btn btn-main" href="#agendar" data-intent="visita">Visitar o stand</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="agendar" aria-labelledby="bookTitle">
+  <div class="wrap book">
+    <div class="broker">
+      <div class="eyebrow">Atendimento</div>
+      <h2 id="bookTitle">Monte sua mensagem e fale comigo no WhatsApp.</h2>
+      <div class="who"><div class="avatar" id="brokerInitial">L</div><div><b id="brokerName">Leonardo</b><span id="brokerSub">Corretor · Portal Torres de Áries</span></div></div>
+      <ol class="steps">
+        <li><b>1</b>Marque as unidades que você gostou.</li>
+        <li><b>2</b>Diga o que quer: visita, simulação ou tabela.</li>
+        <li><b>3</b>O WhatsApp abre com tudo escrito. Só enviar.</li>
+      </ol>
+    </div>
+
+    <form class="lead" id="lead" novalidate>
+      <div class="q">
+        <span class="l" style="font-size:14px;font-weight:600">Unidades</span>
+        <div class="picked-units" id="pickedUnits"></div>
+      </div>
+      <fieldset class="q">
+        <legend>O que você quer?</legend>
+        <div class="opts" id="optIntent"></div>
+      </fieldset>
+      <fieldset class="q" id="qWhen">
+        <legend>Melhor momento para a visita</legend>
+        <div class="opts" id="optWhen"></div>
+      </fieldset>
+      <fieldset class="q">
+        <legend>Renda familiar (opcional, para a simulação)</legend>
+        <div class="opts" id="optRenda"></div>
+      </fieldset>
+      <fieldset class="q">
+        <legend>Vai usar FGTS?</legend>
+        <div class="opts" id="optFgts"></div>
+      </fieldset>
+      <div class="q">
+        <label class="l" for="fName">Seu nome</label>
+        <input type="text" id="fName" autocomplete="name" placeholder="Como posso te chamar">
+      </div>
+      <div>
+        <div class="preview-lbl">Sua mensagem</div>
+        <div class="preview" id="preview"></div>
+      </div>
+      <div class="send">
+        <a class="btn btn-lume" id="waBtn" href="#" target="_blank" rel="noopener">
+          <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.4.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.8 11.9 11.9 0 0 0 4.6 4c1.7.7 2.4.8 3.2.6a2.8 2.8 0 0 0 1.8-1.3 2.3 2.3 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3Z"/></svg>
+          Enviar pelo WhatsApp
+        </a>
+        <button type="button" class="btn btn-ghost" id="copyBtn">Copiar mensagem</button>
+        <p class="note" id="sendNote">O WhatsApp abre com a mensagem pronta.</p>
+      </div>
+    </form>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Portal Torres de Áries · BRZ Empreendimentos. Página de atendimento do corretor. Imagens ilustrativas.</span>
+    <details>
+      <summary>Informações legais</summary>
+      <p>Material provisório de divulgação. A comercialização acontece somente após o registro da incorporação no cartório de registro de imóveis (Lei nº 4.591/64, art. 32) e depende de aprovação cadastral e de crédito. Prevalecem as informações do memorial de incorporação registrado. Imagens, itens e serviços retratados são ilustrativos e podem mudar sem aviso. Serviços Housi são prestados por empresas parceiras, sem vínculo com a construtora. Valores de tabela sujeitos a alteração. Mais informações: brzempreendimentos.com · 0800 027 9999.</p>
+    </details>
+  </div>
+</footer>
+
+<div class="dock" id="dock">
+  <div class="info"><b id="dockTitle">Escolha na fachada</b><span id="dockSub">Toque numa varanda acesa</span></div>
+  <a class="btn btn-main btn-sm" href="#agendar" id="dockBtn">Agendar visita</a>
+</div>
+
+<div class="lb" id="lb" hidden role="dialog" aria-modal="true" aria-label="Foto ampliada"><div><img alt=""><p></p></div><button type="button" aria-label="Fechar">×</button></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ============ CONFIGURAÇÃO — troque aqui pela tabela oficial ============ */
+const CONFIG = {
+  demo: true,                         // false esconde o aviso de tabela de demonstração
+  corretor: { nome: "Leonardo", sub: "Corretor · Portal Torres de Áries", whatsapp: "" }, // ex.: "22999998888"
+  torres: 6,
+  andares: [1,2,3,4,5,6,7],
+  finais: {                           // as 4 varandas desta face da torre
+    "01": { quartos: 2, area: 45 },
+    "02": { quartos: 1, area: null },
+    "03": { quartos: 1, area: null },
+    "04": { quartos: 2, area: 45 }
+  },
+  preco: { base2q: 249900, base1q: 209900, porAndar: 1800 },
+  fluxo: { sinal: 1500, mensais: 24, valorMensal: 450 },
+  /* situação por unidade: "T1-302": "vendido" | "reservado" | "disponivel".
+     O que não estiver aqui é gerado como exemplo enquanto demo = true. */
+  situacao: {}
+};
+
+/* geometria das varandas na foto da fachada (% da imagem 1000×998) */
+const GEO = {
+  "01": { x: 21.3, w: 6.4, top: 36.1, step: 5.01, h: 4.5 },
+  "02": { x: 28.0, w: 5.2, top: 36.1, step: 5.01, h: 4.5 },
+  "03": { x: 57.8, w: 7.4, top: 31.3, step: 5.68, h: 5.0 },
+  "04": { x: 65.6, w: 9.1, top: 31.3, step: 5.68, h: 5.0 }
+};
+const TOP_FLOOR = 7;
+
+const GALERIA = [
+  ["v-vista","Vista da varanda"],["v-piscina","Piscina"],["v-churrasqueira","Churrasqueira"],["v-academia","Academia"],
+  ["v-coworking","Coworking"],["v-festas","Salão de festas"],["v-varanda","Varanda do salão"],["v-jogos","Salão de jogos"],
+  ["v-brinquedoteca","Brinquedoteca"],["v-playground","Playground"],["v-cross","Cross training"],["v-lavanderia","Lavanderia compartilhada"],
+  ["v-emporio","Empório"],["v-portaria","Portaria"]
+];
+
+/* ============ dados ============ */
+const BRL = new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL",maximumFractionDigits:0});
+function rng(seed){ return function(){ seed|=0; seed=seed+0x6D2B79F5|0; let t=Math.imul(seed^seed>>>15,1|seed); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+
+const UNITS = {};
+for(let t=1;t<=CONFIG.torres;t++){
+  const r = rng(t*977+13);
+  for(const a of CONFIG.andares){
+    for(const f of Object.keys(CONFIG.finais)){
+      const id = `T${t}-${a}${f}`;
+      const tip = CONFIG.finais[f];
+      let s = CONFIG.situacao[id];
+      if(!s){ const x=r(); s = CONFIG.demo ? (x<.44?"vendido":x<.52?"reservado":"disponivel") : "disponivel"; }
+      const base = tip.quartos===2 ? CONFIG.preco.base2q : CONFIG.preco.base1q;
+      UNITS[id] = { id, torre:t, andar:a, final:f, apto:`${a}${f}`, quartos:tip.quartos, area:tip.area, status:s, preco: base + (a-1)*CONFIG.preco.porAndar };
+    }
+  }
+}
+const ST = { disponivel:["disp","Disponível"], reservado:["res","Reservado"], vendido:["vend","Vendido"] };
+const esc = s => String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const tipoTxt = u => `${u.quartos} quarto${u.quartos>1?"s":""}${u.area?` · ${u.area} m²`:""}`;
+const nomeU = u => `Torre ${u.torre} · apto ${u.apto}`;
+
+/* ============ estado ============ */
+const state = { torre:1, q:0, sel:null, picked:[], intent:"visita", when:"Fim de semana", renda:"", fgts:"" };
+try{ const s=JSON.parse(localStorage.getItem("ta-lead")||"{}"); if(Array.isArray(s.picked)) state.picked=s.picked.filter(id=>UNITS[id]); if(s.name) document.getElementById("fName").value=s.name; }catch(e){}
+function save(){ try{ localStorage.setItem("ta-lead",JSON.stringify({picked:state.picked,name:document.getElementById("fName").value})); }catch(e){} }
+
+const $ = id => document.getElementById(id);
+const facade=$("facade"), stage=$("stage"), unitEl=$("unit"), scrim=$("scrim");
+const mqMobile = window.matchMedia("(max-width:920px)");
+
+/* ============ torres ============ */
+function towerStats(t){ const us=Object.values(UNITS).filter(u=>u.torre===t); const d=us.filter(u=>u.status==="disponivel").length; return {total:us.length,disp:d,vend:us.filter(u=>u.status==="vendido").length}; }
+function renderTowers(){
+  $("towers").innerHTML = Array.from({length:CONFIG.torres},(_,i)=>{ const t=i+1, s=towerStats(t);
+    return `<button type="button" class="tw" data-t="${t}" aria-pressed="${t===state.torre}"><b><span class="lg">Torre </span>${t}</b><small class="num">${s.disp} livres</small></button>`; }).join("");
+  const s=towerStats(state.torre), pct=Math.round(s.vend/s.total*100);
+  $("meterTxt").textContent = `${pct}% vendido nesta torre`;
+  $("meterBar").style.width = pct+"%";
+}
+$("towers").addEventListener("click",e=>{ const b=e.target.closest(".tw"); if(!b) return; state.torre=+b.dataset.t; state.sel=null; renderAll(true); });
+$("filters").addEventListener("click",e=>{ const b=e.target.closest(".chip"); if(!b) return; state.q=+b.dataset.q; [...$("filters").children].forEach(c=>c.setAttribute("aria-pressed",c===b)); renderFacade(false); renderAvail(); });
+
+/* ============ fachada ============ */
+function renderFacade(animate){
+  facade.querySelectorAll(".hs,.floorlbl").forEach(n=>n.remove());
+  const frag=document.createDocumentFragment(); let i=0;
+  for(const a of CONFIG.andares){
+    for(const f of Object.keys(GEO)){
+      const g=GEO[f], u=UNITS[`T${state.torre}-${a}${f}`]; if(!u) continue;
+      const b=document.createElement("button"); b.type="button";
+      b.className=`hs ${ST[u.status][0]}`+(state.sel===u.id?" on":"")+(state.picked.includes(u.id)?" picked":"")+(state.q&&u.quartos!==state.q?" dim":"");
+      b.style.left=g.x+"%"; b.style.width=g.w+"%"; b.style.top=(g.top+(TOP_FLOOR-a)*g.step)+"%"; b.style.height=g.h+"%";
+      if(u.status==="disponivel") b.style.setProperty("--d",(i++*28)+"ms");
+      b.dataset.id=u.id; b.setAttribute("aria-label",`Apartamento ${u.apto}, ${a}º andar, ${ST[u.status][1].toLowerCase()}`);
+      frag.appendChild(b);
+    }
+    const l=document.createElement("span"); l.className="floorlbl"; l.textContent=a+"º"; l.style.left=GEO["01"].x+"%"; l.style.top=(GEO["01"].top+(TOP_FLOOR-a)*GEO["01"].step+GEO["01"].h/2)+"%"; frag.appendChild(l);
+  }
+  facade.appendChild(frag);
+  if(animate){ stage.classList.remove("lighting"); void stage.offsetWidth; stage.classList.add("lighting"); }
+}
+facade.addEventListener("click",e=>{ const b=e.target.closest(".hs"); if(b) select(b.dataset.id,true); });
+
+/* ============ lista ============ */
+function renderAvail(){
+  const us=Object.values(UNITS).filter(u=>u.torre===state.torre&&u.status==="disponivel"&&(!state.q||u.quartos===state.q)).sort((a,b)=>b.andar-a.andar||a.final.localeCompare(b.final));
+  $("avail").innerHTML = us.length ? us.map(u=>`<button type="button" data-id="${u.id}" class="num">${u.apto}</button>`).join("") : `<span class="none-picked">Nenhuma unidade com esse filtro nesta torre.</span>`;
+}
+$("avail").addEventListener("click",e=>{ const b=e.target.closest("button[data-id]"); if(b) select(b.dataset.id,true); });
+
+/* ============ cartão da unidade ============ */
+function neighbors(u,dir){
+  const us=Object.values(UNITS).filter(x=>x.torre===u.torre&&x.status==="disponivel").sort((a,b)=>b.andar-a.andar||a.final.localeCompare(b.final));
+  if(!us.length) return null; let i=us.findIndex(x=>x.id===u.id);
+  if(i<0){ i = dir>0 ? -1 : 0; } return us[(i+dir+us.length)%us.length];
+}
+function renderUnit(){
+  const u=UNITS[state.sel];
+  if(!u){
+    unitEl.classList.remove("is-sheet"); scrim.hidden=true;
+    const s=towerStats(state.torre);
+    unitEl.innerHTML=`<div class="unit-empty"><svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect x="5" y="7" width="18" height="13" rx="2" fill="currentColor" opacity=".45"/><rect x="5" y="7" width="18" height="13" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span>A Torre ${state.torre} tem <b class="num">${s.disp}</b> apartamentos livres nesta face. Toque numa varanda acesa para ver valor e condições.</span></div>`;
+    return;
+  }
+  const [cls,lbl]=ST[u.status], picked=state.picked.includes(u.id);
+  const F=CONFIG.fluxo, obra=F.mensais*F.valorMensal, fin=Math.max(0,u.preco-F.sinal-obra);
+  let body;
+  if(u.status==="vendido"){
+    body=`<p style="margin:0;color:var(--ink-2)">Esta unidade já foi vendida. Veja a próxima livre ou peça para entrar na lista de espera.</p>
+      <div class="u-actions"><button type="button" class="btn btn-main" data-nav="1">Ver próxima disponível</button></div>`;
+  } else {
+    body=`<div class="price"><small>Valor de tabela</small><span class="v num">${BRL.format(u.preco)}</span></div>
+      <ul class="flow num">
+        <li><span>Sinal no ato</span><b>${BRL.format(F.sinal)}</b></li>
+        <li><span>Mensais durante a obra</span><b>${F.mensais}× ${BRL.format(F.valorMensal)}</b></li>
+        <li><span>Financiamento CAIXA</span><b>${BRL.format(fin)}</b></li>
+      </ul>
+      <p style="margin:0;font-size:13px;color:var(--ink-2)">Subsídio do Minha Casa Minha Vida e uso do FGTS conforme a renda. A simulação sai na conversa.</p>
+      <div class="u-actions">
+        <button type="button" class="btn ${picked?"btn-ghost":"btn-main"}" id="pickBtn">${picked?"Na sua lista ✓":(u.status==="reservado"?"Entrar na fila desta":"Quero esta unidade")}</button>
+        <a class="btn btn-lume" href="#agendar" id="goBook">Agendar visita</a>
+      </div>`;
+  }
+  unitEl.innerHTML=`<div class="u-head"><div><div class="eyebrow">Torre ${u.torre} · ${u.andar}º andar</div><h3 class="num">Apto ${u.apto}</h3></div>
+      <div style="display:flex;gap:6px;align-items:center"><span class="u-tag ${cls}">${lbl}</span><button type="button" class="sheet-x" id="closeSheet" aria-label="Fechar">×</button></div></div>
+    <dl class="u-specs"><div><dt>Tipo</dt><dd>${u.quartos} quarto${u.quartos>1?"s":""}</dd></div><div><dt>Área</dt><dd class="num">${u.area?u.area+" m²":"a confirmar"}</dd></div><div><dt>Andar</dt><dd class="num">${u.andar}º</dd></div></dl>
+    ${body}
+    <div class="u-nav"><button type="button" data-nav="-1">‹ Disponível anterior</button><button type="button" data-nav="1">Próxima disponível ›</button></div>`;
+  if(mqMobile.matches){ unitEl.classList.add("is-sheet"); scrim.hidden=false; } else { unitEl.classList.remove("is-sheet"); scrim.hidden=true; }
+}
+function closeSheet(){ state.sel=null; renderFacade(false); renderUnit(); }
+unitEl.addEventListener("click",e=>{
+  const u=UNITS[state.sel];
+  if(e.target.closest("#closeSheet")) return closeSheet();
+  const nav=e.target.closest("[data-nav]"); if(nav&&u){ const n=neighbors(u,+nav.dataset.nav); if(n) select(n.id,false); return; }
+  if(e.target.closest("#pickBtn")&&u){ togglePick(u.id); renderUnit(); return; }
+  if(e.target.closest("#goBook")&&u){ if(!state.picked.includes(u.id)) togglePick(u.id); state.intent="visita"; closeSheetSilently(); }
+});
+function closeSheetSilently(){ if(mqMobile.matches){ unitEl.classList.remove("is-sheet"); scrim.hidden=true; } }
+scrim.addEventListener("click",closeSheet);
+document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ if(!$("lb").hidden) $("lb").hidden=true; else if(unitEl.classList.contains("is-sheet")) closeSheet(); }});
+mqMobile.addEventListener?.("change",()=>renderUnit());
+
+function select(id,fromTap){
+  const u=UNITS[id]; if(!u) return;
+  if(u.torre!==state.torre){ state.torre=u.torre; renderTowers(); }
+  state.sel=id; renderFacade(false); renderUnit(); renderDock();
+  try{ history.replaceState(null,"","#"+id); }catch(e){}
+  if(!mqMobile.matches && !fromTap) unitEl.scrollIntoView({block:"nearest",behavior:"smooth"});
+}
+function togglePick(id){
+  const i=state.picked.indexOf(id);
+  if(i>=0) state.picked.splice(i,1); else { state.picked.push(id); if(state.picked.length>3) state.picked.shift(); }
+  save(); renderFacade(false); renderLead(); renderDock();
+}
+
+/* ============ barra fixa ============ */
+function renderDock(){
+  const n=state.picked.length, u=UNITS[state.sel];
+  if(n){ $("dockTitle").textContent = n===1 ? nomeU(UNITS[state.picked[0]]) : `${n} unidades na sua lista`; $("dockSub").textContent="Pronto para agendar"; }
+  else if(u){ $("dockTitle").textContent=nomeU(u); $("dockSub").textContent=u.status==="vendido"?"Vendida":BRL.format(u.preco); }
+  else { $("dockTitle").textContent="Escolha na fachada"; $("dockSub").textContent="Toque numa varanda acesa"; }
+}
+
+/* ============ mensagem ============ */
+const OPT = {
+  optIntent:[["visita","Agendar visita ao stand"],["simulacao","Simular financiamento"],["tabela","Receber a tabela completa"]],
+  optWhen:[["Esta semana","Esta semana"],["Fim de semana","Fim de semana"],["Ainda não sei","Ainda não sei"]],
+  optRenda:[["Até R$ 3 mil","Até R$ 3 mil"],["R$ 3 a 6 mil","R$ 3 a 6 mil"],["R$ 6 a 9 mil","R$ 6 a 9 mil"],["Acima de R$ 9 mil","Acima de R$ 9 mil"]],
+  optFgts:[["Sim","Sim"],["Não","Não"],["Não sei","Não sei"]]
+};
+const KEY = {optIntent:"intent",optWhen:"when",optRenda:"renda",optFgts:"fgts"};
+function renderOpts(){
+  for(const [box,opts] of Object.entries(OPT)){
+    $(box).innerHTML=opts.map(([v,l])=>`<button type="button" class="chip" data-v="${esc(v)}" aria-pressed="${state[KEY[box]]===v}">${esc(l)}</button>`).join("");
+  }
+  $("qWhen").hidden = state.intent!=="visita";
+}
+for(const box of Object.keys(OPT)){
+  $(box).addEventListener("click",e=>{ const b=e.target.closest(".chip"); if(!b) return; const k=KEY[box];
+    state[k] = (state[k]===b.dataset.v && box!=="optIntent") ? "" : b.dataset.v; renderOpts(); renderLead(); });
+}
+function message(){
+  const nome=$("fName").value.trim();
+  const L=[`Olá, ${CONFIG.corretor.nome}! Vi o Portal Torres de Áries na sua página.`];
+  if(state.picked.length){ L.push("", state.picked.length>1?"Unidades que gostei:":"Unidade que gostei:");
+    state.picked.forEach(id=>{ const u=UNITS[id]; L.push(`• ${nomeU(u)} (${tipoTxt(u)}, ${BRL.format(u.preco)})`); }); }
+  else L.push("","Ainda não escolhi a unidade.");
+  L.push("");
+  if(state.intent==="visita") L.push(`Quero agendar uma visita ao stand${state.when&&state.when!=="Ainda não sei"?` (${state.when.toLowerCase()})`:""}.`);
+  if(state.intent==="simulacao") L.push("Quero simular o financiamento.");
+  if(state.intent==="tabela") L.push("Quero receber a tabela completa e as condições.");
+  const extra=[]; if(state.renda) extra.push(`Renda familiar: ${state.renda}`); if(state.fgts) extra.push(`FGTS: ${state.fgts.toLowerCase()}`);
+  if(extra.length) L.push(extra.join(" · "));
+  if(nome) L.push("", `Meu nome é ${nome}.`);
+  return L.join("\n");
+}
+function renderLead(){
+  $("pickedUnits").innerHTML = state.picked.length
+    ? state.picked.map(id=>`<span class="pu num">${esc(nomeU(UNITS[id]))}<button type="button" data-rm="${id}" aria-label="Tirar ${esc(nomeU(UNITS[id]))}">×</button></span>`).join("")
+    : `<span class="none-picked">Nenhuma ainda. <a href="#escolher">Escolher na fachada</a> ou envie assim mesmo.</span>`;
+  const txt=message(); $("preview").textContent=txt;
+  const n=String(CONFIG.corretor.whatsapp||"").replace(/\D/g,"");
+  const num = n ? (n.startsWith("55")?n:"55"+n) : "";
+  $("waBtn").href = `https://wa.me/${num}?text=${encodeURIComponent(txt)}`;
+  $("sendNote").textContent = num ? "O WhatsApp abre com a mensagem pronta. É só enviar." : "O WhatsApp abre com a mensagem pronta para você escolher o contato.";
+}
+$("pickedUnits").addEventListener("click",e=>{ const b=e.target.closest("[data-rm]"); if(b) togglePick(b.dataset.rm); });
+$("fName").addEventListener("input",()=>{ renderLead(); save(); });
+$("lead").addEventListener("submit",e=>e.preventDefault());
+$("copyBtn").addEventListener("click",async()=>{
+  const t=message();
+  try{ await navigator.clipboard.writeText(t); $("sendNote").textContent="Mensagem copiada. Cole no WhatsApp."; }
+  catch(err){ const r=document.createRange(); r.selectNodeContents($("preview")); const s=getSelection(); s.removeAllRanges(); s.addRange(r); $("sendNote").textContent="Mensagem selecionada. Copie e cole no WhatsApp."; }
+});
+document.addEventListener("click",e=>{ const a=e.target.closest("[data-intent]"); if(a){ state.intent=a.dataset.intent; renderOpts(); renderLead(); } });
+
+/* ============ galeria ============ */
+$("strip").innerHTML = GALERIA.map(([f,l])=>`<figure><button type="button" data-src="img/${f}.webp" data-l="${esc(l)}" aria-label="Ampliar: ${esc(l)}"><img src="img/${f}.webp" alt="${esc(l)}" loading="lazy" width="848" height="480"></button><figcaption>${esc(l)}</figcaption></figure>`).join("");
+$("strip").addEventListener("click",e=>{ const b=e.target.closest("button[data-src]"); if(!b) return; const lb=$("lb"); lb.querySelector("img").src=b.dataset.src; lb.querySelector("img").alt=b.dataset.l; lb.querySelector("p").textContent=b.dataset.l; lb.hidden=false; });
+document.querySelector(".tour .duo").addEventListener("click",e=>{ const f=e.target.closest("figure"); if(!f) return; const img=f.querySelector("img"); const lb=$("lb"); lb.querySelector("img").src=img.src.replace("-1000","-2000"); lb.querySelector("p").textContent=f.querySelector("figcaption").textContent; lb.hidden=false; });
+$("lb").addEventListener("click",e=>{ if(e.target.tagName!=="IMG") $("lb").hidden=true; });
+document.querySelector(".strip-ctl").addEventListener("click",e=>{ const b=e.target.closest("button"); if(!b) return; const s=$("strip"); s.scrollBy({left:+b.dataset.dir*s.clientWidth*.8,behavior:"smooth"}); });
+
+/* ============ início ============ */
+$("brokerName").textContent=CONFIG.corretor.nome; $("brokerSub").textContent=CONFIG.corretor.sub;
+$("brokerInitial").textContent=CONFIG.corretor.nome.charAt(0); $("brokerTop").textContent=`com ${CONFIG.corretor.nome}, corretor`;
+$("demoFlag").hidden=!CONFIG.demo;
+function renderAll(anim){ renderTowers(); renderFacade(anim); renderAvail(); renderUnit(); renderDock(); }
+renderOpts(); renderAll(true); renderLead();
+const h=decodeURIComponent(location.hash.slice(1)); if(UNITS[h]) select(h,false);
+})();
+</script>
+</body>
+</html>
