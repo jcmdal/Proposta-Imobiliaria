@@ -106,6 +106,12 @@ canvas#c{position:absolute;inset:0;width:100%;height:100%;display:block;touch-ac
 .note{font-size:13px;color:var(--ink-2);margin:0}
 .demo{position:absolute;z-index:4;left:50%;transform:translateX(-50%);bottom:calc(12px + env(safe-area-inset-bottom,0px));font-size:12px;font-weight:600;padding:6px 10px;border-radius:999px;background:var(--glass);backdrop-filter:blur(8px);white-space:nowrap}
 
+.embed body,.embed .viewer{background:transparent}
+.embed .top,.embed .unit,.embed .demo,.embed #towers,.embed .filter-grp,.embed .legend{display:none!important}
+.embed .hud-tl{justify-content:flex-end}
+.embed canvas#c{touch-action:pan-y}
+.full{display:none}
+.embed .full{display:inline-flex}
 @media (max-width:760px){
   .unit{left:0;right:0;top:auto;bottom:0;width:auto;max-height:78%;border-radius:20px 20px 0 0;border-bottom:0;
     padding:16px var(--gut-r) calc(16px + env(safe-area-inset-bottom,0px)) var(--gut-l)}
@@ -142,7 +148,7 @@ canvas#c{position:absolute;inset:0;width:100%;height:100%;display:block;touch-ac
       <button type="button" class="pill" data-mode="day" aria-pressed="true">Dia</button>
       <button type="button" class="pill" data-mode="night" aria-pressed="false">Noite</button>
     </div>
-    <div class="pill-group" role="group" aria-label="Filtro">
+    <div class="pill-group filter-grp" role="group" aria-label="Filtro">
       <button type="button" class="pill" id="onlyAvail" aria-pressed="false">Só disponíveis</button>
     </div>
   </div>
@@ -152,6 +158,7 @@ canvas#c{position:absolute;inset:0;width:100%;height:100%;display:block;touch-ac
     <div class="legend" aria-hidden="true"><span class="key"><i class="k-d"></i>Disponível</span><span class="key"><i class="k-r"></i>Reservado</span><span class="key"><i class="k-v"></i>Vendido</span></div>
   </div>
   <div class="hud hud-br">
+    <a class="round full" href="3d.html" target="_top" aria-label="Abrir em tela cheia" style="display:none;place-items:center;text-decoration:none;font-size:17px">⤢</a>
     <button type="button" class="round" id="zin" aria-label="Aproximar">+</button>
     <button type="button" class="round" id="zout" aria-label="Afastar">−</button>
   </div>
@@ -167,6 +174,10 @@ import { OrbitControls } from "./vendor/OrbitControls.js";
 
 const { CONFIG, UNITS, BRL, ST, esc, tipoTxt, nomeU, towerStats, fluxo, whatsLink, loadLead, saveLead } = window.TA;
 const $ = id => document.getElementById(id);
+const EMBED = new URLSearchParams(location.search).has("embed");
+if(EMBED) document.documentElement.classList.add("embed");
+const post = msg => { if(EMBED && parent!==window) parent.postMessage(Object.assign({ta:1},msg), "*"); };
+{ const t=document.createElement("canvas"); if(!(t.getContext("webgl2")||t.getContext("webgl"))){ post({type:"nowebgl"}); $("loading").textContent="Seu aparelho não abre a visualização 3D."; throw new Error("sem WebGL"); } }
 const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
 $("demoFlag").hidden = !CONFIG.demo;
 
@@ -181,8 +192,9 @@ const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(38, 1, 1, 6000);
 const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true; controls.dampingFactor = .08;
-controls.minDistance = 28; controls.maxDistance = 380; controls.maxPolarAngle = Math.PI*0.47;
+controls.minDistance = 12; controls.maxDistance = 380; controls.maxPolarAngle = Math.PI*0.47;
 controls.screenSpacePanning = false; controls.enablePan = true;
+if(EMBED){ controls.enableZoom = false; controls.touches = { ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_PAN }; }
 
 function canvasTex(w,h,draw){ const c=document.createElement("canvas"); c.width=w; c.height=h; draw(c.getContext("2d"),w,h); const t=new THREE.CanvasTexture(c); t.colorSpace=THREE.SRGBColorSpace; return t; }
 const skyDay = canvasTex(4,512,(g,w,h)=>{ const gr=g.createLinearGradient(0,0,0,h); gr.addColorStop(0,"#3f7fd0"); gr.addColorStop(.55,"#9cc2ec"); gr.addColorStop(1,"#e9eef2"); g.fillStyle=gr; g.fillRect(0,0,w,h); });
@@ -296,11 +308,12 @@ const UM = {
 };
 const UM_SEL = std(0x8fe9ff,{emissive:0x5fd6ff,emissiveIntensity:1.2});
 const UM_DIM = std(0x3a4050,{transparent:true,opacity:.55});
-const state = { mode:"day", only:false, sel:null, hover:null, torre:0 };
+const state = { mode:"day", only:false, sel:null, hover:null, torre:0, q:0 };
 function matFor(u){
   if(state.sel===u) return UM_SEL;
   const cls=ST[u.status][0];
   if(state.only && u.status!=="disponivel") return UM_DIM;
+  if(state.q && u.quartos!==state.q) return UM_DIM;
   const m=UM[state.mode][cls];
   return m;
 }
@@ -347,6 +360,8 @@ buildSite();
 for(const t of TOWERS) buildTower(...t);
 refreshUnits();
 $("loading").hidden = true;
+post({type:"ready"});
+if(EMBED) document.querySelector(".full").style.display="grid";
 
 /* ---------------- dia / noite ---------------- */
 function setMode(m){
@@ -371,7 +386,8 @@ function flyTo(pos,tgt,ms=1100){
   if(reduceMotion) ms=0;
   fly={ p0:camera.position.clone(), t0:controls.target.clone(), p1:pos.clone(), t1:tgt.clone(), start:performance.now(), ms };
 }
-function viewTower(tid, face="frente"){
+function viewTower(tid, face){
+  if(!face) face = tid>=4 ? "fundos" : "frente";   // fileira de trás: visto pelo lado da lagoa
   const c=towerCenter[tid]; const sgn = face==="fundos" ? -1 : 1;
   const side = (tid%3===1)?-1:(tid%3===0)?1:0;
   const dist = innerWidth<760 ? 92 : 78;
@@ -381,9 +397,10 @@ function viewUnit(u){
   const c=towerCenter[u.torre]; const front = u.face!=="fundos";
   const ux=(UX[u.final][0]+UX[u.final][1])/2; const y=u.andar*FH+1.2;
   const tgt=new THREE.Vector3(c.x+ux, y, c.z+(front?6:-6));
-  const mob = innerWidth<760, dist = mob ? 62 : 38;
-  if(mob) tgt.y -= 11;                       // no celular a folha cobre a metade de baixo: unidade fica no alto da tela
-  flyTo(new THREE.Vector3(tgt.x+ux*.6, y+(mob?2:8), tgt.z+(front?dist:-dist)), tgt, 900);
+  const mob = innerWidth<760, blocked = front && u.torre>=4;   // frente da fileira de trás fica atrás das torres 1–3
+  const dist = blocked ? 19 : (mob ? 62 : 38);
+  if(mob && !EMBED) tgt.y -= 11;                       // no celular a folha cobre a metade de baixo: unidade fica no alto da tela
+  flyTo(new THREE.Vector3(tgt.x+ux*(blocked?.2:.6), y+(blocked?3:(mob?2:8)), tgt.z+(front?dist:-dist)), tgt, 900);
 }
 camera.position.set(-260,180,320); controls.target.copy(HOME.tgt);
 flyTo(HOME.pos, HOME.tgt, 1800);
@@ -417,11 +434,13 @@ canvas.addEventListener("pointermove",e=>{ if(e.pointerType!=="mouse"||down) ret
 const lead = loadLead();
 function select(u, fly=true){
   state.sel=u; if(state.torre!==u.torre){ state.torre=u.torre; renderTowers(); }
-  refreshUnits(); renderCard(); if(fly) viewUnit(u);
+  refreshUnits(); if(fly) viewUnit(u);
+  if(EMBED){ post({type:"select", id:u.id}); $("hint").hidden=true; return; }
+  renderCard();
   try{ history.replaceState(null,"","#"+u.id); }catch(e){}
   $("hint").hidden=true;
 }
-function closeCard(){ state.sel=null; $("unit").hidden=true; refreshUnits(); try{ history.replaceState(null,"",location.pathname); }catch(e){} }
+function closeCard(){ if(EMBED) post({type:"clear"}); state.sel=null; $("unit").hidden=true; refreshUnits(); try{ history.replaceState(null,"",location.pathname); }catch(e){} }
 function neighbor(u,dir){
   const us=Object.values(UNITS).filter(x=>x.torre===u.torre&&x.status==="disponivel").sort((a,b)=>b.andar-a.andar||a.final.localeCompare(b.final));
   if(!us.length) return null; let i=us.findIndex(x=>x.id===u.id); if(i<0) i=dir>0?-1:0; return us[(i+dir+us.length)%us.length];
@@ -464,6 +483,16 @@ document.addEventListener("keydown",e=>{ if(e.key==="Escape" && state.sel) close
 /* zoom */
 function zoom(f){ const d=camera.position.clone().sub(controls.target); const L=THREE.MathUtils.clamp(d.length()*f, controls.minDistance, controls.maxDistance); fly=null; camera.position.copy(controls.target).add(d.setLength(L)); }
 $("zin").addEventListener("click",()=>zoom(.78)); $("zout").addEventListener("click",()=>zoom(1.28));
+
+/* comandos vindos da página (modo incorporado) */
+addEventListener("message",e=>{
+  const d=e.data; if(!d||!d.ta||e.source!==parent) return;
+  if(d.type==="tower"){ state.torre=+d.t||0; renderTowers(); if(state.torre) viewTower(state.torre); else flyTo(HOME.pos,HOME.tgt); }
+  if(d.type==="filter"){ state.q=+d.q||0; refreshUnits(); }
+  if(d.type==="select" && UNITS[d.id]){ state.sel=UNITS[d.id]; refreshUnits(); viewUnit(state.sel); $("hint").hidden=true; }
+  if(d.type==="clear"){ state.sel=null; refreshUnits(); }
+  if(d.type==="picked"){ lead.picked=(d.ids||[]).filter(id=>UNITS[id]); }
+});
 
 /* deep link #T1-301 */
 const h=decodeURIComponent(location.hash.slice(1)); if(UNITS[h]) setTimeout(()=>select(UNITS[h]), 900);

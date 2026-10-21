@@ -104,6 +104,11 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
   @keyframes acende{from{background:transparent;box-shadow:none}}
 }
 .floorlbl{position:absolute;left:0;font-size:10px;font-weight:700;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.6);transform:translate(-110%,-50%);pointer-events:none}
+.stage3d{position:relative;overflow:hidden;border-radius:var(--r);aspect-ratio:1/1;max-width:100%;background:var(--sand) url(img/fachada-1000.webp) center 40%/cover}
+.stage3d iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block;opacity:0;transition:opacity .7s ease}
+.stage3d.ready iframe{opacity:1}
+.stage3d-load{position:absolute;left:12px;bottom:12px;font-size:13px;font-weight:600;color:#fff;background:rgba(12,17,36,.6);padding:6px 10px;border-radius:999px}
+.stage3d.ready .stage3d-load{display:none}
 .stage-foot{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;margin-top:12px;font-size:13px;color:var(--ink-2)}
 .key{display:inline-flex;align-items:center;gap:6px}
 .key i{width:14px;height:10px;border-radius:2px;display:inline-block}
@@ -264,6 +269,7 @@ footer details p{max-width:90ch}
   .demo-flag{order:6}
   .stage{--cx:.175;--cy:.29;--cw:.61;--ch:.44;--ar:1.389}
   .floorlbl{display:none}
+  .stage3d{aspect-ratio:10/11}
   .tour,.place,.book{grid-template-columns:1fr}
   .tour .duo{grid-template-rows:none;grid-template-columns:1fr 1fr}
   .tour .duo figure{aspect-ratio:4/3}
@@ -294,7 +300,7 @@ footer details p{max-width:90ch}
       <div><b>Torres de Áries</b><span id="brokerTop">com Leonardo, corretor</span></div>
     </a>
     <nav aria-label="Seções">
-      <a class="opt" href="3d.html">Ver em 3D</a>
+      <a class="opt" href="3d.html">3D em tela cheia</a>
       <a class="opt" href="#condominio">Condomínio</a>
       <a class="opt" href="#local">Localização</a>
       <a class="btn btn-main btn-sm" href="#agendar">Agendar visita</a>
@@ -306,7 +312,11 @@ footer details p{max-width:90ch}
 <section class="picker" id="escolher" aria-label="Escolha da unidade">
   <div class="wrap">
     <div class="stage-col">
-      <div class="stage lighting" id="stage">
+      <div class="stage3d" id="stage3d">
+        <iframe id="v3d" src="3d.html?embed" title="Condomínio Portal Torres de Áries em 3D" allow="fullscreen"></iframe>
+        <span class="stage3d-load" id="v3dLoad">Montando o condomínio em 3D…</span>
+      </div>
+      <div class="stage lighting" id="stage" hidden>
         <div class="facade" id="facade">
           <img src="img/fachada-2000.webp" srcset="img/fachada-1000.webp 1000w, img/fachada-2000.webp 2000w" sizes="(max-width:920px) 170vw, 640px" alt="Fachada de uma torre do Portal Torres de Áries, com as varandas marcadas por situação de venda" width="1000" height="998">
         </div>
@@ -315,7 +325,7 @@ footer details p{max-width:90ch}
         <span class="key"><i class="k-d"></i>Disponível</span>
         <span class="key"><i class="k-r"></i>Reservado</span>
         <span class="key"><i class="k-v"></i>Vendido</span>
-        <span class="tip">Toque numa varanda acesa</span>
+        <span class="tip" id="stageTip">Arraste para girar · toque numa varanda acesa</span>
       </div>
     </div>
 
@@ -346,7 +356,7 @@ footer details p{max-width:90ch}
         <article class="unit" id="unit" aria-live="polite"></article>
       </div>
 
-      <a class="btn btn-ghost side-list" href="3d.html" id="open3d" style="align-self:flex-start">Ver o condomínio em 3D</a>
+      <a class="btn btn-ghost side-list" href="3d.html" id="open3d" style="align-self:flex-start">Abrir o 3D em tela cheia</a>
 
       <details class="list side-list">
         <summary>Ver disponíveis em lista</summary>
@@ -473,7 +483,7 @@ footer details p{max-width:90ch}
 </footer>
 
 <div class="dock" id="dock">
-  <div class="info"><b id="dockTitle">Escolha na fachada</b><span id="dockSub">Toque numa varanda acesa</span></div>
+  <div class="info"><b id="dockTitle">Escolha no 3D</b><span id="dockSub">Toque numa varanda acesa</span></div>
   <a class="btn btn-main btn-sm" href="#agendar" id="dockBtn">Agendar visita</a>
 </div>
 
@@ -509,6 +519,8 @@ try{ const s=JSON.parse(localStorage.getItem("ta-lead")||"{}"); if(Array.isArray
 function save(){ try{ localStorage.setItem("ta-lead",JSON.stringify({picked:state.picked,name:document.getElementById("fName").value})); }catch(e){} }
 
 const $ = id => document.getElementById(id);
+const v3d=$("v3d");
+function send3d(m){ try{ v3d.contentWindow.postMessage(Object.assign({ta:1},m),"*"); }catch(e){} }
 const facade=$("facade"), stage=$("stage"), unitEl=$("unit"), scrim=$("scrim");
 const mqMobile = window.matchMedia("(max-width:920px)");
 
@@ -520,8 +532,8 @@ function renderTowers(){
   $("meterTxt").textContent = `${pct}% vendido nesta torre`;
   $("meterBar").style.width = pct+"%";
 }
-$("towers").addEventListener("click",e=>{ const b=e.target.closest(".tw"); if(!b) return; state.torre=+b.dataset.t; state.sel=null; renderAll(true); });
-$("filters").addEventListener("click",e=>{ const b=e.target.closest(".chip"); if(!b) return; state.q=+b.dataset.q; [...$("filters").children].forEach(c=>c.setAttribute("aria-pressed",c===b)); renderFacade(false); renderAvail(); });
+$("towers").addEventListener("click",e=>{ const b=e.target.closest(".tw"); if(!b) return; state.torre=+b.dataset.t; state.sel=null; renderAll(true); send3d({type:"tower",t:state.torre}); });
+$("filters").addEventListener("click",e=>{ const b=e.target.closest(".chip"); if(!b) return; state.q=+b.dataset.q; [...$("filters").children].forEach(c=>c.setAttribute("aria-pressed",c===b)); renderFacade(false); renderAvail(); send3d({type:"filter",q:state.q}); });
 
 /* ============ fachada ============ */
 function renderFacade(animate){
@@ -591,7 +603,7 @@ function renderUnit(){
     <div class="u-nav"><button type="button" data-nav="-1">‹ Disponível anterior</button><button type="button" data-nav="1">Próxima disponível ›</button></div>`;
   if(mqMobile.matches){ unitEl.classList.add("is-sheet"); scrim.hidden=false; } else { unitEl.classList.remove("is-sheet"); scrim.hidden=true; }
 }
-function closeSheet(){ state.sel=null; renderFacade(false); renderUnit(); }
+function closeSheet(){ state.sel=null; renderFacade(false); renderUnit(); send3d({type:"clear"}); }
 unitEl.addEventListener("click",e=>{
   const u=UNITS[state.sel];
   if(e.target.closest("#closeSheet")) return closeSheet();
@@ -604,8 +616,9 @@ scrim.addEventListener("click",closeSheet);
 document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ if(!$("lb").hidden) $("lb").hidden=true; else if(unitEl.classList.contains("is-sheet")) closeSheet(); }});
 mqMobile.addEventListener?.("change",()=>renderUnit());
 
-function select(id,fromTap){
+function select(id,fromTap,from3d){
   const u=UNITS[id]; if(!u) return;
+  if(!from3d) send3d({type:"select",id});
   if(u.torre!==state.torre){ state.torre=u.torre; renderTowers(); }
   state.sel=id; renderFacade(false); renderUnit(); renderDock();
   try{ history.replaceState(null,"","#"+id); }catch(e){}
@@ -614,7 +627,7 @@ function select(id,fromTap){
 function togglePick(id){
   const i=state.picked.indexOf(id);
   if(i>=0) state.picked.splice(i,1); else { state.picked.push(id); if(state.picked.length>3) state.picked.shift(); }
-  save(); renderFacade(false); renderLead(); renderDock();
+  save(); renderFacade(false); renderLead(); renderDock(); send3d({type:"picked",ids:state.picked});
 }
 
 /* ============ barra fixa ============ */
@@ -622,7 +635,7 @@ function renderDock(){
   const n=state.picked.length, u=UNITS[state.sel];
   if(n){ $("dockTitle").textContent = n===1 ? nomeU(UNITS[state.picked[0]]) : `${n} unidades na sua lista`; $("dockSub").textContent="Pronto para agendar"; }
   else if(u){ $("dockTitle").textContent=nomeU(u); $("dockSub").textContent=u.status==="vendido"?"Vendida":BRL.format(u.preco); }
-  else { $("dockTitle").textContent="Escolha na fachada"; $("dockSub").textContent="Toque numa varanda acesa"; }
+  else { $("dockTitle").textContent="Escolha no 3D"; $("dockSub").textContent="Toque numa varanda acesa"; }
 }
 
 /* ============ mensagem ============ */
@@ -690,7 +703,15 @@ $("brokerName").textContent=CONFIG.corretor.nome; $("brokerSub").textContent=CON
 $("brokerInitial").textContent=CONFIG.corretor.nome.charAt(0); $("brokerTop").textContent=`com ${CONFIG.corretor.nome}, corretor`;
 $("demoFlag").hidden=!CONFIG.demo;
 function renderAll(anim){ renderTowers(); renderFacade(anim); renderAvail(); renderUnit(); renderDock(); }
+/* ============ 3D incorporado ============ */
 renderOpts(); renderAll(true); renderLead();
+addEventListener("message",e=>{
+  const d=e.data; if(!d||!d.ta||e.source!==v3d.contentWindow) return;
+  if(d.type==="ready"){ $("stage3d").classList.add("ready"); if(state.torre!==1) send3d({type:"tower",t:state.torre}); if(state.q) send3d({type:"filter",q:state.q}); if(state.sel) send3d({type:"select",id:state.sel}); send3d({type:"picked",ids:state.picked}); }
+  if(d.type==="nowebgl"){ $("stage3d").hidden=true; $("stage").hidden=false; $("stageTip").textContent="Toque numa varanda acesa"; $("dockTitle").textContent="Escolha na fachada"; }
+  if(d.type==="select") select(d.id,true,true);
+  if(d.type==="clear" && state.sel){ state.sel=null; renderFacade(false); renderUnit(); renderDock(); }
+});
 const h=decodeURIComponent(location.hash.slice(1)); if(UNITS[h]) select(h,false);
 })();
 </script>
