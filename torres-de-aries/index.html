@@ -294,6 +294,7 @@ footer details p{max-width:90ch}
       <div><b>Torres de Áries</b><span id="brokerTop">com Leonardo, corretor</span></div>
     </a>
     <nav aria-label="Seções">
+      <a class="opt" href="3d.html">Ver em 3D</a>
       <a class="opt" href="#condominio">Condomínio</a>
       <a class="opt" href="#local">Localização</a>
       <a class="btn btn-main btn-sm" href="#agendar">Agendar visita</a>
@@ -344,6 +345,8 @@ footer details p{max-width:90ch}
         <div class="scrim" id="scrim" hidden></div>
         <article class="unit" id="unit" aria-live="polite"></article>
       </div>
+
+      <a class="btn btn-ghost side-list" href="3d.html" id="open3d" style="align-self:flex-start">Ver o condomínio em 3D</a>
 
       <details class="list side-list">
         <summary>Ver disponíveis em lista</summary>
@@ -476,28 +479,13 @@ footer details p{max-width:90ch}
 
 <div class="lb" id="lb" hidden role="dialog" aria-modal="true" aria-label="Foto ampliada"><div><img alt=""><p></p></div><button type="button" aria-label="Fechar">×</button></div>
 
+<script src="dados.js"></script>
 <script>
 (function(){
 "use strict";
 
-/* ============ CONFIGURAÇÃO — troque aqui pela tabela oficial ============ */
-const CONFIG = {
-  demo: true,                         // false esconde o aviso de tabela de demonstração
-  corretor: { nome: "Leonardo", sub: "Corretor · Portal Torres de Áries", whatsapp: "" }, // ex.: "22999998888"
-  torres: 6,
-  andares: [1,2,3,4,5,6,7],
-  finais: {                           // as 4 varandas desta face da torre
-    "01": { quartos: 2, area: 45 },
-    "02": { quartos: 1, area: null },
-    "03": { quartos: 1, area: null },
-    "04": { quartos: 2, area: 45 }
-  },
-  preco: { base2q: 249900, base1q: 209900, porAndar: 1800 },
-  fluxo: { sinal: 1500, mensais: 24, valorMensal: 450 },
-  /* situação por unidade: "T1-302": "vendido" | "reservado" | "disponivel".
-     O que não estiver aqui é gerado como exemplo enquanto demo = true. */
-  situacao: {}
-};
+/* tabela e helpers vêm de dados.js (compartilhado com o 3D) */
+const { CONFIG, UNITS, BRL, ST, esc, tipoTxt, nomeU, towerStats } = window.TA;
 
 /* geometria das varandas na foto da fachada (% da imagem 1000×998) */
 const GEO = {
@@ -515,29 +503,6 @@ const GALERIA = [
   ["v-emporio","Empório"],["v-portaria","Portaria"]
 ];
 
-/* ============ dados ============ */
-const BRL = new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL",maximumFractionDigits:0});
-function rng(seed){ return function(){ seed|=0; seed=seed+0x6D2B79F5|0; let t=Math.imul(seed^seed>>>15,1|seed); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
-
-const UNITS = {};
-for(let t=1;t<=CONFIG.torres;t++){
-  const r = rng(t*977+13);
-  for(const a of CONFIG.andares){
-    for(const f of Object.keys(CONFIG.finais)){
-      const id = `T${t}-${a}${f}`;
-      const tip = CONFIG.finais[f];
-      let s = CONFIG.situacao[id];
-      if(!s){ const x=r(); s = CONFIG.demo ? (x<.44?"vendido":x<.52?"reservado":"disponivel") : "disponivel"; }
-      const base = tip.quartos===2 ? CONFIG.preco.base2q : CONFIG.preco.base1q;
-      UNITS[id] = { id, torre:t, andar:a, final:f, apto:`${a}${f}`, quartos:tip.quartos, area:tip.area, status:s, preco: base + (a-1)*CONFIG.preco.porAndar };
-    }
-  }
-}
-const ST = { disponivel:["disp","Disponível"], reservado:["res","Reservado"], vendido:["vend","Vendido"] };
-const esc = s => String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const tipoTxt = u => `${u.quartos} quarto${u.quartos>1?"s":""}${u.area?` · ${u.area} m²`:""}`;
-const nomeU = u => `Torre ${u.torre} · apto ${u.apto}`;
-
 /* ============ estado ============ */
 const state = { torre:1, q:0, sel:null, picked:[], intent:"visita", when:"Fim de semana", renda:"", fgts:"" };
 try{ const s=JSON.parse(localStorage.getItem("ta-lead")||"{}"); if(Array.isArray(s.picked)) state.picked=s.picked.filter(id=>UNITS[id]); if(s.name) document.getElementById("fName").value=s.name; }catch(e){}
@@ -548,7 +513,6 @@ const facade=$("facade"), stage=$("stage"), unitEl=$("unit"), scrim=$("scrim");
 const mqMobile = window.matchMedia("(max-width:920px)");
 
 /* ============ torres ============ */
-function towerStats(t){ const us=Object.values(UNITS).filter(u=>u.torre===t); const d=us.filter(u=>u.status==="disponivel").length; return {total:us.length,disp:d,vend:us.filter(u=>u.status==="vendido").length}; }
 function renderTowers(){
   $("towers").innerHTML = Array.from({length:CONFIG.torres},(_,i)=>{ const t=i+1, s=towerStats(t);
     return `<button type="button" class="tw" data-t="${t}" aria-pressed="${t===state.torre}"><b><span class="lg">Torre </span>${t}</b><small class="num">${s.disp} livres</small></button>`; }).join("");
@@ -598,7 +562,7 @@ function renderUnit(){
   if(!u){
     unitEl.classList.remove("is-sheet"); scrim.hidden=true;
     const s=towerStats(state.torre);
-    unitEl.innerHTML=`<div class="unit-empty"><svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect x="5" y="7" width="18" height="13" rx="2" fill="currentColor" opacity=".45"/><rect x="5" y="7" width="18" height="13" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span>A Torre ${state.torre} tem <b class="num">${s.disp}</b> apartamentos livres nesta face. Toque numa varanda acesa para ver valor e condições.</span></div>`;
+    unitEl.innerHTML=`<div class="unit-empty"><svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect x="5" y="7" width="18" height="13" rx="2" fill="currentColor" opacity=".45"/><rect x="5" y="7" width="18" height="13" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span>A Torre ${state.torre} tem <b class="num">${s.disp}</b> apartamentos livres. Toque numa varanda acesa para ver valor e condições.</span></div>`;
     return;
   }
   const [cls,lbl]=ST[u.status], picked=state.picked.includes(u.id);
@@ -622,7 +586,7 @@ function renderUnit(){
   }
   unitEl.innerHTML=`<div class="u-head"><div><div class="eyebrow">Torre ${u.torre} · ${u.andar}º andar</div><h3 class="num">Apto ${u.apto}</h3></div>
       <div style="display:flex;gap:6px;align-items:center"><span class="u-tag ${cls}">${lbl}</span><button type="button" class="sheet-x" id="closeSheet" aria-label="Fechar">×</button></div></div>
-    <dl class="u-specs"><div><dt>Tipo</dt><dd>${u.quartos} quarto${u.quartos>1?"s":""}</dd></div><div><dt>Área</dt><dd class="num">${u.area?u.area+" m²":"a confirmar"}</dd></div><div><dt>Andar</dt><dd class="num">${u.andar}º</dd></div></dl>
+    <dl class="u-specs"><div><dt>Tipo</dt><dd>${u.quartos} quarto${u.quartos>1?"s":""}</dd></div><div><dt>Área</dt><dd class="num">${u.area?u.area+" m²":"a confirmar"}</dd></div><div><dt>Vista</dt><dd>${u.face==="fundos"?"Fundos":"Frente"}</dd></div></dl>
     ${body}
     <div class="u-nav"><button type="button" data-nav="-1">‹ Disponível anterior</button><button type="button" data-nav="1">Próxima disponível ›</button></div>`;
   if(mqMobile.matches){ unitEl.classList.add("is-sheet"); scrim.hidden=false; } else { unitEl.classList.remove("is-sheet"); scrim.hidden=true; }

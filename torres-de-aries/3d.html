@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Torres de Áries em 3D</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Gire o condomínio Portal Torres de Áries em 3D, escolha a unidade pela varanda e fale com o corretor no WhatsApp.">
+<meta property="og:title" content="Portal Torres de Áries em 3D">
+<meta property="og:image" content="https://imobiliariadelrey.pages.dev/torres-de-aries/img/fachada-1000.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: o condomínio ocupa a tela inteira; controles flutuam nos cantos e a unidade abre num painel
+   à direita (desktop) ou numa folha inferior (celular). Mesmos tokens da página do Torres de Áries. */
+:root{
+  --ink:#16204a; --ink-2:#4a5478; --bg:#eef0f3; --surface:#ffffff; --line:#d6dae3;
+  --lume:#f0b93f; --lume-ink:#3a2a05; --sold:#1a2147;
+  --glass:color-mix(in srgb,var(--surface) 86%,transparent);
+  --f-display:"Newsreader","Iowan Old Style",Georgia,serif;
+  --f-body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --r:14px;
+  --gut-l:max(16px, env(safe-area-inset-left, 0px));
+  --gut-r:max(16px, env(safe-area-inset-right, 0px));
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ --ink:#e8ebf6; --ink-2:#a3abc6; --bg:#0c1124; --surface:#151c38; --line:#28305a; --lume:#f3c04f; --lume-ink:#2b1f03; --sold:#05081a; color-scheme:dark; }
+}
+:root[data-theme="dark"]{ --ink:#e8ebf6; --ink-2:#a3abc6; --bg:#0c1124; --surface:#151c38; --line:#28305a; --lume:#f3c04f; --lume-ink:#2b1f03; --sold:#05081a; color-scheme:dark; }
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.5 var(--f-body);-webkit-tap-highlight-color:transparent;overflow:hidden;display:flex;flex-direction:column}
+[hidden]{display:none!important}
+button{font:inherit;color:inherit;cursor:pointer}
+a{color:inherit}
+:focus-visible{outline:2.5px solid var(--lume);outline-offset:2px;border-radius:6px}
+.num{font-variant-numeric:tabular-nums}
+.eyebrow{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2)}
+
+.top{flex:none;z-index:20;background:var(--bg);border-bottom:1px solid var(--line)}
+.top .in{display:flex;align-items:center;gap:12px;padding-block:10px;padding-left:var(--gut-l);padding-right:var(--gut-r)}
+.mark{display:flex;align-items:center;gap:10px;text-decoration:none;min-width:0}
+.mark b{font-family:var(--f-display);font-weight:500;font-size:19px;line-height:1;display:block;white-space:nowrap}
+.mark span{font-size:12px;color:var(--ink-2);white-space:nowrap}
+.top nav{margin-left:auto;display:flex;gap:6px;align-items:center}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:999px;padding:12px 18px;font-weight:600;font-size:15px;text-decoration:none;line-height:1.1;transition:transform .15s ease}
+.btn:active{transform:scale(.97)}
+.btn-main{background:var(--ink);color:var(--bg)}
+.btn-lume{background:var(--lume);color:var(--lume-ink)}
+.btn-ghost{background:transparent;border:1.5px solid var(--line);color:var(--ink)}
+.btn-sm{padding:9px 14px;font-size:14px}
+@media (max-width:620px){.top .opt{display:none}}
+
+.viewer{position:relative;flex:1;min-height:0;overflow:hidden;background:#9dbbd9}
+canvas#c{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;outline:none}
+.loading{position:absolute;inset:0;display:grid;place-items:center;color:#fff;font-weight:600;font-size:15px;text-shadow:0 1px 6px rgba(0,0,0,.4);pointer-events:none}
+
+.hud{position:absolute;z-index:5;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.hud-tl{left:calc(12px + env(safe-area-inset-left,0px));top:12px;right:calc(12px + env(safe-area-inset-right,0px));pointer-events:none}
+.hud-tl > *{pointer-events:auto}
+.pill-group{display:flex;gap:4px;padding:4px;border-radius:999px;background:var(--glass);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 4px 18px rgba(6,9,22,.12);overflow-x:auto;scrollbar-width:none;max-width:100%}
+.pill-group::-webkit-scrollbar{display:none}
+.pill{border:0;background:transparent;border-radius:999px;padding:7px 12px;font-size:14px;font-weight:600;white-space:nowrap;color:var(--ink)}
+.pill small{font-weight:500;color:var(--ink-2);margin-left:4px}
+.pill[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.pill[aria-pressed="true"] small{color:color-mix(in srgb,var(--bg) 75%,transparent)}
+.spacer{flex:1}
+.hud-bl{left:calc(12px + env(safe-area-inset-left,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));flex-direction:column;align-items:flex-start;gap:6px}
+.legend{display:flex;gap:12px;padding:8px 12px;border-radius:12px;background:var(--glass);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);font-size:13px}
+.key{display:inline-flex;align-items:center;gap:6px}
+.key i{width:14px;height:10px;border-radius:2px;display:inline-block}
+.k-d{background:var(--lume);box-shadow:0 0 8px var(--lume)}
+.k-r{background:#aab6cc}
+.k-v{background:#2a3242}
+.hint{font-size:12.5px;font-weight:600;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.55)}
+.hud-br{right:calc(12px + env(safe-area-inset-right,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));flex-direction:column;gap:6px}
+.round{width:42px;height:42px;border-radius:50%;border:0;background:var(--glass);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);font-size:20px;font-weight:600;box-shadow:0 4px 18px rgba(6,9,22,.12)}
+
+/* cartão da unidade */
+.unit{position:absolute;z-index:8;right:calc(12px + env(safe-area-inset-right,0px));top:64px;width:min(360px,calc(100% - 24px));max-height:calc(100% - 80px);overflow:auto;
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;display:flex;flex-direction:column;gap:14px;box-shadow:0 18px 48px rgba(6,9,22,.22)}
+.u-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.u-head h3{margin:2px 0 0;font-family:var(--f-display);font-weight:500;font-size:30px;line-height:1}
+.u-tag{font-size:12px;font-weight:700;padding:5px 9px;border-radius:999px;white-space:nowrap}
+.u-tag.disp{background:color-mix(in srgb,var(--lume) 30%,transparent);color:var(--ink)}
+.u-tag.res{background:var(--line);color:var(--ink)}
+.u-tag.vend{background:var(--sold);color:#fff}
+.x{background:none;border:0;font-size:26px;line-height:1;padding:0 4px;color:var(--ink-2)}
+.u-specs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line);border-radius:10px;overflow:hidden;margin:0}
+.u-specs div{background:var(--surface);padding:9px 11px}
+.u-specs dt{font-size:12px;color:var(--ink-2)}
+.u-specs dd{margin:0;font-weight:600}
+.price{display:flex;flex-direction:column;gap:2px}
+.price small{color:var(--ink-2);font-size:13px}
+.price .v{font-family:var(--f-display);font-size:34px;line-height:1.05;font-weight:500}
+.flow{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px;font-size:14px}
+.flow li{display:flex;justify-content:space-between;gap:12px;padding-bottom:7px;border-bottom:1px solid var(--line)}
+.flow li:last-child{border:0;padding:0}
+.flow span{color:var(--ink-2)}
+.u-actions{display:flex;gap:8px;flex-wrap:wrap}
+.u-actions .btn{flex:1 1 150px}
+.u-nav{display:flex;justify-content:space-between;gap:8px}
+.u-nav button{background:none;border:0;padding:4px 0;font-size:14px;font-weight:500;color:var(--ink-2)}
+.note{font-size:13px;color:var(--ink-2);margin:0}
+.demo{position:absolute;z-index:4;left:50%;transform:translateX(-50%);bottom:calc(12px + env(safe-area-inset-bottom,0px));font-size:12px;font-weight:600;padding:6px 10px;border-radius:999px;background:var(--glass);backdrop-filter:blur(8px);white-space:nowrap}
+
+@media (max-width:760px){
+  .unit{left:0;right:0;top:auto;bottom:0;width:auto;max-height:78%;border-radius:20px 20px 0 0;border-bottom:0;
+    padding:16px var(--gut-r) calc(16px + env(safe-area-inset-bottom,0px)) var(--gut-l)}
+  @media (prefers-reduced-motion:no-preference){.unit{animation:sobe .28s cubic-bezier(.2,.8,.2,1)}@keyframes sobe{from{transform:translateY(40%);opacity:.4}}}
+  .demo{display:none}
+  .legend{gap:9px;font-size:12px;padding:6px 10px}
+  .hud-tl #towers{flex:1 1 100%}
+  .hud-tl .spacer{display:none}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="in">
+    <a class="mark" href="index.html" aria-label="Voltar para a página do Portal Torres de Áries">
+      <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><rect x="1" y="1" width="28" height="28" rx="3" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M6 21 L12 14 L19 10 L24 9" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="6" cy="21" r="1.4" fill="currentColor"/><circle cx="12" cy="14" r="1.8" fill="currentColor"/><circle cx="19" cy="10" r="1.4" fill="currentColor"/><circle cx="24" cy="9" r="1.4" fill="currentColor"/></svg>
+      <div><b>Torres de Áries</b><span>Condomínio em 3D</span></div>
+    </a>
+    <nav>
+      <a class="btn btn-ghost btn-sm opt" href="index.html#condominio">Fotos</a>
+      <a class="btn btn-main btn-sm" href="index.html#agendar" id="bookTop">Agendar visita</a>
+    </nav>
+  </div>
+</header>
+
+<main class="viewer" id="viewer">
+  <canvas id="c" tabindex="0" aria-label="Condomínio Portal Torres de Áries em 3D. Arraste para girar e toque numa varanda para ver a unidade."></canvas>
+  <div class="loading" id="loading">Montando o condomínio…</div>
+
+  <div class="hud hud-tl">
+    <div class="pill-group" id="towers" role="group" aria-label="Torre"></div>
+    <span class="spacer"></span>
+    <div class="pill-group modes" role="group" aria-label="Iluminação">
+      <button type="button" class="pill" data-mode="day" aria-pressed="true">Dia</button>
+      <button type="button" class="pill" data-mode="night" aria-pressed="false">Noite</button>
+    </div>
+    <div class="pill-group" role="group" aria-label="Filtro">
+      <button type="button" class="pill" id="onlyAvail" aria-pressed="false">Só disponíveis</button>
+    </div>
+  </div>
+
+  <div class="hud hud-bl">
+    <span class="hint" id="hint">Arraste para girar · toque numa varanda acesa</span>
+    <div class="legend" aria-hidden="true"><span class="key"><i class="k-d"></i>Disponível</span><span class="key"><i class="k-r"></i>Reservado</span><span class="key"><i class="k-v"></i>Vendido</span></div>
+  </div>
+  <div class="hud hud-br">
+    <button type="button" class="round" id="zin" aria-label="Aproximar">+</button>
+    <button type="button" class="round" id="zout" aria-label="Afastar">−</button>
+  </div>
+  <div class="demo" id="demoFlag">Tabela de demonstração · valores ilustrativos</div>
+
+  <article class="unit" id="unit" aria-live="polite" hidden></article>
+</main>
+
+<script src="dados.js"></script>
+<script type="module">
+import * as THREE from "./vendor/three.module.min.js";
+import { OrbitControls } from "./vendor/OrbitControls.js";
+
+const { CONFIG, UNITS, BRL, ST, esc, tipoTxt, nomeU, towerStats, fluxo, whatsLink, loadLead, saveLead } = window.TA;
+const $ = id => document.getElementById(id);
+const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+$("demoFlag").hidden = !CONFIG.demo;
+
+/* ---------------- renderer, cena, câmera ---------------- */
+const canvas = $("c"), viewer = $("viewer");
+const renderer = new THREE.WebGLRenderer({ canvas, antialias:true, powerPreference:"high-performance" });
+renderer.setPixelRatio(Math.min(devicePixelRatio||1, 1.75));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05;
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(38, 1, 1, 6000);
+const controls = new OrbitControls(camera, canvas);
+controls.enableDamping = true; controls.dampingFactor = .08;
+controls.minDistance = 28; controls.maxDistance = 380; controls.maxPolarAngle = Math.PI*0.47;
+controls.screenSpacePanning = false; controls.enablePan = true;
+
+function canvasTex(w,h,draw){ const c=document.createElement("canvas"); c.width=w; c.height=h; draw(c.getContext("2d"),w,h); const t=new THREE.CanvasTexture(c); t.colorSpace=THREE.SRGBColorSpace; return t; }
+const skyDay = canvasTex(4,512,(g,w,h)=>{ const gr=g.createLinearGradient(0,0,0,h); gr.addColorStop(0,"#3f7fd0"); gr.addColorStop(.55,"#9cc2ec"); gr.addColorStop(1,"#e9eef2"); g.fillStyle=gr; g.fillRect(0,0,w,h); });
+const skyNight = canvasTex(4,512,(g,w,h)=>{ const gr=g.createLinearGradient(0,0,0,h); gr.addColorStop(0,"#050824"); gr.addColorStop(.5,"#13205f"); gr.addColorStop(1,"#40508f"); g.fillStyle=gr; g.fillRect(0,0,w,h); });
+scene.fog = new THREE.Fog(0xcfdbe8, 420, 2600);
+
+const hemi = new THREE.HemisphereLight(0xeef4ff, 0x5a6250, 1.1); scene.add(hemi);
+const sun = new THREE.DirectionalLight(0xfff1dc, 2.4);
+sun.position.set(-160, 220, 140); sun.castShadow = true;
+sun.shadow.mapSize.set(2048,2048);
+Object.assign(sun.shadow.camera, { left:-130, right:130, top:110, bottom:-110, near:10, far:700 });
+sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.4;
+sun.target.position.set(0,0,-19); scene.add(sun, sun.target);
+
+/* ---------------- materiais ---------------- */
+const std = (hex, o={}) => new THREE.MeshStandardMaterial(Object.assign({ color:hex, roughness:.85, metalness:0 }, o));
+const MAT = {
+  areia: std(0xcdc2b1), cinza: std(0x8e8a83), loggia: std(0x77746f), laje: std(0xd8d5cf, {roughness:.7}),
+  janela: std(0x6a7f96, {roughness:.15, metalness:.35, emissive:0x000000}),
+  vidro: std(0x9fc0c9, {roughness:.05, transparent:true, opacity:.32, depthWrite:false}),
+  branco: std(0xeeeeea, {roughness:.4}),
+  grama: std(0x557f31, {roughness:.95}), piso: std(0xbdb5a8, {roughness:.9}), asfalto: std(0x3a3b3d, {roughness:.95}),
+  faixa: std(0xe8e6df), agua: std(0x3fb4c9, {roughness:.05, metalness:.1}), lagoa: std(0x4f8fa3, {roughness:.15, metalness:.1}),
+  salina: std(0x93b4bd, {roughness:.25, metalness:.05}), telha: std(0x8f9093), tronco: std(0x6b5a45), copa: std(0x2f5d1f, {roughness:.9, flatShading:true}),
+  serra: std(0x7f998a, {roughness:1, flatShading:true}), terra: std(0xb98a63, {roughness:1}), margem: std(0x9c9a7c, {roughness:1})
+};
+
+/* acumulador de caixas em coordenadas do Blender (x, y profundidade, z altura) → three (x, z, -y) */
+class Acc{
+  constructor(){ this.d={}; }
+  box(k,x0,x1,y0,y1,z0,z1){
+    const a=this.d[k]||(this.d[k]={p:[],n:[],i:[]});
+    const X0=Math.min(x0,x1),X1=Math.max(x0,x1), Y0=Math.min(z0,z1),Y1=Math.max(z0,z1), Z0=-Math.max(y0,y1),Z1=-Math.min(y0,y1);
+    const F=[ [[1,0,0],[[X1,Y0,Z1],[X1,Y0,Z0],[X1,Y1,Z0],[X1,Y1,Z1]]], [[-1,0,0],[[X0,Y0,Z0],[X0,Y0,Z1],[X0,Y1,Z1],[X0,Y1,Z0]]],
+      [[0,1,0],[[X0,Y1,Z1],[X1,Y1,Z1],[X1,Y1,Z0],[X0,Y1,Z0]]], [[0,-1,0],[[X0,Y0,Z0],[X1,Y0,Z0],[X1,Y0,Z1],[X0,Y0,Z1]]],
+      [[0,0,1],[[X0,Y0,Z1],[X1,Y0,Z1],[X1,Y1,Z1],[X0,Y1,Z1]]], [[0,0,-1],[[X1,Y0,Z0],[X0,Y0,Z0],[X0,Y1,Z0],[X1,Y1,Z0]]] ];
+    for(const [n,vs] of F){ const b=a.p.length/3; for(const v of vs){ a.p.push(...v); a.n.push(...n); } a.i.push(b,b+1,b+2,b,b+2,b+3); }
+  }
+  build(group, opts={}){
+    const out={};
+    for(const [k,a] of Object.entries(this.d)){
+      const g=new THREE.BufferGeometry();
+      g.setAttribute("position",new THREE.Float32BufferAttribute(a.p,3)); g.setAttribute("normal",new THREE.Float32BufferAttribute(a.n,3)); g.setIndex(a.i);
+      g.computeBoundingSphere();
+      const m=new THREE.Mesh(g,MAT[k]); m.castShadow=opts.cast!==false && k!=="vidro"; m.receiveShadow=true; m.name=k;
+      group.add(m); out[k]=m;
+    }
+    this.d={}; return out;
+  }
+}
+
+/* ---------------- torres (mesma geometria do modelo no Blender) ---------------- */
+const FH=2.88, LV=8, H=FH*LV;
+const SEG=[["end",-20,-16],["rec",-16,-12.5],["bal",-12.5,-4.5],["cen",-4.5,4.5],["bal",4.5,12.5],["rec",12.5,16],["end",16,20]];
+const UX={"01":[-12.5,-8.5],"02":[-8.5,-4.5],"03":[4.5,8.5],"04":[8.5,12.5],"05":[-12.5,-8.5],"06":[-8.5,-4.5],"07":[4.5,8.5],"08":[8.5,12.5]};
+const TOWERS=[[1,-46,0],[2,0,0],[3,46,0],[4,-46,38],[5,0,38],[6,46,38]];  // Blender (x, y)
+const unitMeshes=[], blockers=[], towerCenter={};
+const unitGeo={};
+
+function buildTower(tid, ox, oy){
+  const g=new THREE.Group(); g.position.set(ox,0,-oy); scene.add(g);
+  towerCenter[tid]=new THREE.Vector3(ox, H*0.45, -oy);
+  const A=new Acc();
+  for(const [kind,x0,x1] of SEG){
+    if(kind==="end") A.box("areia",x0,x1,-7.5,7.5,0,H+.9);
+    if(kind==="rec") A.box("cinza",x0,x1,-6.9,6.9,0,H+.6);
+    if(kind==="cen"){ A.box("areia",x0,x1,-8.3,8.3,0,H+1.6); A.box("cinza",-2,2,-3,3,H+1.6,H+3.4); }
+    if(kind==="bal"){
+      A.box("loggia",x0,x1,-5.9,5.9,0,H+.9);
+      for(const s of [-1,1]){
+        const ya=Math.min(s*7.5,s*5.9), yb=Math.max(s*7.5,s*5.9), xm=(x0+x1)/2;
+        for(let f=1;f<=LV;f++) A.box("laje",x0,x1,ya,yb,f*FH-.1,f*FH+.1);
+        A.box("areia",x0,x1,ya,yb,H+.1,H+.9);
+        A.box("areia",xm-.08,xm+.08,ya,yb,FH,H);
+        for(let f=1;f<LV;f++){ const z=f*FH+.1, yr=s*7.42;
+          A.box("vidro",x0+.1,x1-.1,yr-.02,yr+.02,z,z+1.05); A.box("branco",x0+.1,x1-.1,yr-.04,yr+.04,z+1.05,z+1.11); }
+        A.box("cinza",x0,x1,ya,yb,0,1);
+      }
+    }
+  }
+  for(const s of [-1,1]) for(let f=0;f<LV;f++){ const z=f*FH;
+    for(const wx of [-3.4,-1.15,1.15,3.4]) A.box("janela",wx-.6,wx+.6,s*8.3-.03,s*8.3+.03,z+1,z+2.3);
+    for(const ex of [-18,18]) A.box("janela",ex-.6,ex+.6,s*7.5-.03,s*7.5+.03,z+1,z+2.3);
+    for(const rx of [-14.25,14.25]) A.box("janela",rx-.3,rx+.3,s*6.9-.03,s*6.9+.03,z+1.6,z+2.2);
+    for(const sy of [-3.5,3.5]) A.box("janela",s*20-.03,s*20+.03,sy-.6,sy+.6,z+1,z+2.3);
+  }
+  A.box("cinza",-2.5,2.5,-9.6,-8.3,0,3.2); A.box("laje",-3,3,-9.9,-8.3,3.2,3.45);
+  const ms=A.build(g);
+  for(const k of ["areia","cinza","loggia","laje"]) if(ms[k]) blockers.push(ms[k]);
+  // unidades
+  for(const [fin,[x0,x1]] of Object.entries(UX)){
+    const front = +fin<=4, w=x1-x0-.5;
+    const geo = unitGeo[w] || (unitGeo[w]=new THREE.BoxGeometry(w,2.3,.06));
+    for(let f=1;f<LV;f++){
+      const u=UNITS[`T${tid}-${f}${fin}`]; if(!u) continue;
+      const m=new THREE.Mesh(geo, matFor(u)); m.position.set((x0+x1)/2, f*FH+.1+1.22, front?5.95:-5.95);
+      m.userData.u=u; u.mesh=m; g.add(m); unitMeshes.push(m);
+    }
+  }
+  // rótulo
+  const lbl=new THREE.Sprite(new THREE.SpriteMaterial({ map:labelTex(`Torre ${tid}`), depthTest:false, transparent:true, sizeAttenuation:false }));
+  lbl.scale.set(.085,.021,1); lbl.position.set(0,H+7.5,0); lbl.renderOrder=10; g.add(lbl);
+  return g;
+}
+function labelTex(txt){ return canvasTex(256,64,(g,w,h)=>{ g.fillStyle="rgba(22,32,74,.88)"; const r=30; g.beginPath(); g.roundRect(4,6,w-8,h-12,r); g.fill(); g.fillStyle="#fff"; g.font="600 30px Figtree, system-ui, sans-serif"; g.textAlign="center"; g.textBaseline="middle"; g.fillText(txt,w/2,h/2+1); }); }
+
+/* ---------------- materiais das unidades por situação ---------------- */
+const UM = {
+  day:{ disp: std(0xffc95a,{emissive:0xf0a020,emissiveIntensity:.55,roughness:.35}), res: std(0xaab6cc,{roughness:.4}), vend: std(0x2a3242,{roughness:.2,metalness:.3}) },
+  night:{ disp: std(0xffd27a,{emissive:0xffb43c,emissiveIntensity:1.6,roughness:.4}), res: std(0x6c7690,{emissive:0x2a3150,emissiveIntensity:.6}), vend: std(0x0d1226,{roughness:.2,metalness:.3}) }
+};
+const UM_SEL = std(0x8fe9ff,{emissive:0x5fd6ff,emissiveIntensity:1.2});
+const UM_DIM = std(0x3a4050,{transparent:true,opacity:.55});
+const state = { mode:"day", only:false, sel:null, hover:null, torre:0 };
+function matFor(u){
+  if(state.sel===u) return UM_SEL;
+  const cls=ST[u.status][0];
+  if(state.only && u.status!=="disponivel") return UM_DIM;
+  const m=UM[state.mode][cls];
+  return m;
+}
+function refreshUnits(){ for(const m of unitMeshes){ const u=m.userData.u; m.material = (state.hover===u && state.sel!==u && u.status==="disponivel") ? hoverMat() : matFor(u); } }
+let _hov; function hoverMat(){ if(!_hov) _hov=std(0xfff2d2,{emissive:0xffd890,emissiveIntensity:1.1}); return _hov; }
+
+/* ---------------- entorno ---------------- */
+function buildSite(){
+  const g=new THREE.Group(); scene.add(g); const E=new Acc();
+  E.box("grama",-80,80,-30,62,-.2,0);
+  E.box("piso",-80,80,-30,-26,0,.05); E.box("piso",-80,80,17,21,0,.04);
+  for(const x of [-23,23]) E.box("piso",x-2,x+2,-26,62,0,.04);
+  E.box("asfalto",-900,900,-56,-32,-.2,.02); E.box("faixa",-900,900,-44.2,-43.8,.02,.03);
+  E.box("terra",-900,900,-32,-30,-.2,0); E.box("terra",80,170,-30,62,-.2,0); E.box("margem",-900,-80,-30,62,-.2,0); E.box("margem",170,900,-30,62,-.2,0);
+  E.box("margem",-900,900,-200,-56,-.3,-.1);
+  E.box("piso",-12,26,24,33,0,.06);
+  E.box("areia",62,78,8,30,0,6.4); E.box("telha",62,78,8,30,6.4,7.2);
+  E.box("piso",60,80,-8,6,0,.06); E.box("agua",63,77,-5,3,.06,.12);
+  E.box("cinza",-10,10,-30,-26.5,0,4.2); E.box("laje",-11,11,-31,-26,4.2,4.6);
+  E.box("lagoa",-2400,2400,140,2600,-.6,-.5); E.box("margem",-2400,2400,62,140,-.4,-.2);
+  for(let i=-9;i<=9;i++) for(let j=0;j<2;j++) E.box("salina",i*58-26,i*58+26,70+j*34,100+j*34,-.2,-.15);
+  const ms=E.build(g); if(ms.areia) blockers.push(ms.areia);
+  // serra
+  let seed=4; const rnd=()=>{ seed=(seed*16807)%2147483647; return seed/2147483647; };
+  for(let k=0;k<9;k++){ const m=new THREE.Mesh(new THREE.SphereGeometry(1,16,8), MAT.serra);
+    m.scale.set(180+rnd()*140, 60+rnd()*80, 90+rnd()*60); m.position.set(-900+k*240, -40, -(1500+(rnd()-.5)*160)); g.add(m); }
+  // palmeiras (instanciadas)
+  const spots=[]; for(let x=-74;x<=74;x+=9) spots.push([x,-28.5]);
+  for(let y=-20;y<60;y+=8){ spots.push([-23,y]); spots.push([23,y]); }
+  for(let i=0;i<12;i++) spots.push([-75+rnd()*150, 18+rnd()*4]);
+  const tr=new THREE.InstancedMesh(new THREE.CylinderGeometry(.16,.22,1,6), MAT.tronco, spots.length);
+  const cp=new THREE.InstancedMesh(new THREE.ConeGeometry(2.6,1.4,7), MAT.copa, spots.length);
+  const cb=new THREE.InstancedMesh(new THREE.IcosahedronGeometry(1.1,0), MAT.copa, spots.length);
+  const o=new THREE.Object3D();
+  spots.forEach(([x,y],i)=>{ const h=6+rnd()*3;
+    o.position.set(x,h/2,-y); o.scale.set(1,h,1); o.rotation.set(0,0,0); o.updateMatrix(); tr.setMatrixAt(i,o.matrix);
+    o.position.set(x,h+.2,-y); o.scale.set(1,1,1); o.rotation.y=rnd()*3; o.updateMatrix(); cp.setMatrixAt(i,o.matrix);
+    o.position.set(x,h+.3,-y); o.updateMatrix(); cb.setMatrixAt(i,o.matrix); });
+  [tr,cp,cb].forEach(m=>{ m.castShadow=true; g.add(m); });
+}
+
+/* ---------------- montar ---------------- */
+buildSite();
+for(const t of TOWERS) buildTower(...t);
+refreshUnits();
+$("loading").hidden = true;
+
+/* ---------------- dia / noite ---------------- */
+function setMode(m){
+  state.mode=m;
+  const night = m==="night";
+  scene.background = night ? skyNight : skyDay;
+  scene.fog.color.set(night ? 0x1b2660 : 0xcfdbe8);
+  hemi.color.set(night?0x5868b8:0xeef4ff); hemi.groundColor.set(night?0x0a0f26:0x5a6250); hemi.intensity = night?.55:1.1;
+  sun.color.set(night?0x9fb2ff:0xfff1dc); sun.intensity = night?.45:2.4;
+  MAT.janela.emissive.set(night?0x6a4a1c:0x000000); MAT.janela.emissiveIntensity = night?.6:0;
+  document.querySelectorAll("[data-mode]").forEach(b=>b.setAttribute("aria-pressed", b.dataset.mode===m));
+  refreshUnits();
+}
+setMode("day");
+document.querySelector(".modes").addEventListener("click",e=>{ const b=e.target.closest("[data-mode]"); if(b) setMode(b.dataset.mode); });
+$("onlyAvail").addEventListener("click",()=>{ state.only=!state.only; $("onlyAvail").setAttribute("aria-pressed",state.only); refreshUnits(); });
+
+/* ---------------- câmera: voo entre torres ---------------- */
+const HOME = { pos:new THREE.Vector3(-150,105,175), tgt:new THREE.Vector3(0,8,-19) };
+let fly=null;
+function flyTo(pos,tgt,ms=1100){
+  if(reduceMotion) ms=0;
+  fly={ p0:camera.position.clone(), t0:controls.target.clone(), p1:pos.clone(), t1:tgt.clone(), start:performance.now(), ms };
+}
+function viewTower(tid, face="frente"){
+  const c=towerCenter[tid]; const sgn = face==="fundos" ? -1 : 1;
+  const side = (tid%3===1)?-1:(tid%3===0)?1:0;
+  const dist = innerWidth<760 ? 92 : 78;
+  flyTo(new THREE.Vector3(c.x+side*22, c.y+18, c.z+sgn*dist), c);
+}
+function viewUnit(u){
+  const c=towerCenter[u.torre]; const front = u.face!=="fundos";
+  const ux=(UX[u.final][0]+UX[u.final][1])/2; const y=u.andar*FH+1.2;
+  const tgt=new THREE.Vector3(c.x+ux, y, c.z+(front?6:-6));
+  const mob = innerWidth<760, dist = mob ? 62 : 38;
+  if(mob) tgt.y -= 11;                       // no celular a folha cobre a metade de baixo: unidade fica no alto da tela
+  flyTo(new THREE.Vector3(tgt.x+ux*.6, y+(mob?2:8), tgt.z+(front?dist:-dist)), tgt, 900);
+}
+camera.position.set(-260,180,320); controls.target.copy(HOME.tgt);
+flyTo(HOME.pos, HOME.tgt, 1800);
+
+/* ---------------- torres (chips) ---------------- */
+function renderTowers(){
+  $("towers").innerHTML = `<button type="button" class="pill" data-t="0" aria-pressed="${state.torre===0}">Todas</button>` +
+    Array.from({length:CONFIG.torres},(_,i)=>{ const t=i+1, s=towerStats(t); return `<button type="button" class="pill num" data-t="${t}" aria-pressed="${state.torre===t}">T${t}<small>${s.disp}</small></button>`; }).join("");
+}
+renderTowers();
+$("towers").addEventListener("click",e=>{ const b=e.target.closest("[data-t]"); if(!b) return; state.torre=+b.dataset.t; renderTowers();
+  if(state.torre) viewTower(state.torre); else flyTo(HOME.pos,HOME.tgt); });
+
+/* ---------------- seleção ---------------- */
+const ray=new THREE.Raycaster(), ptr=new THREE.Vector2();
+function pick(ev){
+  const r=canvas.getBoundingClientRect(); ptr.set(((ev.clientX-r.left)/r.width)*2-1, -((ev.clientY-r.top)/r.height)*2+1);
+  ray.setFromCamera(ptr,camera);
+  const hits=ray.intersectObjects([...unitMeshes,...blockers],false);
+  const h=hits[0]; return h && h.object.userData.u ? h.object.userData.u : null;
+}
+let down=null;
+canvas.addEventListener("pointerdown",e=>{ down={x:e.clientX,y:e.clientY,t:performance.now()}; });
+canvas.addEventListener("pointerup",e=>{
+  if(!down) return; const moved=Math.hypot(e.clientX-down.x,e.clientY-down.y); down=null;
+  if(moved>8) return;
+  const u=pick(e); if(u) select(u,true); else if(state.sel) closeCard();
+});
+canvas.addEventListener("pointermove",e=>{ if(e.pointerType!=="mouse"||down) return; const u=pick(e); if(u!==state.hover){ state.hover=u; canvas.style.cursor=u?"pointer":""; refreshUnits(); } });
+
+const lead = loadLead();
+function select(u, fly=true){
+  state.sel=u; if(state.torre!==u.torre){ state.torre=u.torre; renderTowers(); }
+  refreshUnits(); renderCard(); if(fly) viewUnit(u);
+  try{ history.replaceState(null,"","#"+u.id); }catch(e){}
+  $("hint").hidden=true;
+}
+function closeCard(){ state.sel=null; $("unit").hidden=true; refreshUnits(); try{ history.replaceState(null,"",location.pathname); }catch(e){} }
+function neighbor(u,dir){
+  const us=Object.values(UNITS).filter(x=>x.torre===u.torre&&x.status==="disponivel").sort((a,b)=>b.andar-a.andar||a.final.localeCompare(b.final));
+  if(!us.length) return null; let i=us.findIndex(x=>x.id===u.id); if(i<0) i=dir>0?-1:0; return us[(i+dir+us.length)%us.length];
+}
+function msgFor(u){
+  return `Olá, ${CONFIG.corretor.nome}! Vi o Portal Torres de Áries em 3D.\n\nTenho interesse no ${nomeU(u)} (${tipoTxt(u)}, ${BRL.format(u.preco)}).\nQuero agendar uma visita e simular o financiamento.`;
+}
+function renderCard(){
+  const u=state.sel, el=$("unit"); if(!u){ el.hidden=true; return; }
+  const [cls,lbl]=ST[u.status], picked=lead.picked.includes(u.id), F=fluxo(u);
+  let body;
+  if(u.status==="vendido"){
+    body=`<p class="note">Esta unidade já foi vendida. Veja a próxima disponível nesta torre.</p><div class="u-actions"><button type="button" class="btn btn-main" data-nav="1">Próxima disponível</button></div>`;
+  } else {
+    body=`<div class="price"><small>Valor de tabela</small><span class="v num">${BRL.format(u.preco)}</span></div>
+      <ul class="flow num"><li><span>Sinal no ato</span><b>${BRL.format(F.sinal)}</b></li><li><span>Mensais durante a obra</span><b>${F.mensais}× ${BRL.format(F.valorMensal)}</b></li><li><span>Financiamento CAIXA</span><b>${BRL.format(F.financiamento)}</b></li></ul>
+      <div class="u-actions">
+        <a class="btn btn-lume" target="_blank" rel="noopener" href="${esc(whatsLink(msgFor(u)))}">Falar no WhatsApp</a>
+        <button type="button" class="btn ${picked?"btn-ghost":"btn-main"}" id="pickBtn">${picked?"Na sua lista ✓":"Guardar na lista"}</button>
+      </div>
+      <p class="note">A lista guardada aparece na página para agendar a visita com várias unidades.</p>`;
+  }
+  el.innerHTML=`<div class="u-head"><div><div class="eyebrow">Torre ${u.torre} · ${u.andar}º andar</div><h3 class="num">Apto ${u.apto}</h3></div>
+    <div style="display:flex;gap:6px;align-items:center"><span class="u-tag ${cls}">${lbl}</span><button type="button" class="x" id="closeU" aria-label="Fechar">×</button></div></div>
+    <dl class="u-specs"><div><dt>Tipo</dt><dd>${u.quartos} quarto${u.quartos>1?"s":""}</dd></div><div><dt>Área</dt><dd class="num">${u.area?u.area+" m²":"a confirmar"}</dd></div><div><dt>Vista</dt><dd>${u.face==="fundos"?"Fundos":"Frente"}</dd></div></dl>
+    ${body}
+    <div class="u-nav"><button type="button" data-nav="-1">‹ Disponível anterior</button><button type="button" data-nav="1">Próxima disponível ›</button></div>`;
+  el.hidden=false;
+}
+$("unit").addEventListener("click",e=>{
+  const u=state.sel; if(!u) return;
+  if(e.target.closest("#closeU")) return closeCard();
+  const nav=e.target.closest("[data-nav]"); if(nav){ const n=neighbor(u,+nav.dataset.nav); if(n) select(n); return; }
+  if(e.target.closest("#pickBtn")){ const i=lead.picked.indexOf(u.id); if(i>=0) lead.picked.splice(i,1); else { lead.picked.push(u.id); if(lead.picked.length>3) lead.picked.shift(); } saveLead(lead); renderCard(); updateBook(); }
+});
+function updateBook(){ $("bookTop").textContent = lead.picked.length ? `Agendar (${lead.picked.length})` : "Agendar visita"; }
+updateBook();
+document.addEventListener("keydown",e=>{ if(e.key==="Escape" && state.sel) closeCard(); });
+
+/* zoom */
+function zoom(f){ const d=camera.position.clone().sub(controls.target); const L=THREE.MathUtils.clamp(d.length()*f, controls.minDistance, controls.maxDistance); fly=null; camera.position.copy(controls.target).add(d.setLength(L)); }
+$("zin").addEventListener("click",()=>zoom(.78)); $("zout").addEventListener("click",()=>zoom(1.28));
+
+/* deep link #T1-301 */
+const h=decodeURIComponent(location.hash.slice(1)); if(UNITS[h]) setTimeout(()=>select(UNITS[h]), 900);
+
+/* ---------------- loop ---------------- */
+function resize(){ const w=viewer.clientWidth, hh=viewer.clientHeight; renderer.setSize(w,hh,false); camera.aspect=w/hh; camera.updateProjectionMatrix(); }
+new ResizeObserver(resize).observe(viewer); resize();
+const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+renderer.setAnimationLoop(now=>{
+  if(fly){ const k = fly.ms ? Math.min(1,(now-fly.start)/fly.ms) : 1, e=ease(k);
+    camera.position.lerpVectors(fly.p0,fly.p1,e); controls.target.lerpVectors(fly.t0,fly.t1,e); if(k>=1) fly=null; }
+  controls.update();
+  renderer.render(scene,camera);
+});
+controls.addEventListener("start",()=>{ fly=null; });
+window.__ta3d = { scene, camera, controls, select, UNITS };
+</script>
+</body>
+</html>
